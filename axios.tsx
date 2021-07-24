@@ -12,4 +12,4 @@ instance.interceptors.request.use(
     }
 );
 
-export default instance;
+export default instance; 
