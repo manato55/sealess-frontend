@@ -23,6 +23,7 @@ type User = {
     user_type: number;
     department: string;
     message?: string;
+    id: number;
 }
 
 

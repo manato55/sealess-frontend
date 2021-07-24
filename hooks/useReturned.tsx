@@ -26,6 +26,16 @@ interface RD {
     process: string;
     filename: string;
     id: number;
+    agent_statuses: {
+        route: string;
+        user: {
+            name: string;
+            id: number;
+            department: string;
+            section: string;
+        }
+        agent_user: number;
+    }[];
 }
 
 interface Data {

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {useRouter} from 'next/router'
-import {useProgress} from '../../hooks/useProgress'
 import {useCompleted} from '../../hooks/useCompleted'
+import {useAuth} from '../../hooks/useAuth'
 import BasicInfoInProgress from '../../components/progress/BasicInfoInProgress'
 import AdditiveInProgress from '../../components/progress/AdditiveInProgress'
 import RouteInProgress from '../../components/progress/RouteInProgress'
@@ -9,32 +9,34 @@ import SwitchTab from '../../components/layouts/SwitchTab'
 import Loading from '../../components/layouts/Loading';
 import {useGlobal} from '../../hooks/useGlobal';
 import styled from 'styled-components'
+import { isAsynced } from '../../store/atom'
+import { useSetRecoilState,useRecoilValue } from 'recoil'
 
 
 export const TaskDetail = (): React.ReactElement => {
     const router = useRouter();
-    const [paramsId, setParamsId] = useState<number>()
-    const {fetchSelectedTask,actionInProgress, detailTask} = useProgress();
+    const [paramsId, setParamsId] = useState<number>(Number(router.query.id))
+    const {fetchCompletetTaskDetail, detailTask} = useCompleted();
     const {discardTask} = useCompleted();
     const [title, setTitle] = useState<string>('')
     const [contents, setContents] = useState<string>('')
     const [currComponent, setCurrComponent] = useState<string>('basic')
     const {updateLoading, asyncLoading, HttpStatusCode} = useGlobal();
-
-    useEffect(() => {
-        // idがqueryで利用可能になったら処理される
-        if (router.asPath !== router.route) {
-            setParamsId(Number(router.query.id));
-        }
-    }, [router]);
+    const {me, user} = useAuth();
+    const asynced = useRecoilValue(isAsynced)
+    const setIsAsynced = useSetRecoilState(isAsynced)
 
     useEffect(() => {
         if(paramsId) {
             const getTask = async () => {
-                await fetchSelectedTask(paramsId)
-                updateLoading()
+                await fetchCompletetTaskDetail(paramsId)
+                await me()
+                setIsAsynced(true)
             }
             getTask()
+            return () => {
+                setIsAsynced(false)
+            }
         }
     }, [paramsId]);
 
@@ -56,7 +58,7 @@ export const TaskDetail = (): React.ReactElement => {
     
     return (
         <>
-            {asyncLoading === true ?
+            {asynced === true ?
                 // URL直打ちで別のパラメータを入力してきた場合の対策
                 detailTask.length > 0 ?
                     <div>
@@ -81,7 +83,9 @@ export const TaskDetail = (): React.ReactElement => {
                             />
                         }<br/>
                         <div>
-                            <Button onClick={(e) => discard(e)}>破棄</Button>
+                            {detailTask[0].user_id === user.id && 
+                                <Button onClick={(e) => discard(e)}>破棄</Button>
+                            }
                         </div>
                     </div>
                 :''

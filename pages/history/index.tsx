@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react'
 import {useCompleted} from '../../hooks/useCompleted'
 import Loading from '../../components/layouts/Loading'
-import {useGlobal} from '../../hooks/useGlobal';
 import Link from 'next/link';
 import { toDateWeek } from '../../lib/dateHelper';
 import TableContainer from '../../components/layouts/TableContainer';
@@ -12,7 +11,6 @@ import { useSetRecoilState,useRecoilValue } from 'recoil'
 
 export const History = (): React.ReactElement => {
     const {fetchCompletedTask, completedTask} = useCompleted();
-    const {updateLoading, asyncLoading} = useGlobal();
     const sortChoice: {ja: string;en: string}[] = [
         {ja: "個人", en: "individual"},
         {ja: "部", en: "dep"},

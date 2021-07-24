@@ -33,7 +33,7 @@ export const Agent = (): React.ReactElement => {
     }, [])
 
     useEffect(() => {
-        if(agentStatus !== undefined && agentStatus !== null && agentStatus.is_enabled == true) {
+        if(agentStatus !== undefined && agentStatus !== '' && typeof agentStatus !== 'string' && agentStatus.is_enabled == true) {
             const switchAction = async() => {
                 await setSwitchVal(true)
                 belongingsAutoFill()
@@ -55,14 +55,16 @@ export const Agent = (): React.ReactElement => {
     }, [switchVal])
 
     const belongingsAutoFill = async() => {
-        // 部を自動入力
-        depRef.current.value = agentStatus.agent_user.department
-        switchSeciton(depRef.current.value)
-        // 課を自動入力
-        sectionRef.current.value = agentStatus.agent_user.section
-        await fetchSectionPpl(sectionRef.current.value);
-        // 担当を自動入力
-        personRef.current.value = agentStatus.agent_user.id
+        if(switchVal !== false && agentStatus !== '' && typeof agentStatus !== 'string') {
+            // 部を自動入
+            depRef.current.value = agentStatus.agent_user.department
+            switchSeciton(depRef.current.value)
+            // 課を自動入力
+            sectionRef.current.value = agentStatus.agent_user.section
+            await fetchSectionPpl(sectionRef.current.value);
+            // 担当を自動入力
+            personRef.current.value = agentStatus.agent_user.id
+        }
     }
         
     const switchSeciton = (dep) => {
@@ -104,7 +106,7 @@ export const Agent = (): React.ReactElement => {
                 <div>
                     <OnOffBtn
                         setSwitchVal={setSwitchVal}
-                        isEnabled={agentStatus?.is_enabled}
+                        isEnabled={typeof agentStatus !== 'string' && agentStatus?.is_enabled}
                     />
                     {switchVal == true &&
                         <AgentContainer>

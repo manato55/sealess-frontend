@@ -12,6 +12,15 @@ type TopProps = {
     pplInRoute: {}[];
     process: number|boolean|string;
     isRegisteredRoute: boolean;
+    agentStatus: {
+        route: string;
+        user: {
+            name: string;
+            department: string;
+            section: string;
+        }
+        agent_user: number;
+    }[];
 }
 
 export const Routing = (props: TopProps) => {
@@ -26,6 +35,15 @@ export const Routing = (props: TopProps) => {
     const [selectedRoute, setSelectedRoute] = useState<{id:number}>()
     const loopCnt: number = 5;
     const routeRef = useRef<HTMLSelectElement>(null)
+    let cnt:number = 0;
+
+    const countUp = () => {
+        cnt++
+    }
+
+    const countRestore = () => {
+        cnt = 0
+    }
 
 
     useEffect(() => {
@@ -45,10 +63,10 @@ export const Routing = (props: TopProps) => {
         switch(choiceDep) {
             case('経営企画部'):
                 setSection(SECTION.management);
-            break;
+                break;
             case('開発部'):
                 setSection(SECTION.dev);
-            break;
+                break;
         }
     }
 
@@ -106,7 +124,8 @@ export const Routing = (props: TopProps) => {
         props.setPplInRoute(routeArrTmp)
         setPplInRouteChild(routeArrTmp)
     }
-
+console.log(pplInRouteChild)
+console.log(props.agentStatus)
     return (
         <>
             <div className={Common.input_container}>
@@ -151,11 +170,26 @@ export const Routing = (props: TopProps) => {
                 <button onClick={addPersonToRoute}>追加</button>
                 {pplInRouteChild.map((person,index) => 
                     <div className={Common.route_container} key={index}>
-                        {index !== 0 ? <p>↓</p>: ''}
+                        {countRestore()}
+                        {index !== 0 && <p>↓</p>}
                         <Wrapper>
                             <div className={Common.ppl_involved}>
                                 <p>関与者{index + 1}</p>
-                                <p>{person.department}&emsp;{person.section}&emsp;{person.name}</p>
+                                {props.agentStatus?.map((agent, v) => 
+                                    <p key={v}>
+                                        {agent.route.slice(-1) == String(index+1) && agent.agent_user == person.id &&
+                                            <span>
+                                                {countUp()}
+                                                {agent.user.department}&emsp;{agent.user.section}&emsp;{agent.user.name}
+                                            </span>
+                                        }
+                                    </p>
+                                )}
+                                {cnt > 0 ? 
+                                    <AgentPerson>{`（代理：${person.department}`}&emsp;{person.section}&emsp;{`${person.name}）`}</AgentPerson>    
+                                :
+                                    <p>{person.department}&emsp;{person.section}&emsp;{person.name}</p>
+                                }
                             </div>
                             <DeleteBox>
                                 {/* 既に承認済みの関与者はルートから変更できなくする*/}
@@ -187,5 +221,11 @@ const DeleteBox = styled.div`
     font-size: 20px;
     cursor: pointer;
 `;
+
+
+const AgentPerson = styled.span`
+    color: red;
+`;
+
 
 export default Routing

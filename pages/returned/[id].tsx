@@ -24,6 +24,17 @@ type draft = {
     id: number;
 }
 
+type agent = {
+    route: string;
+    user: {
+        name: string;
+        id: number;
+        department: string;
+        section: string;
+    }
+    agent_user: number;
+}
+
 export const ReturnedDetail = (): React.ReactElement => {
     const {fetchReturnedDetail, returnedDetail, reSubmitReturnedTask, discardReturnedTask } = useReturned();
     const {validationMessage,clearValidationMessage} = useDraft();
@@ -41,6 +52,7 @@ export const ReturnedDetail = (): React.ReactElement => {
     const [routePpl, setRoutePpl] = useState([])
     const [process, setProcess] = useState<number|boolean|string>()
     const [taskId, setTaskId] = useState<number>(null)
+    const [agentStatus, setAgentStatus] = useState<agent[]>()
 
     useEffect(() => {
         return () => {
@@ -60,7 +72,7 @@ export const ReturnedDetail = (): React.ReactElement => {
 
     useEffect(() => {
         if(returnedDetail !== undefined) {
-            // 基本情報の情報を格納
+            // 基本情報を格納
             setTitle(returnedDetail.title)
             setContents(returnedDetail.content)
             // ルートの情報を格納
@@ -78,6 +90,8 @@ export const ReturnedDetail = (): React.ReactElement => {
             setExistingFile(returnedDetail.filename)
             // taskIdを格納
             setTaskId(returnedDetail.id)
+            // 代理設定を格納
+            setAgentStatus(returnedDetail.agent_statuses)
         }
     }, [returnedDetail])
 
@@ -151,6 +165,7 @@ export const ReturnedDetail = (): React.ReactElement => {
                             pplInRoute={routePpl}
                             process={process}
                             isRegisteredRoute={false}
+                            agentStatus={agentStatus}
                         />:
                         <Comment
                             comment={returnedDetail.returned_task.comment}

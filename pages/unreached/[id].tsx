@@ -1,5 +1,4 @@
 import { useRecoilValue } from 'recoil'
-import { castUnreachedTask } from '../../store/atom'
 import {useState, useEffect} from 'react'
 import {useDraft} from '../../hooks/useDraft'
 import {useGlobal} from '../../hooks/useGlobal'
@@ -16,7 +15,6 @@ import {useRouter} from 'next/router'
 export const UnreachedTaskDetail = (): React.ReactElement => {
     const router = useRouter();
     const [paramsId, setParamsId] = useState<number>()
-    const inheritedUnreachedTask = useRecoilValue(castUnreachedTask)
     const {updateLoading, asyncLoading} = useGlobal();
     const {fetchSelectedUnreachedTask, selectedUnreachedTask} = useDraft();
     const [currComponent, setCurrComponent] = useState<string>('basic')
@@ -37,9 +35,6 @@ export const UnreachedTaskDetail = (): React.ReactElement => {
             getTask()
         }
     }, [paramsId]);
-    console.log(selectedUnreachedTask)
-
-
 
     return (
         <>

@@ -75,7 +75,6 @@ export const ProgressProvider = ({children}) => {
         const res = await axios.get(`progress/fetch-detail-task/${id}`).catch(error => error.responnse)
         if(res.data.length === 0) {
             httpChangeFunc(404);
-            // router.push('/error')
         } else {
             setDetailTask(res.data)
         }

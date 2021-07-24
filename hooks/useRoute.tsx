@@ -19,6 +19,8 @@ type Agent = {
     }
 }
 
+type AgentOrString = Agent|string;
+
 
 export const RouteContext = createContext({} as {
     registerRoute: (route: object[], label: string) => void;
@@ -31,7 +33,7 @@ export const RouteContext = createContext({} as {
     agentStatus2True: () => void;
     validationError: string[];
     registeredRoute: route[];
-    agentStatus: Agent;
+    agentStatus: AgentOrString;
 });
 
 export const useRoute = () => {
@@ -40,7 +42,7 @@ export const useRoute = () => {
 
 export const RouteProvider = ({children}) => {
     const router = useRouter()
-    const [agentStatus, setAgentStatus] = useState<Agent>()
+    const [agentStatus, setAgentStatus] = useState<AgentOrString>()
     const [validationError, setValidationError] = useState<string[]>()
     const [registeredRoute, setRegisteredRoute] = useState<route[]>()
     const clearValidationMessage = (): void => setValidationError([]);

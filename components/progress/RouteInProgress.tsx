@@ -10,7 +10,16 @@ type basicProps = {
 
 export const RouteInProgress = (props: basicProps): React.ReactElement => {
     const [pplInRoute, setPplInRoute] = useState<string[]>([]);
+    const [bool, setBool] = useState<boolean>();
+    let cnt:number = 0;
 
+    const countUp = () => {
+        cnt++
+    }
+
+    const countRestore = () => {
+        cnt = 0
+    }
 
     useEffect(() => {
         if(props.taskRoute.length > 0) {
@@ -20,13 +29,13 @@ export const RouteInProgress = (props: basicProps): React.ReactElement => {
         }
     }, [props.taskRoute])
 
-
     return (
         <div className={Common.input_container}>
             {pplInRoute.length > 0 ? pplInRoute.map((routeNum, index) => 
                 <div className={Common.route_container} key={index}>
                     {props.taskRoute[0][routeNum] !== null && 
                         <div>
+                            {countRestore()}
                             {index !== 0 && <p>↓</p>}
                             <div className={Common.ppl_involved}>
                                 <p>
@@ -35,10 +44,23 @@ export const RouteInProgress = (props: basicProps): React.ReactElement => {
                                         <Holder>案件保持</Holder>
                                     }
                                 </p>
-                                {props.taskRoute[0][routeNum].department}&emsp;{props.taskRoute[0][routeNum].section}&emsp;{props.taskRoute[0][routeNum].name}
+                                {props.taskRoute[0].agent_statuses?.map((agent, v) => 
+                                    <div key={v}>
+                                        {`${agent.route}_user` === routeNum &&
+                                            <p>
+                                                {countUp()}
+                                                {agent.user.department}&emsp;{agent.user.section}&emsp;{agent.user.name}
+                                            </p>
+                                        }
+                                    </div>
+                                )}
+                                {cnt > 0 ? 
+                                    <AgentPerson>{`（代理：${props.taskRoute[0][routeNum].department}`}&emsp;{props.taskRoute[0][routeNum].section}&emsp;{`${props.taskRoute[0][routeNum].name}）`}</AgentPerson>
+                                    : 
+                                    <span>{props.taskRoute[0][routeNum].department}&emsp;{props.taskRoute[0][routeNum].section}&emsp;{props.taskRoute[0][routeNum].name}</span>
+                                }
                             </div>
                         </div>
-                        
                     }
                 </div>
             ):''}
@@ -51,6 +73,10 @@ const Involved = styled.span`
 `;
 
 const Holder = styled.span`
+    color: red;
+`;
+
+const AgentPerson = styled.span`
     color: red;
 `;
 
