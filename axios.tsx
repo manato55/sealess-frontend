@@ -1,12 +1,12 @@
 import axios from 'axios'; 
 
 const instance = axios.create({
-    baseURL : process.env.NEXT_PUBLIC_API_ENDOPOINT
+    baseURL : 'http://127.0.0.1:82/api'
 }); 
 
 instance.interceptors.request.use(
     (config) => {
-        axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_ENDOPOINT
+        axios.defaults.baseURL = 'http://127.0.0.1:82/api/'
         config.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
         return config;
     }
