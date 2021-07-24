@@ -45,6 +45,7 @@ export const RouteTmpl = (): React.ReactElement => {
                 pplInRoute={pplInRoute}
                 process={false}
                 isRegisteredRoute={false}
+                agentStatus={undefined}
             />
             <button onClick={() => register()}>登録</button>
         </>

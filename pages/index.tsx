@@ -111,6 +111,7 @@ export const Top = (): React.ReactElement => {
                     pplInRoute={pplInRoute}
                     process={false}
                     isRegisteredRoute={true}
+                    agentStatus={undefined}
                 />
             }<br/>
             <SubmitBtnContainer>
