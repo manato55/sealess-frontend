@@ -124,8 +124,7 @@ export const Routing = (props: TopProps) => {
         props.setPplInRoute(routeArrTmp)
         setPplInRouteChild(routeArrTmp)
     }
-console.log(pplInRouteChild)
-console.log(props.agentStatus)
+    
     return (
         <>
             <div className={Common.input_container}>

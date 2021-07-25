@@ -103,6 +103,9 @@ export const AuthProvider = ({children}) => {
     }
 
     async function logout(): Promise<void> {
+        if(!confirm('ログアウトしますか？')) {
+            return
+        }
         const res = await axios.post('logout').catch(error => error.response)
         if(res.status === 200) {
             await setUser(undefined)

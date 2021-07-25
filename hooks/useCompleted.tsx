@@ -43,7 +43,6 @@ export const CompletedProvider = ({children}) => {
 
     async function fetchCompletetTaskDetail(id): Promise<void> {
         const res = await axios.get(`completed/fetch-detail-task/${id}`).catch(error => error.responnse)
-        console.log(res.data)
         if(res.data.length === 0) {
             httpChangeFunc(404);
         } else {
