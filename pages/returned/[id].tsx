@@ -3,7 +3,6 @@ import {useReturned} from '../../hooks/useReturned';
 import {useGlobal} from '../../hooks/useGlobal';
 import {useDraft} from '../../hooks/useDraft';
 import Loading from '../../components/layouts/Loading';
-import Link from 'next/link';
 import {useRouter} from 'next/router'
 import BasicInfo from '../../components/draft/BasicInfo'
 import Additives from '../../components/draft/Additives'
@@ -12,7 +11,6 @@ import Comment from '../../components/draft/Comment'
 import SwitchTab from '../../components/layouts/SwitchTab'
 import styles from '../../styles/Home.module.scss'
 import styled from 'styled-components'
-
 
 
 type draft = {
@@ -53,6 +51,7 @@ export const ReturnedDetail = (): React.ReactElement => {
     const [process, setProcess] = useState<number|boolean|string>()
     const [taskId, setTaskId] = useState<number>(null)
     const [agentStatus, setAgentStatus] = useState<agent[]>()
+
 
     useEffect(() => {
         return () => {

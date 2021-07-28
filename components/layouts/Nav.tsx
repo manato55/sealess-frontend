@@ -31,10 +31,10 @@ export const Nav = () => {
                 <h3 className={Header.product_name}>
                     {user !== undefined && user.user_type === 2 ? 
                         <Link href="/">
-                            <a className={Header.top_link}>sealess</a>
+                            <a className={Header.top_link}>app</a>
                         </Link>    
                     :
-                        <span>sealess</span>
+                        <span>app</span>
                     }
                 </h3>
                 {user?.message === undefined ? 
