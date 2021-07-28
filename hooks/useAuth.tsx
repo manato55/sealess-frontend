@@ -72,7 +72,7 @@ export const AuthProvider = ({children}) => {
         jobTitle:[]
     })
     const router = useRouter()
-    const {clearValidationMessage} = useDraft()
+    const {clearValidationMessage,clearSearchedTask} = useDraft()
     const [nameErrFlag, setNameErrFlag] = useState(false)
     const [departmentErrFlag, setDepartmentErrFlag] = useState(false)
     const [sectionErrFlag, setSectionErrFlag] = useState(false)
@@ -109,9 +109,10 @@ export const AuthProvider = ({children}) => {
         const res = await axios.post('logout').catch(error => error.response)
         if(res.status === 200) {
             await setUser(undefined)
-            console.log(user)
             localStorage.removeItem('token')
+            localStorage.removeItem('data');
             clearValidationMessage()
+            clearSearchedTask()
             router.push('/login')
         }
     }

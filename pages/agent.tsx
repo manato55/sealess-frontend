@@ -55,19 +55,22 @@ export const Agent = (): React.ReactElement => {
     }, [switchVal])
 
     const belongingsAutoFill = async() => {
-        if(switchVal !== false && agentStatus !== '' && typeof agentStatus !== 'string') {
-            // 部を自動入
+        if(switchVal === true && agentStatus !== '' && typeof agentStatus !== 'string' && depRef.current !== null) {
+            // 部を自動入力
             depRef.current.value = agentStatus.agent_user.department
-            switchSeciton(depRef.current.value)
+            switchSection(depRef.current.value)
             // 課を自動入力
             sectionRef.current.value = agentStatus.agent_user.section
             await fetchSectionPpl(sectionRef.current.value);
-            // 担当を自動入力
-            personRef.current.value = agentStatus.agent_user.id
+            // DOMが読み込まれていない状態で別ページに遷移するとエラーとなるためDOMが作られてから担当を自動入力する処理を走らせる
+            if(personRef.current !== null) {
+                // 担当を自動入力
+                personRef.current.value = agentStatus.agent_user.id
+            }
         }
     }
         
-    const switchSeciton = (dep) => {
+    const switchSection = (dep) => {
         switch(dep) {
             case('経営企画部'):
                 setSection(SECTION.management);
@@ -85,7 +88,7 @@ export const Agent = (): React.ReactElement => {
         personRef.current.value = 'choice'
         let choiceDep: string = e.target.value;
         setDepartment(choiceDep)
-        switchSeciton(choiceDep)
+        switchSection(choiceDep)
     }
 
     const secChoice = async(e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -110,14 +113,14 @@ export const Agent = (): React.ReactElement => {
                     />
                     {switchVal == true &&
                         <AgentContainer>
-                        <InputSubContainer>
-                        <span>部：</span>
-                        <select onChange={(e) => depChoice(e)} defaultValue={'choice'} ref={depRef}>
-                        <option value="choice" disabled>選択してください</option>
-                        {DEPARTMENT.map((v,index) => 
-                            <option key={index} value={v}>{v}</option>
-                            )}
-                                </select>
+                            <InputSubContainer>
+                            <span>部：</span>
+                            <select onChange={(e) => depChoice(e)} defaultValue={'choice'} ref={depRef}>
+                                <option value="choice" disabled>選択してください</option>
+                                {DEPARTMENT.map((v,index) => 
+                                    <option key={index} value={v}>{v}</option>
+                                )}
+                            </select>
                             </InputSubContainer>
                             <InputSubContainer>
                                 <span>課：</span>

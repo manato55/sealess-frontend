@@ -52,6 +52,7 @@ export const Nav = () => {
                                         <List><Link href="/route-tmpl"><a>ルート作成</a></Link></List>
                                         <List><Link href="/unreached"><a>未着案件</a></Link></List>
                                         <List><Link href="/agent"><a>代理設定</a></Link></List>
+                                        <List><Link href="/search/1"><a>案件検索</a></Link></List>
                                     </span>
                                 :''}
                                 <List><a className={Header.logout_btn} onClick={logout}>ログアウト</a></List>

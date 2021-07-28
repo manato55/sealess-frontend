@@ -83,6 +83,14 @@ export const LeftNav = () => {
                                 }
                             </a>
                         </Link>
+                        <Link href="/search/1">
+                            <a>
+                                {currentPathname.match('search*') ? 
+                                    <CurrentTab>案件検索</CurrentTab>
+                                    :<p>案件検索</p>
+                                }
+                            </a>
+                        </Link>
                     </span>
                 :''}
                 <a onClick={logout}><p>ログアウト</p></a>

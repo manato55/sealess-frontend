@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, createContext } from 'react';
+import { useContext, useState, createContext } from 'react';
 import {useRouter} from 'next/router'
 import axios from '../axios'
 
@@ -17,12 +17,24 @@ type SelectedUnreached = {
     filename: string;
 }
 
+type Task = {
+    id: number;
+    title: string;
+    user: {
+        name: string;
+    }
+    updated_at: string;
+}[]
 
 export const DraftContext = createContext({} as {
     fetchSectionPpl: (section: string) => void;
     fetchUnreachedTask: () => void;
     registerDraft: (draft: object) => any;
     fetchSelectedUnreachedTask: (id: number) => void;
+    clearValidationMessage: () => void;
+    getFiscalYear: () => void;
+    clearSearchedTask: () => void;
+    searchTask: (data: object, offset:number) => void;
     sectionPpl: {
         name: string
         id: number
@@ -34,7 +46,9 @@ export const DraftContext = createContext({} as {
     };
     unreachedTask: Unreached[];
     selectedUnreachedTask: SelectedUnreached[];
-    clearValidationMessage: () => void;
+    fiscalYear: number[];
+    searchedTask: Task[];
+    inputError: string[];
 });
 
 export const useDraft = () => {
@@ -48,6 +62,9 @@ export const DraftProvider = ({children}) => {
     const [unreachedTask, setUnreachedTask] = useState<Unreached[]>()
     const [selectedUnreachedTask, setSelectedUnreachedTask] = useState<SelectedUnreached[]>([])
     const clearValidationMessage = (): void => setValidationMessage({});
+    const [fiscalYear, setFiscalYear] = useState<number[]>()
+    const [searchedTask, setSearchedTask] = useState<Task[]>()
+    const [inputError, setInputError] = useState<string[]>()
 
 
     async function fetchSectionPpl(section): Promise<void> {
@@ -102,12 +119,37 @@ export const DraftProvider = ({children}) => {
         }
     }
 
+    async function getFiscalYear(): Promise<void> {
+        const res = await axios.get('draft/get-fiscal-year').catch(error => error.response)
+        setFiscalYear(res.data);
+    }
+
+    async function searchTask(data,offset): Promise<void> {
+        setInputError([])
+        const res = await axios.post('draft/search-task',{data,offset}).catch(error => error.response)
+        if(res.status === 422) {
+            setInputError(res.data.error)
+        } else {
+            setSearchedTask(res.data);
+        }
+    }
+
+    const clearSearchedTask = () => {
+        setSearchedTask(undefined)
+    }
+
     const value = {
         fetchSectionPpl,
         registerDraft,
         clearValidationMessage,
         fetchUnreachedTask,
         fetchSelectedUnreachedTask,
+        getFiscalYear,
+        searchTask,
+        clearSearchedTask,
+        inputError,
+        searchedTask,
+        fiscalYear,
         selectedUnreachedTask,
         unreachedTask,
         sectionPpl,
