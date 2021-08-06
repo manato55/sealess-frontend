@@ -5,6 +5,7 @@ import BasicInfoInProgress from '../../components/progress/BasicInfoInProgress'
 import AdditiveInProgress from '../../components/progress/AdditiveInProgress'
 import RouteInProgress from '../../components/progress/RouteInProgress'
 import SwitchTab from '../../components/layouts/SwitchTab'
+import Button2 from '../../components/layouts/Button'
 import Loading from '../../components/layouts/Loading';
 import {useGlobal} from '../../hooks/useGlobal';
 import styled from 'styled-components'

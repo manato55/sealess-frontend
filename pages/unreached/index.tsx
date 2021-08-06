@@ -1,36 +1,19 @@
-import {useState, useEffect} from 'react'
-import {useDraft} from '../../hooks/useDraft'
-import {useGlobal} from '../../hooks/useGlobal'
+import {useUnreachedTask} from '../../hooks/useSWRFunc'
 import Link from 'next/link';
 import Loading from '../../components/layouts/Loading';
 import TableContainer from '../../components/layouts/TableContainer';
 import Table from '../../components/layouts/Table';
 import { toDateWeek } from '../../lib/dateHelper';
-import { isAsynced } from '../../store/atom'
-import { useSetRecoilState,useRecoilValue } from 'recoil'
 
 
 export const UnreachedIndex = (): React.ReactElement => {
-    const {updateLoading, asyncLoading} = useGlobal();
-    const {fetchUnreachedTask, unreachedTask} = useDraft();
-    const asynced = useRecoilValue(isAsynced)
-    const setIsAsynced = useSetRecoilState(isAsynced)
+    const {isLoading, unreachedTask} = useUnreachedTask();
     
-    useEffect(() => {
-        const initialAction = async() => {
-            await fetchUnreachedTask()
-            setIsAsynced(true)
-        }
-        initialAction()
-        return () => {
-            setIsAsynced(false)
-        }
-    }, [])
 
     return (
         <>
-            {asynced === true ?
-                unreachedTask !== undefined && unreachedTask.length !== 0 ?
+            {!isLoading ?
+                unreachedTask?.length > 0 ?
                     <TableContainer>
                         <Table>
                             <thead>

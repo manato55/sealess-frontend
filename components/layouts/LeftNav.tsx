@@ -1,22 +1,17 @@
-import {useState,useEffect} from 'react'
+import React,{useState,useEffect} from 'react'
 import styled from 'styled-components'
 import Link from 'next/link'
 import {useRouter} from 'next/router'
 import mediaQuery from "styled-media-query";
 import {useAuth} from '../../hooks/useAuth'
-
+import { useRecoilValue } from 'recoil'
+import { userStatus } from '../../store/atom'
 
 export const LeftNav = () => {
     const router = useRouter()
-    const {logout, me, user}  = useAuth();
+    const {logout}  = useAuth();
     const [currentPathname, setCurrentPathname] = useState<string>('')
-
-    useEffect(() => {
-        const initialAction = async() => {
-            await me()
-        }
-        initialAction()
-    }, [router])
+    const user = useRecoilValue(userStatus)
 
     useEffect(() => {
         setCurrentPathname(router.pathname)
@@ -132,4 +127,4 @@ const CurrentTab = styled.p`
     background: #1e90ff;
 `;
 
-export default LeftNav
+export default React.memo(LeftNav) 

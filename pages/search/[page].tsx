@@ -1,5 +1,6 @@
 import {useState,useEffect,useCallback,useRef} from 'react'
 import {useDraft} from '../../hooks/useDraft'
+import {useFiscalYear} from '../../hooks/useSWRFunc'
 import Button from '../../components/layouts/Button'
 import ErrorMsg from '../../components/layouts/ErrorMsg'
 import TableContainer from '../../components/layouts/TableContainer';
@@ -20,7 +21,7 @@ export const Search = (): React.ReactElement => {
     const [task, setTask] = useState<string>('')
     const [name, setName] = useState<string>('')
     const router = useRouter();
-    const {getFiscalYear, fiscalYear, searchTask, searchedTask, inputError} = useDraft();
+    const {searchTask, searchedTask, inputError, clearInputError} = useDraft();
     const [selectedJapYear, setSelectedJapYear] = useState<number>();
     let offset = router.query.page
         ? Number.parseInt(String(router.query.page), 10)
@@ -29,14 +30,7 @@ export const Search = (): React.ReactElement => {
     const taskRef = useRef<HTMLInputElement>(null)
     const nameRef = useRef<HTMLInputElement>(null)
     const yearRef = useRef<HTMLSelectElement>(null)
-
-
-    useEffect(() => {
-        const initialAction = async() => {
-            getFiscalYear()
-        }
-        initialAction()
-    }, [])
+    const {isError, fiscalYear} = useFiscalYear();
 
     // ページリロード時の対応(アンマウントではないのでローカルストレージの情報は削除されない)
     useEffect(() => {
@@ -50,13 +44,15 @@ export const Search = (): React.ReactElement => {
             setSelectedJapYear(data.year)
             if(data.year !== undefined) {
                 const yearAction = async() => {
-                    await getFiscalYear()
                     if(yearRef.current !== null) {
                         yearRef.current.value = String(data.year)
                     }
                 }
                 yearAction();
             }
+        }
+        return () => {
+            clearInputError()
         }
     }, [])
 

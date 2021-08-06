@@ -1,4 +1,3 @@
-import { useRecoilValue } from 'recoil'
 import {useState, useEffect} from 'react'
 import {useDraft} from '../../hooks/useDraft'
 import {useGlobal} from '../../hooks/useGlobal'
@@ -11,20 +10,12 @@ import styled from 'styled-components'
 import {useRouter} from 'next/router'
 
 
-
 export const UnreachedTaskDetail = (): React.ReactElement => {
     const router = useRouter();
-    const [paramsId, setParamsId] = useState<number>()
+    const [paramsId, setParamsId] = useState<number>(Number(router.query.id))
     const {updateLoading, asyncLoading} = useGlobal();
     const {fetchSelectedUnreachedTask, selectedUnreachedTask} = useDraft();
     const [currComponent, setCurrComponent] = useState<string>('basic')
-
-    useEffect(() => {
-        // idがqueryで利用可能になったら処理される
-        if (router.asPath !== router.route) {
-            setParamsId(Number(router.query.id));
-        }
-    }, [router]);
 
     useEffect(() => {
         if(paramsId) {

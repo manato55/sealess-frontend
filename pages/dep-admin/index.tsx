@@ -1,11 +1,13 @@
 import React,{useEffect, useState} from 'react'
-import {useRouter} from 'next/router'
 import Email from '../../components/auth/Email'
 import FullName from '../../components/auth/FullName'
 import {DEPARTMENT, SECTION, JOBTITLE } from '../../components/info/JobInfo'
 import {useAuth} from '../../hooks/useAuth'
 import styled from 'styled-components'
 import Common from '../../styles/Common.module.scss'
+import { useRecoilValue } from 'recoil'
+import { userStatus } from '../../store/atom'
+
 
 
 type User = {
@@ -18,23 +20,17 @@ type User = {
 
 
 export const DepAdmin = (): React.ReactElement => {
-    const {registerOrdinaryUser, errorMsg, sectionErrFlag, jobTitleErrFlag,user, me } = useAuth();
+    const {registerOrdinaryUser, errorMsg, sectionErrFlag, jobTitleErrFlag } = useAuth();
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [section, setSection] = useState<string[]>()
     const [selectedSection, setSelectedSection] = useState<string>('')
     const [jobTitle, setJobTitle] = useState<string>('')
+    const user = useRecoilValue(userStatus)
 
-    
-    useEffect(() => {
-        const initialAction = async() => {
-            await me()
-        }
-        initialAction()
-    }, [])
 
     useEffect(() => {
-        if(user !== undefined) {
+        if(user?.id) {
             switch(user.department) {
                 case('経営企画部'):
                     setSection(SECTION.management)

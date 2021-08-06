@@ -15,7 +15,7 @@ export const Paginate = (props: Props) => {
         <>
             <PaginateWrapper>
                 <Pagination
-                    count={Math.ceil(props.contents.length / props.perPage)}
+                    count={Math.ceil(props.contents?.length / props.perPage)}
                     variant="outlined"
                     shape="rounded"
                     color="primary"

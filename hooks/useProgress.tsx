@@ -1,22 +1,17 @@
 import React, { useContext, useEffect, useState, createContext } from 'react';
 import {useRouter} from 'next/router'
 import axios from '../axios'
-import {useGlobal} from './useGlobal';
 import { saveAs } from 'file-saver';
+import {useGlobal} from './useGlobal';
+import {useReturned} from './useReturned';
+import { useSetRecoilState } from 'recoil'
+import { http } from '../store/atom'
 
-type taskInProgress = {
-    title: string;
-    process: string;
-    created_at: string;
-    id: number;
-}
+
 
 export const ProgressContext = createContext({} as {
-    fetchTaskInProgress: (offset: number) => void;
     fetchSelectedTask: (id:number) => void;
     actionInProgress: (action: string, id: number) => void;
-    fetchRecievedTask: () => void;
-    getTotalLengthOfTaskInProgress: () => void;
     actionInEscalation: (action: string, id: number) => void;
     downloadFile:  (data: {
         filename: string;
@@ -26,8 +21,6 @@ export const ProgressContext = createContext({} as {
         id: number;
         comment: string;
     }) => void;
-    taskInProgress: taskInProgress[];
-    paginatedTaskInProgress: taskInProgress[];
     detailTask: any;
     files: string;
     recievedTask: {
@@ -53,23 +46,13 @@ export const useProgress = () => {
 export const ProgressProvider = ({children}) => {
     const router = useRouter()
     const [errorMessage, setErrorMessage] = useState<{}>()
-    const [taskInProgress, setTaskInProgress] = useState([])
     const [detailTask, setDetailTask] = useState([])
     const [files, setFiles] = useState<string>()
     const [recievedTask, setRecievedTask] = useState([])
-    const {httpChangeFunc} = useGlobal();
-    const [paginatedTaskInProgress, setPaginatedTaskInProgress] = useState([])
+    const {httpChangeFunc,fetchTaskInProgress,getTotalLengthOfTaskInProgress} = useGlobal();
+    const {fetchReturnedTask} = useReturned()
+    const setHttpStatus = useSetRecoilState(http)
     
-
-    async function fetchTaskInProgress(offset): Promise<void> {
-        const res = await axios.get(`progress/fetch-in-progress/${offset}`).catch(error => error.responnse)
-        setPaginatedTaskInProgress(res.data)
-    }
-
-    async function getTotalLengthOfTaskInProgress(): Promise<void> {
-        const res = await axios.get('progress/get-total-length').catch(error => error.responnse)
-        setTaskInProgress(res.data)
-    }
 
     async function fetchSelectedTask(id): Promise<void> {
         const res = await axios.get(`progress/fetch-detail-task/${id}`).catch(error => error.responnse)
@@ -87,9 +70,13 @@ export const ProgressProvider = ({children}) => {
                 id: paramId
             }
         }).catch(error => error.response);
+        const initialPage: number = 1
         if(res.status === 200) {
-            router.push('/progress/index/1')
-        }   
+            router.push(`/progress/index/${initialPage}`)
+        }
+        fetchReturnedTask()
+        fetchTaskInProgress(initialPage)
+        getTotalLengthOfTaskInProgress()
 	}
 
     async function actionInEscalation(action, paramId): Promise<void> {
@@ -103,13 +90,6 @@ export const ProgressProvider = ({children}) => {
             router.push('/recieve')
         }   
 	}
-
-    async function fetchRecievedTask(): Promise<void> {
-        const res = await axios.get('progress/fetch-recieved').catch(error => error.response);
-        if(res.status === 200) {
-            setRecievedTask(res.data)
-        }
-    }
 
     async function returnToDrafter(data): Promise<void> {
         setErrorMessage({})
@@ -132,16 +112,11 @@ export const ProgressProvider = ({children}) => {
     }
 
     const value = {
-        fetchTaskInProgress,
         fetchSelectedTask,
         actionInProgress,
-        fetchRecievedTask,
         actionInEscalation,
         returnToDrafter,
         downloadFile,
-        getTotalLengthOfTaskInProgress,
-        paginatedTaskInProgress,
-        taskInProgress,
         detailTask,
         files,
         recievedTask,

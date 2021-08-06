@@ -82,9 +82,15 @@ export const Top = (): React.ReactElement => {
             />
             {Object.keys(validationMessage).length > 0 ? 
                 <ul>
-                    <li className={styles.errorMessage}>{validationMessage.title}</li>
-                    <li className={styles.errorMessage}>{validationMessage.content}</li>
-                    <li className={styles.errorMessage}>{validationMessage.route}</li>
+                    {validationMessage.title &&
+                        <li className={styles.errorMessage}>{validationMessage.title}</li>
+                    }
+                    {validationMessage.content &&
+                        <li className={styles.errorMessage}>{validationMessage.content}</li>
+                    }
+                    {validationMessage.route &&
+                        <li className={styles.errorMessage}>{validationMessage.route}</li>
+                    }
                     {fileNumber.length !== 0 ? fileNumber.map((file,index) => 
                         <li key={index} className={styles.errorMessage}>{validationMessage[file][0]}</li>
                     ):''}

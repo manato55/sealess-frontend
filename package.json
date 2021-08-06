@@ -12,9 +12,11 @@
     "@material-ui/core": "^4.12.1",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.60",
+    "@sls-next/serverless-component": "^3.1.0",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "date-fns": "^2.22.1",
+    "dotenv": "^10.0.0",
     "file-saver": "^2.0.5",
     "file-server": "^2.1.0",
     "next": "11.0.1",
@@ -22,7 +24,8 @@
     "react-dom": "17.0.2",
     "react-toastify": "^7.0.4",
     "recoil": "^0.3.1",
-    "styled-media-query": "^2.1.2"
+    "styled-media-query": "^2.1.2",
+    "swr": "^0.5.6"
   },
   "devDependencies": {
     "@types/node": "^15.12.5",

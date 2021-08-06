@@ -2,34 +2,28 @@ import React, {useRef, useEffect} from 'react'
 import Header from '../../styles/Header.module.scss';
 import Link from 'next/link';
 import {useAuth} from '../../hooks/useAuth'
-import {useGlobal} from '../../hooks/useGlobal'
-import {useRouter} from 'next/router'
 import media from "styled-media-query";
 import styled from 'styled-components'
+import { useRecoilValue } from 'recoil'
+import { userStatus } from '../../store/atom'
+
 
 
 export const Nav = () => {
     const menuBtnCheck = useRef<HTMLInputElement>(null)
-    const {logout, me, user}  = useAuth();
-    const {token} = useGlobal();
-    const router = useRouter()
+    const {logout}  = useAuth();
+    const user = useRecoilValue(userStatus)
+
 
     const link = (): void => {
         menuBtnCheck.current.checked = false
     }
 
-    useEffect(() => {
-        const initialAction = async() => {
-            await me()
-        }
-        initialAction()
-    }, [router])
-
     return (
         <>
             <header className={Header.header}>
                 <h3 className={Header.product_name}>
-                    {user !== undefined && user.user_type === 2 ? 
+                    {user?.id && user.user_type === 2 ? 
                         <Link href="/">
                             <a className={Header.top_link}>app</a>
                         </Link>    
@@ -37,13 +31,13 @@ export const Nav = () => {
                         <span>app</span>
                     }
                 </h3>
-                {user?.message === undefined ? 
+                {user?.id ? 
                     <MobileDiv className={Header.hamburger_menu}>
                         <input type="checkbox" id="menu_btn_check" className={Header.menu_btn_check} ref={menuBtnCheck} />
                         <label htmlFor="menu_btn_check" className={Header.menu_btn}><span></span></label>
                         <div className={Header.menu_content}>
                             <ul onClick={link}>
-                                {user !== undefined && user.user_type === 2 ?
+                                {user?.id && user.user_type === 2 ?
                                     <span>
                                         <List><Link href="/history"><a>決定済み</a></Link></List>
                                         <List><Link href="/returned"><a>返却案件</a></Link></List>

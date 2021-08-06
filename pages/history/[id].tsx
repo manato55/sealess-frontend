@@ -1,17 +1,14 @@
 import React, {useEffect, useState} from 'react'
 import {useRouter} from 'next/router'
 import {useCompleted} from '../../hooks/useCompleted'
-import {useAuth} from '../../hooks/useAuth'
 import BasicInfoInProgress from '../../components/progress/BasicInfoInProgress'
 import AdditiveInProgress from '../../components/progress/AdditiveInProgress'
 import RouteInProgress from '../../components/progress/RouteInProgress'
 import SwitchTab from '../../components/layouts/SwitchTab'
 import Loading from '../../components/layouts/Loading';
-import {useGlobal} from '../../hooks/useGlobal';
 import styled from 'styled-components'
-import { isAsynced } from '../../store/atom'
-import { useSetRecoilState,useRecoilValue } from 'recoil'
-
+import { useRecoilValue } from 'recoil'
+import { userStatus } from '../../store/atom'
 
 export const TaskDetail = (): React.ReactElement => {
     const router = useRouter();
@@ -21,22 +18,15 @@ export const TaskDetail = (): React.ReactElement => {
     const [title, setTitle] = useState<string>('')
     const [contents, setContents] = useState<string>('')
     const [currComponent, setCurrComponent] = useState<string>('basic')
-    const {updateLoading, asyncLoading, HttpStatusCode} = useGlobal();
-    const {me, user} = useAuth();
-    const asynced = useRecoilValue(isAsynced)
-    const setIsAsynced = useSetRecoilState(isAsynced)
+    const user = useRecoilValue(userStatus)
+    
 
     useEffect(() => {
         if(paramsId) {
             const getTask = async () => {
                 await fetchCompletetTaskDetail(paramsId)
-                await me()
-                setIsAsynced(true)
             }
             getTask()
-            return () => {
-                setIsAsynced(false)
-            }
         }
     }, [paramsId]);
 
@@ -58,7 +48,7 @@ export const TaskDetail = (): React.ReactElement => {
     
     return (
         <>
-            {asynced === true ?
+            {true ?
                 // URL直打ちで別のパラメータを入力してきた場合の対策
                 detailTask.length > 0 ?
                     <div>

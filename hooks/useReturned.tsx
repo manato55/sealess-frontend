@@ -2,6 +2,9 @@ import React, { useContext, useEffect, useState, createContext } from 'react';
 import {useRouter} from 'next/router'
 import axios from '../axios';
 import {useDraft} from './useDraft'
+import { useSetRecoilState } from 'recoil'
+import { http } from '../store/atom'
+
 
 interface RT {
     id: number;
@@ -48,10 +51,10 @@ interface Data {
 }
 
 export const ReturnedContext = createContext({} as {
-    fetchReturnedTask: () => void;
     fetchReturnedDetail: (id: number) => void;
     removeFile: (data: {filename: string; id: number}) => void;
     fileRemovalTofalse: () => void;
+    fetchReturnedTask: () => void;
     reSubmitReturnedTask: (draft: Data) => void;
     discardReturnedTask: (id: number) => void;
     returnedDetail: RD;
@@ -69,6 +72,9 @@ export const ReturnedProvider = ({children}) => {
     const [returnedDetail, setReturnedDetail] = useState<RD>()
     const [fileRemoval, setFileRemoval] = useState<boolean>(false)
     const {registerDraft} = useDraft()
+    const setHttpStatus = useSetRecoilState(http)
+
+
 
     async function fetchReturnedTask(): Promise<void> {
         const res = await axios.get('returned/fetch-task').catch(error => error.response)
@@ -81,9 +87,12 @@ export const ReturnedProvider = ({children}) => {
         const res = await axios.get(`returned/fetch-detail/${id}`).catch(error => error.response)
         if(res.status === 200) {
             setReturnedDetail(res.data)
+        } else {
+            setHttpStatus(res.status)
         }
     }
 
+    
     async function removeFile(data): Promise<void> {
         const res = await axios.post('returned/remove-file',data).catch(error => error.response); 
         if(res.status === 200) {
@@ -97,11 +106,13 @@ export const ReturnedProvider = ({children}) => {
         if(res === 200) {
             router.push('/returned')
         }
+        fetchReturnedTask()
     }
 
     async function discardReturnedTask(id): Promise<void> {
         await axios.post('returned/remove-task',{id:id}).catch(error => error.response); 
         router.push('/returned')
+        fetchReturnedTask()
     }
 
     const fileRemovalTofalse = ():void => setFileRemoval(false); 

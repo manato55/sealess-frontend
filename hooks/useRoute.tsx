@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState, createContext } from 'react';
 import {useRouter} from 'next/router'
 import axios from '../axios';
 import { toast } from 'react-toastify'
+import { useRecoilValue } from 'recoil'
+import { userStatus } from '../store/atom'
 
 
 type route = {
@@ -46,6 +48,7 @@ export const RouteProvider = ({children}) => {
     const [validationError, setValidationError] = useState<string[]>()
     const [registeredRoute, setRegisteredRoute] = useState<route[]>()
     const clearValidationMessage = (): void => setValidationError([]);
+    const user = useRecoilValue(userStatus)
 
 
     async function registerRoute(route, label): Promise<void> {
@@ -78,11 +81,12 @@ export const RouteProvider = ({children}) => {
     }
 
     async function registerAgentUser(userId): Promise<void> {
-        const res = await axios.post('route/agent-setting', {id:userId}).catch(error => error.response); 
+        await axios.post('route/agent-setting', {id:userId}).catch(error => error.response); 
     }
 
     async function agentStatus2False(): Promise<void> {
         await axios.post('route/agent-status-2false').catch(error => error.response); 
+        fetchAgentSetting()
     }
 
     async function agentStatus2True(): Promise<void> {
@@ -97,13 +101,19 @@ export const RouteProvider = ({children}) => {
         } 
     }
 
+    useEffect(() => {
+        if(user?.id !== undefined) {
+            fetchAgentSetting()
+        }
+    }, [user])
+
     const value = {
+        fetchAgentSetting,
         registerRoute,
         fetchRegisteredRoute,
         removeRegisteredRoute,
         clearValidationMessage,
         registerAgentUser,
-        fetchAgentSetting,
         agentStatus2False,
         agentStatus2True,
         validationError,

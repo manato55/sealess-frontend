@@ -1,42 +1,29 @@
 import {useEffect,useState} from 'react';
-import styles from '../../styles/Home.module.css';
 import Nav from './Nav';
 import LeftNav from './LeftNav';
 import styled from 'styled-components'
-import {useAuth} from '../../hooks/useAuth'
-import {useRouter} from 'next/router'
-import { userInfo } from 'os';
-import {useGlobal} from '../../hooks/useGlobal';
-
-
+import { useRecoilValue } from 'recoil'
+import { http, userStatus } from '../../store/atom'
+import Error from '../Error'
 
 export const Layout = ({children}) => {
-    const {logout, me, user}  = useAuth();
-    const router = useRouter()
-    const [asynced, setAsynced] = useState<boolean>(false)
-
-    useEffect(() => {
-        const initialAction = async() => {
-            await me()
-            setAsynced(true)
-        }
-        initialAction()
-    }, [router])
-
+    const httpStatus = useRecoilValue(http)
+    const user = useRecoilValue(userStatus)
+    
     return (
         <>
-            {asynced && 
-                <span>
-                    <Nav/>
-                    <FlexDiv>
-                        {user?.message === undefined &&
-                        <LeftNav/>
-                        }
-                        <Container>
-                            {children}
-                        </Container>
-                    </FlexDiv>
-                </span>
+            <Nav/>
+            {httpStatus !== null ? 
+                <Error errorCode={httpStatus}/>
+            :
+                <FlexDiv>
+                    {user?.id &&
+                    <LeftNav/>
+                    }
+                    <Container>
+                        {children}
+                    </Container>
+                </FlexDiv>
             }
         </>
     )

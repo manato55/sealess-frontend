@@ -14,7 +14,6 @@ export const Agent = (): React.ReactElement => {
             registerAgentUser,
             agentStatus2False,
             agentStatus2True,
-            fetchAgentSetting,
             agentStatus
         } = useRoute();
     const [department, setDepartment] = useState<string>()
@@ -23,14 +22,6 @@ export const Agent = (): React.ReactElement => {
     const sectionRef = useRef<HTMLSelectElement>(null)
     const personRef = useRef<HTMLSelectElement>(null)
     const [selectedPersonId, setSelectedPersonId] = useState<number>(null)
-
-
-    useEffect(() => {
-        const initialAction = async() => {
-            fetchAgentSetting()
-        }
-        initialAction()
-    }, [])
 
     useEffect(() => {
         if(agentStatus !== undefined && agentStatus !== '' && typeof agentStatus !== 'string' && agentStatus.is_enabled == true) {
@@ -105,7 +96,7 @@ export const Agent = (): React.ReactElement => {
 
     return (
         <>
-            {agentStatus !== undefined &&
+            {agentStatus !== undefined && 
                 <div>
                     <OnOffBtn
                         setSwitchVal={setSwitchVal}

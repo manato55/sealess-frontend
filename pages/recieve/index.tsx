@@ -1,37 +1,20 @@
 import React,{useEffect,} from 'react'
 import {useProgress} from '../../hooks/useProgress'
-import Loading from '../../components/layouts/Loading';
 import TableContainer from '../../components/layouts/TableContainer';
 import Table from '../../components/layouts/Table';
-import {useGlobal} from '../../hooks/useGlobal';
 import Link from 'next/link';
 import { toDateWeek } from '../../lib/dateHelper';
-import { isAsynced } from '../../store/atom'
-import { useSetRecoilState,useRecoilValue } from 'recoil'
+import { useSWRFunc } from '../../hooks/useSWRFunc';
 
 
 export const Receive = (): React.ReactElement => {
-    const {fetchRecievedTask, recievedTask} = useProgress();
-    const {updateLoading, asyncLoading, initializeLoading} = useGlobal();
-    const asynced = useRecoilValue(isAsynced)
-    const setIsAsynced = useSetRecoilState(isAsynced)
-
-    
-    useEffect(() => {
-        const initialAction = async() => {
-            await fetchRecievedTask()
-            setIsAsynced(true)
-        }
-        initialAction()
-        return () => {
-            setIsAsynced(false)
-        }
-    }, [])
+    const {isLoading,recievedTask} = useSWRFunc();
 
     return (
         <>
-            {asynced === true ?
-                recievedTask.length !== 0 ?
+            {isLoading ? (<p>Loading...</p>
+                ) : (
+                recievedTask?.length > 0 ?
                     <TableContainer>
                         <Table>
                             <thead>
@@ -42,7 +25,7 @@ export const Receive = (): React.ReactElement => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {recievedTask.map((task,index) => 
+                                {recievedTask?.map((task,index) => 
                                     <tr key={index}>
                                         <td>
                                             <Link href="/recieve/[id]" as={`/recieve/${task.id}`}>
@@ -57,9 +40,7 @@ export const Receive = (): React.ReactElement => {
                         </Table>
                     </TableContainer>
                 :'案件はありません。'
-            :
-                <Loading/>
-            }
+            )}
         </>
     )
 }
