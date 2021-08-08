@@ -15,7 +15,7 @@ interface Task {
 }
 
 
-interface Unreached {
+export interface Unreached {
     id: number;
     title: string;
     user: {

@@ -1,10 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react'
 import {useCompleted} from '../../hooks/useCompleted'
-import Link from 'next/link';
-import { toDateWeek } from '../../lib/dateHelper';
-import TableContainer from '../../components/layouts/TableContainer';
-import Table from '../../components/layouts/Table';
-
+import TableContents from '../../components/molecules/TableContents';
 
 export const History = (): React.ReactElement => {
     const {fetchCompletedTask, completedTask} = useCompleted();
@@ -23,6 +19,7 @@ export const History = (): React.ReactElement => {
         initialAction()
         return () => {
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     async function unitChoice(e: React.ChangeEvent<HTMLSelectElement>): Promise<void> {
@@ -38,30 +35,11 @@ export const History = (): React.ReactElement => {
                         )}
                 </select>
                 {completedTask?.length !== 0 ?
-                    <TableContainer>
-                        <Table>
-                            <thead>
-                                <tr>
-                                    <th>案件名</th>
-                                    <th>決定権者</th>
-                                    <th>完了日時</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {completedTask?.map((task,index) => 
-                                    <tr key={index}>
-                                        <td>
-                                            <Link href="/history/[id]" as={`/history/${task.id}`}>
-                                                <a>{task.title}</a>
-                                            </Link>
-                                        </td>
-                                        <td>{task[`${task.process}_user`].name}</td>
-                                        <td>{toDateWeek(task.updated_at)}</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </Table>
-                    </TableContainer>
+                    <TableContents 
+                        tasks={completedTask}
+                        th={['案件名','決定権者','完了日時']}
+                        pathName={'history'}
+                    />
                 :<div>{'案件はありません。'}</div>}
             </div>
         </>

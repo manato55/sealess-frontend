@@ -3,18 +3,17 @@ import { fetcher } from '../axios/fetcher';
 import { useSetRecoilState } from 'recoil'
 import { http, userStatus } from '../store/atom'
 
-interface Task {
+export interface Task {
     id: number;
     title:string;
-    returned_task: {
+    returned_task?: {
         user_id: number;
         user: {
             section: string;
             name: string;
         }
     }
-    updated_at: string;
-    user_id: number;
+    user_id?: number;
 }
 
 export const useReturnedTask = () => {

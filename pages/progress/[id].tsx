@@ -5,10 +5,10 @@ import BasicInfoInProgress from '../../components/progress/BasicInfoInProgress'
 import AdditiveInProgress from '../../components/progress/AdditiveInProgress'
 import RouteInProgress from '../../components/progress/RouteInProgress'
 import SwitchTab from '../../components/layouts/SwitchTab'
-import Button2 from '../../components/layouts/Button'
 import Loading from '../../components/layouts/Loading';
 import {useGlobal} from '../../hooks/useGlobal';
 import styled from 'styled-components'
+import BasicInfo from '../../components/molecules/BasicInfo'
 
 
 export const TaskDetail = (): React.ReactElement => {
@@ -63,9 +63,10 @@ export const TaskDetail = (): React.ReactElement => {
                             isComment={false}
                         />
                         {currComponent === 'basic' ? 
-                            <BasicInfoInProgress 
+                            <BasicInfo 
                                 title={title}
-                                contents={contents}    
+                                contents={contents}
+                                editable={false} 
                             />:
                         currComponent === 'additive' ?
                             <AdditiveInProgress 

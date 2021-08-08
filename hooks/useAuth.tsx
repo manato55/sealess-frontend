@@ -3,8 +3,8 @@ import {useRouter} from 'next/router'
 import axios from '../axios'
 import {useDraft} from './useDraft'
 import { toast } from 'react-toastify'
-import { useSetRecoilState } from 'recoil'
-import { http, userStatus } from '../store/atom'
+import { useRecoilState } from 'recoil'
+import { http, userStatus, loginErrorMessage } from '../store/atom'
 
 
 type RegisterUser = {
@@ -44,7 +44,6 @@ export const AuthContext = createContext({} as {
     departmentErrFlag: boolean;
     jobTitleErrFlag: boolean;
     sectionErrFlag: boolean;
-    loginErrorMessage: string;
     linkMessage: string;
     userInfoFromToken: object | string;
     passwordReRegister: (email: string) => void;
@@ -79,15 +78,16 @@ export const AuthProvider = ({children}) => {
     const [jobTitleErrFlag, setJobTitleErrFlag] = useState(false)
     const [emailErrFlag, setEmailErrFlag] = useState(false)
     const [passwordErrFlag, setPasswordErrFlag] = useState(false)
-    const [loginErrorMessage, setLoginErrorMessage] = useState('')
+    // const [loginErrorMessage, setLoginErrorMessage] = useState('')
     const [userInfoFromToken, setUserInfoFromToken] = useState<object>()
     const [linkMessage ,setLinkMessage] = useState<string>('')
-    const setHttpStatus = useSetRecoilState(http)
-    const setUser = useSetRecoilState(userStatus)
+    const [httpStatus, setHttpStatus] = useRecoilState(http)
+    const [user, setUser] = useRecoilState(userStatus)
+    const [errorMessage, setErrorMessage] = useRecoilState(loginErrorMessage)
 
 
     async function login(user: LoginUser): Promise<void> {
-        setLoginErrorMessage('')
+        setErrorMessage('')
         const res = await axios.post('login',user).catch(error => error.response)
         if(res.status === 200) {
             setUser(res.data.user)
@@ -101,7 +101,7 @@ export const AuthProvider = ({children}) => {
                 router.push('/')
             }
         } else if(res.status === 422) {
-            setLoginErrorMessage(res.data.errors.message)
+            setErrorMessage(res.data.errors.message)
         } else {
             setHttpStatus(res.status)
         }
@@ -218,8 +218,7 @@ export const AuthProvider = ({children}) => {
         setLinkMessage('')
         const res = await axios.post('re-password',{email:email}).catch(error=>error.response)
         if(res.status === 422) {
-            setEmailErrFlag(true)
-            setError(res.data)
+            setErrorMessage(res.data.email)
         } else if(res.status === 200) {
             setLinkMessage('メールを送信しました。')
         } else {
@@ -271,7 +270,6 @@ export const AuthProvider = ({children}) => {
         departmentErrFlag,
         sectionErrFlag,
         jobTitleErrFlag,
-        loginErrorMessage,
     }
 
     return <AuthContext.Provider value={value}>

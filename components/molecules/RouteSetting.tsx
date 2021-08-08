@@ -1,5 +1,5 @@
-import React, { useEffect, useState, Dispatch, SetStateAction, useRef } from 'react';
-import {DEPARTMENT, SECTION, JOBTITLE } from '../info/JobInfo'
+import React, { useEffect, useState, Dispatch, SetStateAction, useRef,useCallback } from 'react';
+import {DEPARTMENT, SECTION } from '../info/JobInfo'
 import {useDraft} from '../../hooks/useDraft'
 import styled from 'styled-components';
 import Common from '../../styles/Common.module.scss'
@@ -7,7 +7,7 @@ import {useRoute} from '../../hooks/useRoute'
 
 
 
-type TopProps = {
+interface Props {
     setPplInRoute: Dispatch<SetStateAction<{}>>;
     pplInRoute: {}[];
     process: number|boolean|string;
@@ -23,7 +23,7 @@ type TopProps = {
     }[];
 }
 
-export const Routing = (props: TopProps) => {
+export const Routing = (props: Props) => {
     const {fetchSectionPpl, sectionPpl} = useDraft();
     const {fetchRegisteredRoute, registeredRoute} = useRoute()
     const [department, setDepartment] = useState<string>()
@@ -37,7 +37,8 @@ export const Routing = (props: TopProps) => {
     const routeRef = useRef<HTMLSelectElement>(null)
     let cnt:number = 0;
 
-    const countUp = () => { cnt++ }
+
+    const countUp = () => { cnt++ };
 
     const countRestore = () => { cnt = 0 }
 
@@ -47,9 +48,10 @@ export const Routing = (props: TopProps) => {
             await fetchRegisteredRoute()
         }
         initialAction()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const depChoice = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    const depChoice = useCallback((e: React.ChangeEvent<HTMLSelectElement>):void => {
         setSelectedPersonId(null)
         // 部を変える度にselectboxを初期化
         sectionRef.current.value = 'choice'
@@ -64,18 +66,18 @@ export const Routing = (props: TopProps) => {
                 setSection(SECTION.dev);
                 break;
         }
-    }
+    }, []);
 
-    const secChoice = async(e: React.ChangeEvent<HTMLSelectElement>) => {
+    const secChoice = useCallback(async(e: React.ChangeEvent<HTMLSelectElement>): Promise<void> => {
         setSelectedPersonId(null)
         // 課を変える度にselectboxを初期化
         personRef.current.value = 'choice'
         await fetchSectionPpl(e.target.value);
-    }
+    }, [fetchSectionPpl]);
 
-    const selectedPerson = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    const selectedPerson = useCallback((e: React.ChangeEvent<HTMLSelectElement>):void => {
         setSelectedPersonId(Number(e.target.value))
-    }
+    }, [setSelectedPersonId]);
 
     const addPersonToRoute = () => {
         if(selectedPersonId === null) {
@@ -108,7 +110,7 @@ export const Routing = (props: TopProps) => {
         props.setPplInRoute(spreaded)
     }
 
-    const labelChoice = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    const labelChoice = useCallback((e: React.ChangeEvent<HTMLSelectElement>):void => {
         const routeTmp: {id:number} = registeredRoute.find(route => route.id === Number(e.target.value))
         setSelectedRoute(routeTmp)
         let routeArrTmp:object[] = []
@@ -119,7 +121,7 @@ export const Routing = (props: TopProps) => {
         }
         props.setPplInRoute(routeArrTmp)
         setPplInRouteChild(routeArrTmp)
-    }
+    }, [props, registeredRoute]);
     
     return (
         <>
@@ -230,4 +232,4 @@ const AgentPerson = styled.span`
 `;
 
 
-export default Routing
+export default React.memo(Routing)

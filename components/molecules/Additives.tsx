@@ -1,7 +1,8 @@
-import {useState, RefObject, useImperativeHandle, useEffect, Dispatch, SetStateAction, useRef, useCallback} from 'react'
+import React,{useState, RefObject, useEffect, Dispatch, SetStateAction, useCallback} from 'react'
 import {useProgress} from '../../hooks/useProgress'
 import {useReturned} from '../../hooks/useReturned'
 import styled from 'styled-components'
+import Input from '../atoms/Input'
 
 interface Props {
     setFile: Dispatch<SetStateAction<File[]>>;
@@ -81,7 +82,7 @@ export const Additives = (props: Props): React.ReactElement => {
 
     return (
         <>
-            <input 
+            <Input 
                 type="file"
                 ref={props.fileRef}
                 onChange={handleChangeFile}
@@ -109,4 +110,4 @@ const RemoveFileBtn = styled.span`
 `;
 
 
-export default Additives
+export default React.memo(Additives)

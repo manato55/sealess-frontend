@@ -3,11 +3,12 @@ import styled, {css} from 'styled-components'
 
 
 interface Props {
-    background?: string
+    background?: string;
+    marginTop?: number;
 }
 
 const Button = styled.button<Props>`
-    margin: 40px 0;
+    margin-top: ${(props) => props.marginTop}px;
     height: 50px;
     font-size: large;
     width: 100%;
@@ -20,8 +21,8 @@ const Button = styled.button<Props>`
             `;
           case 'light':
             return css`
-              background-color: ${(props) => props.theme.palette.lightGray.main};
-              color: ${(props) => props.theme.palette.lightGray.contrastText};
+              background-color: ${(props) => props.theme.palette.primary.main};
+              color: ${(props) => props.theme.palette.primary.contrastText};
             `;
         }
       }}
@@ -29,6 +30,7 @@ const Button = styled.button<Props>`
 
 Button.defaultProps = {
     background: 'dark',
+    marginTop: 40,
   };
 
 

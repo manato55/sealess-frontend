@@ -1,14 +1,13 @@
-import React,{useState, useEffect, useRef, RefObject} from 'react'
-import BasicInfo from '../components/draft/BasicInfo'
-import Additives from '../components/draft/Additives'
-import Routing from '../components/draft/Routing'
-import SwitchTab from '../components/layouts/SwitchTab'
+import React,{useState, useEffect, useRef} from 'react'
+import BasicInfo from '../components/molecules/BasicInfo'
+import Additives from '../components/molecules/Additives'
+import RouteSetting from '../components/molecules/RouteSetting'
 import styled from 'styled-components'
 import {useDraft} from '../hooks/useDraft'
 import { toast } from 'react-toastify'
-import styles from '../styles/Home.module.scss'
-import Button from '../components/layouts/Button'
-
+import Button from '../components/atoms/Button'
+import LabelChoice from '../components/molecules/LabelChoice'
+import ErrorMessageWrapper from '../components/atoms/ErrorMessageWrapper'
 
 type draft = {
     title: string;
@@ -75,7 +74,7 @@ export const Top = (): React.ReactElement => {
     
     return (
         <>  
-            <SwitchTab 
+            <LabelChoice 
                 currComponent={currComponent}
                 setCurrComponent={setCurrComponent}
                 isComment={false}
@@ -83,16 +82,16 @@ export const Top = (): React.ReactElement => {
             {Object.keys(validationMessage).length > 0 ? 
                 <ul>
                     {validationMessage.title &&
-                        <li className={styles.errorMessage}>{validationMessage.title}</li>
+                        <ErrorMessageWrapper>{validationMessage.title}</ErrorMessageWrapper>
                     }
                     {validationMessage.content &&
-                        <li className={styles.errorMessage}>{validationMessage.content}</li>
+                        <ErrorMessageWrapper>{validationMessage.content}</ErrorMessageWrapper>
                     }
                     {validationMessage.route &&
-                        <li className={styles.errorMessage}>{validationMessage.route}</li>
+                        <ErrorMessageWrapper>{validationMessage.route}</ErrorMessageWrapper>
                     }
                     {fileNumber.length !== 0 ? fileNumber.map((file,index) => 
-                        <li key={index} className={styles.errorMessage}>{validationMessage[file][0]}</li>
+                        <ErrorMessageWrapper key={index}>{validationMessage[file][0]}</ErrorMessageWrapper>
                     ):''}
                 </ul>
             :''}
@@ -101,7 +100,7 @@ export const Top = (): React.ReactElement => {
                     setTitle={setTitle}
                     title={title}
                     setContents={setContents}
-                    contents={contents}    
+                    contents={contents}  
                 />:
             currComponent === 'additive' ?
                 <Additives 
@@ -112,7 +111,7 @@ export const Top = (): React.ReactElement => {
                     taskId={null}
                     setExistingFile={null}
                 />:
-                <Routing
+                <RouteSetting
                     setPplInRoute={setPplInRoute}
                     pplInRoute={pplInRoute}
                     process={false}

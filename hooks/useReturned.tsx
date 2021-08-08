@@ -74,8 +74,6 @@ export const ReturnedProvider = ({children}) => {
     const {registerDraft} = useDraft()
     const setHttpStatus = useSetRecoilState(http)
 
-
-
     async function fetchReturnedTask(): Promise<void> {
         const res = await axios.get('returned/fetch-task').catch(error => error.response)
         if(res.status === 200) {
@@ -91,7 +89,6 @@ export const ReturnedProvider = ({children}) => {
             setHttpStatus(res.status)
         }
     }
-
     
     async function removeFile(data): Promise<void> {
         const res = await axios.post('returned/remove-file',data).catch(error => error.response); 

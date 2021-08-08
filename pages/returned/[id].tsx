@@ -4,13 +4,14 @@ import {useGlobal} from '../../hooks/useGlobal';
 import {useDraft} from '../../hooks/useDraft';
 import Loading from '../../components/layouts/Loading';
 import {useRouter} from 'next/router'
-import BasicInfo from '../../components/draft/BasicInfo'
-import Additives from '../../components/draft/Additives'
-import Routing from '../../components/draft/Routing'
-import Comment from '../../components/draft/Comment'
-import SwitchTab from '../../components/layouts/SwitchTab'
-import styles from '../../styles/Home.module.scss'
-import styled from 'styled-components'
+import BasicInfo from '../../components/molecules/BasicInfo'
+import Additives from '../../components/molecules/Additives'
+import Routing from '../../components/molecules/RouteSetting'
+import Comment from '../../components/organisms/Comment'
+import LabelChoice from '../../components/molecules/LabelChoice'
+import Button from '../../components/atoms/Button'
+import ErrorMessageWrapper from '../../components/atoms/ErrorMessageWrapper'
+
 
 
 type draft = {
@@ -121,33 +122,33 @@ export const ReturnedDetail = (): React.ReactElement => {
         <> 
             {asyncLoading === true ?
                 <div>
-                    <SwitchTab 
+                    <LabelChoice 
                         currComponent={currComponent}
                         setCurrComponent={setCurrComponent}
                         isComment={true}
                     />
-                    {Object.keys(validationMessage).length > 0 ? 
-                        <ul>
-                            {validationMessage.title !== undefined ?
-                                <li className={styles.errorMessage}>{validationMessage.title}</li>
-                            :''}
-                            {validationMessage.content !== undefined ?
-                                <li className={styles.errorMessage}>{validationMessage.content}</li>
-                            :''}
-                            {validationMessage.route !== undefined ?
-                                <li className={styles.errorMessage}>{validationMessage.route}</li>
-                            :''}
-                            {fileNumber.length !== 0 ? fileNumber.map((file,index) => 
-                                <li key={index} className={styles.errorMessage}>{validationMessage[file][0]}</li>
-                            ):''}
-                        </ul>
-                    :''}
+                    {Object.keys(validationMessage).length > 0 &&
+                        <div>
+                            {validationMessage.title &&
+                                <ErrorMessageWrapper>{validationMessage.title}</ErrorMessageWrapper>
+                            }
+                            {validationMessage.content &&
+                                <ErrorMessageWrapper>{validationMessage.content}</ErrorMessageWrapper>
+                            }
+                            {validationMessage.route &&
+                                <ErrorMessageWrapper>{validationMessage.route}</ErrorMessageWrapper>
+                            }
+                            {fileNumber.length !== 0 && fileNumber.map((file,index) => 
+                                <ErrorMessageWrapper key={index}>{validationMessage[file][0]}</ErrorMessageWrapper>
+                            )}
+                        </div>
+                    }
                     {currComponent === 'basic' ? 
                         <BasicInfo 
                             setTitle={setTitle}
                             title={title}
                             setContents={setContents}
-                            contents={contents}    
+                            contents={contents}
                         />:
                     currComponent === 'additive' ?
                         <Additives 
@@ -168,12 +169,23 @@ export const ReturnedDetail = (): React.ReactElement => {
                         />:
                         <Comment
                             comment={returnedDetail.returned_task.comment}
+                            editable={false}
                         />
                     }
                     <br/> 
                     <div>
-                        <Button onClick={(e) => discardOrSubmit(e)}>再提出</Button>
-                        <Button onClick={(e) => discardOrSubmit(e)}>破棄</Button>
+                        <Button
+                            onClick={(e) => discardOrSubmit(e)}
+                            background={'light'}
+                        >
+                            再提出
+                        </Button>
+                        <Button 
+                            onClick={(e) => discardOrSubmit(e)}
+                            marginTop={20}
+                        >
+                            破棄
+                        </Button>
                     </div>
                 </div>
             :
@@ -183,9 +195,5 @@ export const ReturnedDetail = (): React.ReactElement => {
     )
 }
 
-
-const Button = styled.button`
-    margin-right: 20px;
-`;
 
 export default ReturnedDetail

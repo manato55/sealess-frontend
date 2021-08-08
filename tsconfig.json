@@ -22,7 +22,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "pages/returned"  ],
+, "pages/returned", "components/atoms/Logo.tsx"  ],
   "exclude": [
     "node_modules"
   ]
