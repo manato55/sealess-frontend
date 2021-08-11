@@ -1,11 +1,11 @@
-import React,{Dispatch, SetStateAction, useCallback} from 'react'
+import React,{Dispatch, SetStateAction, useCallback, useState} from 'react'
 import Button from '../atoms/Button';
 import FormWrapper from '../atoms/FormWrapper';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import Input from '../atoms/Input'
+import {useAuthenticate} from '../../hooks/useAuthenticate'
 import { useRecoilValue } from 'recoil'
-import { authErrorMessage } from '../../store/atom'
-import {useAuth} from '../../hooks/useAuth'
+import { authErrorMessage, eachErrorFlag } from '../../store/atom'
 
 
 
@@ -16,7 +16,9 @@ interface Props {
 
 export const PasswordIssuanceForm = (props: Props): React.ReactElement => {
     const errorMessage = useRecoilValue(authErrorMessage)
-    const {passwordReRegister,linkMessage} = useAuth() 
+    const errorFlag = useRecoilValue(eachErrorFlag)
+    const {passwordReRegister} = useAuthenticate() 
+    const [message, setMessage] = useState<string>('')
 
 
     const emailHandler = useCallback(
@@ -27,25 +29,25 @@ export const PasswordIssuanceForm = (props: Props): React.ReactElement => {
     );
 
     const handleSubmit = useCallback(
-        (e: React.ChangeEvent<HTMLFormElement>): void => {
+        async(e: React.ChangeEvent<HTMLFormElement>) => {
+            setMessage('')
             e.preventDefault();
-            if(props.email === '') {
-                alert('メールアドレスを入力してください。')
-                return
-            }
             if(!confirm('送信しますか？')) {
                 return
             }
-            passwordReRegister(props.email)
+            const res = await passwordReRegister(props.email)
+            if(res === 200) {
+                setMessage('リンクを付けたメールを送信しました。')
+            }
         },
         [props, passwordReRegister]
     );
 
-
     return (
         <>
             <FormWrapper>
-                <ErrorMessageWrapper>{errorMessage}</ErrorMessageWrapper>
+                {message}
+                <ErrorMessageWrapper>{errorFlag.email && errorMessage}</ErrorMessageWrapper>
                 <form onSubmit={handleSubmit}>
                     <Input 
                         type='email'

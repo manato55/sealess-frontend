@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {useRouter} from 'next/router'
-import {useAuth} from '../../hooks/useAuth'
+import {useAuthenticate} from '../../hooks/useAuthenticate'
 import Password from '../../components/molecules/Password'
 import PasswordConfirm from '../../components/molecules/PasswordConfirm'
 import Button from '../../components/atoms/Button'
@@ -10,26 +10,21 @@ import AuthWrapper from '../../components/atoms/AuthWrapper'
 
 export const PasswordIssuanceToken = () => {
     const router = useRouter();
-    const {passwordTokenCheck,userInfoFromToken,reRegisterPassword} = useAuth();
+    const {passwordTokenCheck,reRegisterPassword} = useAuthenticate();
     const [paramsToken, setParamsToken] = useState<any>(router.query.token)
     const [tokenChecker, setTokenChecker] = useState<boolean>(false)
     const [password, setPassword] = useState<string>('')
     const [passwordConfirm, setPasswordConfirm] = useState<string>('')
 
     useEffect(() => {
-        if(paramsToken !== undefined) {
-            const initialAction = async() => {
-                await passwordTokenCheck(paramsToken)
+        const initialAction = async() => {
+            const res = await passwordTokenCheck(paramsToken)
+            if(res) {
+                setTokenChecker(true)
             }
-            initialAction()
         }
+        initialAction()
     }, [paramsToken])
-
-    useEffect(() => {
-        if(userInfoFromToken !== '' && userInfoFromToken !== undefined) {
-            setTokenChecker(true)
-        }
-    }, [userInfoFromToken])
 
     async function submitRegister(): Promise<void> {
         if(password !== passwordConfirm) {

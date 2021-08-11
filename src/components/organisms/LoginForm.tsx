@@ -2,13 +2,12 @@ import React,{Dispatch, SetStateAction, useCallback} from 'react'
 import Button from '../atoms/Button';
 import FormWrapper from '../atoms/FormWrapper';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
-import Input from '../atoms/Input'
-import {useAuth} from '../../hooks/useAuth'
 import { useAuthenticate } from '../../hooks/useAuthenticate';
 import styled from 'styled-components'
 import Link from 'next/link'
 import { useRecoilValue } from 'recoil'
 import { authErrorMessage } from '../../store/atom'
+import RegisterCommonForm from '../molecules/RegisterCommonForm'
 
 
 interface Props {
@@ -28,21 +27,6 @@ export const LoginForm = (props: Props): React.ReactElement => {
     const errorMessage = useRecoilValue(authErrorMessage)
     const {login} = useAuthenticate()
 
-
-    const emailHandler = useCallback(
-        (e: React.ChangeEvent<HTMLInputElement>): void => {
-            props.setEmail(e.target.value)
-        },
-        [props],
-    );
-
-    const passwordHandler = useCallback(
-        (e: React.ChangeEvent<HTMLInputElement>): void => {
-            props.setPassword(e.target.value)
-        },
-        [props],
-    );
-
     const handleSubmit = useCallback(
             (e: React.ChangeEvent<HTMLFormElement>) => {
                 e.preventDefault();
@@ -58,21 +42,13 @@ export const LoginForm = (props: Props): React.ReactElement => {
     return (
         <>
             <FormWrapper>
-                <ErrorMessageWrapper>{errorMessage}</ErrorMessageWrapper>
+                <ErrorMessageWrapper>{errorMessage.general && errorMessage.general[0]}</ErrorMessageWrapper>
                 <form onSubmit={handleSubmit}>
-                    <Input 
-                        type='email'
-                        value={props.email}
-                        placeholder={'メールアドレス'}
-                        onChange={(e) => emailHandler(e)}
-                        marginTop={20}
-                    />
-                    <Input 
-                        type='password'
-                        value={props.password}
-                        placeholder={'パスワード'}
-                        onChange={(e) => passwordHandler(e)}
-                        marginTop={20}
+                    <RegisterCommonForm
+                        email={props.email}
+                        setEmail={props.setEmail}
+                        password={props.password}
+                        setPassword={props.setPassword}
                     />
                     <Button
                         type='submit'

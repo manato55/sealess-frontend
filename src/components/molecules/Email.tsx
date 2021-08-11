@@ -1,5 +1,4 @@
 import {Dispatch, SetStateAction} from 'react'
-import {useAuth} from '../../hooks/useAuth'
 import Input from '../atoms/Input'
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper'
 import { useRecoilValue } from 'recoil'
@@ -12,7 +11,6 @@ type AuthProps = {
 }
 
 export const Email = (props: AuthProps): React.ReactElement  => {
-    const {errorMsg,  emailErrFlag} = useAuth();
     const errorMessage = useRecoilValue(authErrorMessage)
     const errorFlag = useRecoilValue(eachErrorFlag)
 

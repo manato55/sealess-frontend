@@ -14,12 +14,13 @@ export const userStatus = atom({
 export const authErrorMessage = atom({
     key: 'authError',
     default: {
+        general: false,
         name: [],
         email: [],
         password: [],
         department: [],
         section: [],
-        jobTitle: []
+        jobTitle: [],
     },
 })
 

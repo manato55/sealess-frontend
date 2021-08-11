@@ -15,7 +15,6 @@ type Props = {
 }
 
 export const RegisterCommonForm = (props: Props): React.ReactElement  => {
-    const {errorMsg,  emailErrFlag, passwordErrFlag} = useAuth();
     const errorMessage = useRecoilValue(authErrorMessage)
     const errorFlag = useRecoilValue(eachErrorFlag)
     

@@ -3,8 +3,9 @@ import Header from '../molecules/Header'
 import LeftNav from '../molecules/LeftNav'
 import styled from 'styled-components'
 import { useRecoilValue } from 'recoil'
-import { isNavToggle, userStatus } from '../../store/atom'
+import { isNavToggle, userStatus, http } from '../../store/atom'
 import { Slide } from '@material-ui/core';
+import Error from '../organisms/Error'
 
 
 interface Props {
@@ -15,27 +16,32 @@ interface Props {
 export const BasicLayout = (props: Props) => {
     const isNav = useRecoilValue(isNavToggle)
     const user = useRecoilValue(userStatus)
+    const httpStatusCode = useRecoilValue(http)
     
     return (
         <>
             <Header />
-            <ContentWrapper>
-                {user?.id &&
-                    <Slide 
-                        in={isNav} 
-                        direction="right"
-                        unmountOnExit
-                        mountOnEnter
-                    >
-                        <NavWrapper>
-                            <LeftNav />
-                        </NavWrapper>
-                    </Slide>
-                }
-                <BodyWrapper>
-                    {props.children}
-                </BodyWrapper>
-            </ContentWrapper>
+            {httpStatusCode ? 
+                <Error errorCode={httpStatusCode}/>
+            :
+                <ContentWrapper>
+                    {user?.id &&
+                        <Slide 
+                            in={isNav} 
+                            direction="right"
+                            unmountOnExit
+                            mountOnEnter
+                        >
+                            <NavWrapper>
+                                <LeftNav />
+                            </NavWrapper>
+                        </Slide>
+                    }
+                    <BodyWrapper>
+                        {props.children}
+                    </BodyWrapper>
+                </ContentWrapper>
+            }
         </>
     )
 }
