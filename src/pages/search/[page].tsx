@@ -7,7 +7,8 @@ import Paginate from '../../components/molecules/Paginate'
 import { useRouter } from 'next/router';
 import TableContents from '../../components/molecules/TableContents';
 import SearchFunction from '../../components/organisms/SearchFunction'
-
+import { useRecoilState } from 'recoil'
+import { authErrorMessage } from '../../store/atom'
 
 type Data = {
     task: string;
@@ -15,11 +16,21 @@ type Data = {
     year: number;
 }
 
+
+type Task = {
+    id: number;
+    title: string;
+    user: {
+        name: string;
+    }
+    updated_at: string;
+}[]
+
 export const Search = (): React.ReactElement => {
     const [task, setTask] = useState<string>('')
     const [name, setName] = useState<string>('')
     const router = useRouter();
-    const {searchTask, searchedTask, inputError, clearInputError} = useDraft();
+    const {searchTask} = useDraft();
     const [selectedJapYear, setSelectedJapYear] = useState<number>();
     let offset = router.query.page
         ? Number.parseInt(String(router.query.page), 10)
@@ -29,19 +40,25 @@ export const Search = (): React.ReactElement => {
     const nameRef = useRef<HTMLInputElement>(null)
     const yearRef = useRef<HTMLSelectElement>(null)
     const {isError, fiscalYear} = useFiscalYear();
+    const [searchedTask, setSearchedTask] = useState<Task[]>()
+    const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage)
 
-    // ページリロード時の対応(アンマウントではないのでローカルストレージの情報は削除されない)
+    // ページリロード時の対応
     useEffect(() => {
         if(localStorage['data'] !== undefined) {
             const data: Data = JSON.parse(localStorage['data'])
-            searchTask(data,offset)
+            const reSearch = async() => {
+                const res = await searchTask(data,offset)
+                setSearchedTask(res)
+            }
+            reSearch()
             taskRef.current.value = data.task
             nameRef.current.value = data.name
             setTask(data.task)
             setName(data.name)
             setSelectedJapYear(data.year)
             if(data.year !== undefined) {
-                const yearAction = async() => {
+                const yearAction = () => {
                     if(yearRef.current !== null) {
                         yearRef.current.value = String(data.year)
                     }
@@ -50,11 +67,11 @@ export const Search = (): React.ReactElement => {
             }
         }
         return () => {
-            clearInputError()
+            setErrorMessage({...errorMessage, general: false})
         }
     }, [])
 
-    const submitSearch = () => {
+    const submitSearch = async() => {
         // ページ途中で検索を実行した場合に１ページ目に戻す
         router.push('/search/1'); 
         let offset = 1
@@ -63,7 +80,8 @@ export const Search = (): React.ReactElement => {
             name: name,
             year: selectedJapYear,
         }
-        searchTask(data,offset)
+        const res = await searchTask(data,offset)
+        setSearchedTask(res)
         localStorage['data'] = JSON.stringify(data)
     }
 
@@ -76,7 +94,6 @@ export const Search = (): React.ReactElement => {
     return (
         <>
             <SearchFunction 
-                inputError={inputError}
                 setTask={setTask}
                 setName={setName}
                 setSelectedJapYear={setSelectedJapYear}
@@ -96,9 +113,9 @@ export const Search = (): React.ReactElement => {
                     {searchedTask[0].length > 0 ?
                         <div>
                             <TableContents 
-                            tasks={searchedTask[0]}
-                            th={['案件名','担当者','完了日時']}
-                            pathName={'history'}
+                                tasks={searchedTask[0]}
+                                th={['案件名','担当者','完了日時']}
+                                pathName={'history'}
                             />
                             <Paginate
                                 contents={searchedTask[1]}

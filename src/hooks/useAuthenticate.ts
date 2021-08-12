@@ -14,6 +14,10 @@ export type ErrorFlag = {
     department?: boolean;
     section?: boolean;
     jobTitle?: boolean;
+    content?: boolean;
+    route?: boolean;
+    title?: boolean;
+    file?: boolean;
 }
 
 type LoginUser = {
@@ -27,10 +31,6 @@ export const useAuthenticate = () => {
     const router = useRouter();
     const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage)
     const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag)
-
-    const _reverseErrorToInital = () => {
-        setErrorMessage(undefined)
-    }
 
 
     return {
@@ -64,8 +64,6 @@ export const useAuthenticate = () => {
                 await setUser(undefined)
                 localStorage.removeItem('token')
                 localStorage.removeItem('data');
-                // clearValidationMessage()
-                // clearSearchedTask()
                 router.push('/login')
             } else {
                 setHttpStatus(res.status)

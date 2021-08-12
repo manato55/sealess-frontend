@@ -1,19 +1,14 @@
 import {useState,useEffect} from 'react'
-import {useRoute} from '../../hooks/useRoute'
+import {useRouting} from '../../hooks/useRouting'
 import Button from '../../components/atoms/Button'
 import RouteRegister from '../../components/organisms/RouteRegister'
 
 
 export const RouteTmpl = (): React.ReactElement => {
     const [pplInRoute, setPplInRoute] = useState([])
-    const {registerRoute, validationError,clearValidationMessage} = useRoute()
+    const {registerRoute} = useRouting()
     const [routeLabel, setRouteLabel] = useState<string>('')
-
-    useEffect(() => {
-        return () => {
-            clearValidationMessage()
-        };
-    }, []);
+    
 
     const register = (): void => {
         if(pplInRoute.length === 0) {
@@ -30,7 +25,6 @@ export const RouteTmpl = (): React.ReactElement => {
         <>
             <RouteRegister 
                 pplInRoute={pplInRoute}
-                validationError={validationError}
                 setRouteLabel={setRouteLabel}
                 setPplInRoute={setPplInRoute}
             />

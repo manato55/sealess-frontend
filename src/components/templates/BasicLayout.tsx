@@ -62,6 +62,7 @@ const BodyWrapper = styled.div`
     max-width: 1000px;
     margin: 30px auto;
     padding: 0 10px;
+    overflow-x: scroll;
 `;
 
 export default BasicLayout

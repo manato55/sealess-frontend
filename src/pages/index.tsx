@@ -3,12 +3,12 @@ import BasicInfo from '../components/molecules/BasicInfo'
 import Additives from '../components/molecules/Additives'
 import RouteSetting from '../components/molecules/RouteSetting'
 import {useDraft} from '../hooks/useDraft'
-import { toast } from 'react-toastify'
 import Button from '../components/atoms/Button'
 import LabelChoice from '../components/molecules/LabelChoice'
-import ErrorMessageWrapper from '../components/atoms/ErrorMessageWrapper'
+import DraftValidationError from '../components/molecules/DraftValidataionError'
 
-type draft = {
+
+type Draft = {
     title: string;
     content: string;
     file: File[],
@@ -18,7 +18,7 @@ type draft = {
 
 
 export const Top = (): React.ReactElement => {
-    const {registerDraft,validationMessage,clearValidationMessage} = useDraft();
+    const {registerDraft} = useDraft();
     const [title, setTitle] = useState<string>('');
     const [contents, setContents] = useState<string>('');
     const [currComponent, setCurrComponent] = useState<string>('basic')
@@ -27,49 +27,25 @@ export const Top = (): React.ReactElement => {
     const fileRef = useRef<HTMLInputElement>(null);
     const [fileState, setFileState] = useState<any>();
     const [fileNumber, setFileNumber] = useState<string[]>([])
-    const [registerFlag, setRegisterFlag] = useState<boolean>(false)
-
 
     useEffect(() => {
         setFileState(fileRef)
     }, [])
 
-    useEffect(() => {
-        return () => {
-            clearValidationMessage()
-        };
-    }, []);
-
-    async function submitDraft(): Promise<void> {
+    const  submitDraft = () => {
         if(!confirm('提出しますか？')) {
             return;
         }
         setFileNumber([])
-        const draft: draft = {
+        const draft: Draft = {
             title: title,
             content: contents,
             file: file,
             ppl: pplInRoute,
             action: '',
         }
-        await registerDraft(draft);
-        setRegisterFlag(true)
+        registerDraft(draft);
     }
-
-    useEffect(() => {
-        if(registerFlag === true && Object.keys(validationMessage).length === 0) {
-            toast.success('登録しました。')
-        }
-        setRegisterFlag(false)
-    }, [registerFlag, validationMessage])
-
-    useEffect(() => {
-        if(Object.keys(validationMessage).length > 0) {
-            let keys: string[] = Object.keys(validationMessage)
-            let fileExtracted: string[] = keys.filter(v => v.match(/file/))
-            setFileNumber(fileExtracted)
-        }
-    }, [validationMessage])
     
     return (
         <>  
@@ -78,22 +54,7 @@ export const Top = (): React.ReactElement => {
                 setCurrComponent={setCurrComponent}
                 isComment={false}
             />
-            {Object.keys(validationMessage).length > 0 &&
-                <ul>
-                    {validationMessage.title &&
-                        <ErrorMessageWrapper>{validationMessage.title}</ErrorMessageWrapper>
-                    }
-                    {validationMessage.content &&
-                        <ErrorMessageWrapper>{validationMessage.content}</ErrorMessageWrapper>
-                    }
-                    {validationMessage.route &&
-                        <ErrorMessageWrapper>{validationMessage.route}</ErrorMessageWrapper>
-                    }
-                    {fileNumber.length !== 0 && fileNumber.map((file,index) => 
-                        <ErrorMessageWrapper key={index}>{validationMessage[file][0]}</ErrorMessageWrapper>
-                    )}
-                </ul>
-            }
+            <DraftValidationError />
             {currComponent === 'basic' ? 
                 <BasicInfo 
                     setTitle={setTitle}

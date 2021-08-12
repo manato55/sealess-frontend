@@ -1,29 +1,38 @@
 import React, {useEffect, useRef, useState} from 'react'
-import {useCompleted} from '../../hooks/useCompleted'
+import {useComplete} from '../../hooks/useComplete'
 import TableContents from '../../components/molecules/TableContents';
 
+
+type Task = {
+    id: number;
+    title: string;
+    process: string;
+    updated_at: string;
+}
+
 export const History = (): React.ReactElement => {
-    const {fetchCompletedTask, completedTask} = useCompleted();
+    const {fetchCompletedTask} = useComplete();
     const sortChoice = [
         {ja: "個人", en: "individual"},
         {ja: "部", en: "dep"},
         {ja: "課", en: "sec"},
     ]
     const unitRef = useRef<HTMLSelectElement>(null)
+    const [completedTask, setCompletedTask] = useState<Task[]>()
 
     useEffect(() => {
         const initialAction = async() => {
             // 初期表示は個人案件のみ取得するための引数を入力
-            await fetchCompletedTask(sortChoice[0].en)
+            const res = await fetchCompletedTask(sortChoice[0].en)
+            setCompletedTask(res)
         }
         initialAction()
-        return () => {
-        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     async function unitChoice(e: React.ChangeEvent<HTMLSelectElement>): Promise<void> {
-        await fetchCompletedTask(e.target.value)
+        const res = await fetchCompletedTask(e.target.value)
+        setCompletedTask(res)
     }
 
     return (

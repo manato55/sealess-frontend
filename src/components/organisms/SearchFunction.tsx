@@ -1,8 +1,10 @@
 import React, {Dispatch, SetStateAction, LegacyRef} from 'react'
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper'
+import { useRecoilValue } from 'recoil'
+import { authErrorMessage } from '../../store/atom'
+
 
 interface Props {
-    inputError: string[];
     setTask: Dispatch<SetStateAction<string>>;
     setName: Dispatch<SetStateAction<string>>;
     setSelectedJapYear: Dispatch<SetStateAction<number>>;
@@ -13,9 +15,11 @@ interface Props {
 }
 
 export const SearchFunction = (props: Props): React.ReactElement => {
+    const errorMessage = useRecoilValue(authErrorMessage)
+
     return (
         <>
-            <ErrorMessageWrapper>{props.inputError !== undefined && props.inputError}</ErrorMessageWrapper>
+            <ErrorMessageWrapper>{errorMessage.general && errorMessage.general}</ErrorMessageWrapper>
             <p>案件名</p>
             <input
                 type="text"

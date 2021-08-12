@@ -7,19 +7,15 @@ import AddedComment from '../../../../components/organisms/AddedComment'
 
 export const Comment = (): React.ReactElement => {
     const router = useRouter();
-    const [paramsId, setParamsId] = useState<number>()
+    const [paramsId, setParamsId] = useState<number>(Number(router.query.id))
     const [comment, setComment] = useState<string>()
     const {returnToDrafter} = useProgress();
-    const {errorMessage} = useProgress();
 
-    
-    useEffect(() => {
-        if (router.asPath !== router.route) {
-            setParamsId(Number(router.query.id));
-        }
-    }, [router]);
 
     const submit = () => {
+        if(!confirm('提出しますか？')) {
+            return;
+        }
         const data: {
             id: number;
             comment: string;
@@ -35,7 +31,6 @@ export const Comment = (): React.ReactElement => {
     return (
         <>
             <AddedComment 
-                errorMessage={errorMessage}
                 setComment={setComment}
             />
             <Button 

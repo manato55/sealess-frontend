@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import {useReturned} from '../../hooks/useReturned';
-import {useGlobal} from '../../hooks/useGlobal';
+import {useReturnedTask} from '../../hooks/useReturnedTask';
 import {useDraft} from '../../hooks/useDraft';
 import Loading from '../../components/atoms/Loading';
 import {useRouter} from 'next/router'
@@ -10,8 +9,7 @@ import Routing from '../../components/molecules/RouteSetting'
 import Comment from '../../components/organisms/Comment'
 import LabelChoice from '../../components/molecules/LabelChoice'
 import Button from '../../components/atoms/Button'
-import ErrorMessageWrapper from '../../components/atoms/ErrorMessageWrapper'
-
+import DraftValidationError from '../../components/molecules/DraftValidataionError'
 
 
 type draft = {
@@ -34,17 +32,39 @@ type agent = {
     agent_user: number;
 }
 
+
+type RD = {
+    title: string;
+    content: string;
+    returned_task?: {
+        comment: string
+    };
+    process: string;
+    filename: string;
+    id: number;
+    agent_statuses: {
+        route: string;
+        user: {
+            name: string;
+            id: number;
+            department: string;
+            section: string;
+        }
+        agent_user: number;
+    }[];
+}
+
+
 export const ReturnedDetail = (): React.ReactElement => {
-    const {fetchReturnedDetail, returnedDetail, reSubmitReturnedTask, discardReturnedTask } = useReturned();
-    const {validationMessage,clearValidationMessage} = useDraft();
+    const {fetchReturnedDetail, discardReturnedTask } = useReturnedTask();
+    const {registerDraft} = useDraft();
     const router = useRouter();
+    const [returnedDetail, setReturnedDetail] = useState<RD>();
     const [paramsId, setParamsId] = useState<number>(Number(router.query.id))
-    const {updateLoading, asyncLoading} = useGlobal();
     const [title, setTitle] = useState<string>('');
     const [contents, setContents] = useState<string>('');
     const [currComponent, setCurrComponent] = useState<string>('basic')
     const [file, setFile] = useState<File[]>()
-    const [fileNumber, setFileNumber] = useState<string[]>([])
     const [existingFile, setExistingFile] = useState<string>('')
     const [fileState, setFileState] = useState<any>();
     const fileRef = useRef<HTMLInputElement>(null);
@@ -55,19 +75,11 @@ export const ReturnedDetail = (): React.ReactElement => {
 
 
     useEffect(() => {
-        return () => {
-            clearValidationMessage()
-        };
-    }, []);
-
-    useEffect(() => {
-        if(paramsId !== undefined) {
-            const initialAction = async() => {
-                await fetchReturnedDetail(paramsId)
-                updateLoading()
-            }
-            initialAction()
+        const initialAction = async() => {
+            const res = await fetchReturnedDetail(paramsId)
+            setReturnedDetail(res)
         }
+        initialAction()
     },[paramsId])
 
     useEffect(() => {
@@ -112,37 +124,23 @@ export const ReturnedDetail = (): React.ReactElement => {
         }
 
         if(value === '再提出') {
-            reSubmitReturnedTask(draft)
+            registerDraft(draft)
         } else {
             discardReturnedTask(paramsId)
         }
     }
 
+
     return (
         <> 
-            {asyncLoading === true ?
+            {returnedDetail ?
                 <div>
                     <LabelChoice 
                         currComponent={currComponent}
                         setCurrComponent={setCurrComponent}
                         isComment={true}
                     />
-                    {Object.keys(validationMessage).length > 0 &&
-                        <div>
-                            {validationMessage.title &&
-                                <ErrorMessageWrapper>{validationMessage.title}</ErrorMessageWrapper>
-                            }
-                            {validationMessage.content &&
-                                <ErrorMessageWrapper>{validationMessage.content}</ErrorMessageWrapper>
-                            }
-                            {validationMessage.route &&
-                                <ErrorMessageWrapper>{validationMessage.route}</ErrorMessageWrapper>
-                            }
-                            {fileNumber.length !== 0 && fileNumber.map((file,index) => 
-                                <ErrorMessageWrapper key={index}>{validationMessage[file][0]}</ErrorMessageWrapper>
-                            )}
-                        </div>
-                    }
+                    <DraftValidationError />
                     {currComponent === 'basic' ? 
                         <BasicInfo 
                             setTitle={setTitle}

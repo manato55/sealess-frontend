@@ -10,6 +10,7 @@ import { useSetRecoilState } from 'recoil'
 import { http } from '../../../store/atom'
 import { useSWRFunc } from '../../../hooks/useSWRFunc';
 import LabelChoice from '../../../components/molecules/LabelChoice'
+import Button from '../../../components/atoms/Button'
 
 
 export const RecievedTask = (): React.ReactElement => {
@@ -36,12 +37,15 @@ export const RecievedTask = (): React.ReactElement => {
     }, [recievedTask,paramsId])
 
     const approveOrReturn = (): void => {
+        if(!confirm('承認しますか？')) {
+            return;
+        }
         actionInEscalation('approve', paramsId)
     }
 
     return (
         <>
-            {extracedTask !== undefined &&
+            {extracedTask &&
                 <div>
                     <LabelChoice 
                         currComponent={currComponent}
@@ -66,8 +70,13 @@ export const RecievedTask = (): React.ReactElement => {
                     }
                     <br/>
                     <div>
-                        <Button onClick={() => approveOrReturn()}>承認</Button>
-                        <Link href="/recieve/[id]/comment" as={`/recieve/${paramsId}/comment`} passHref>
+                        <Button 
+                            onClick={() => approveOrReturn()}
+                            marginTop={20}
+                        >
+                            承認
+                        </Button>
+                        <Link href={`/recieve/${paramsId}/comment`} passHref>
                             <ToCommentPage>差戻し画面へ</ToCommentPage>
                         </Link>
                     </div>
@@ -78,14 +87,11 @@ export const RecievedTask = (): React.ReactElement => {
 }
 
 
-const Button = styled.button`
-    margin-right: 20px;
-    cursor: pointer;
-`;
-
 const ToCommentPage = styled.a`
     text-decoration: underline;
-    color: blue
+    color: blue;
+    margin-top: 30px;
+    display: inline-block;
 `;
 
 export default RecievedTask

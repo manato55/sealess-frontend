@@ -2,7 +2,7 @@ import React, { useEffect, useState, Dispatch, SetStateAction, useRef,useCallbac
 import {DEPARTMENT, SECTION } from '../../const/JobInfo'
 import {useDraft} from '../../hooks/useDraft'
 import styled from 'styled-components';
-import {useRoute} from '../../hooks/useRoute'
+import {useRouting} from '../../hooks/useRouting'
 import Select from '../atoms/Select'
 
 
@@ -23,9 +23,23 @@ interface Props {
     }[];
 }
 
+type SectionPpl = {
+    name: string;
+    id: number;
+};
+
+
+type Route = {
+    id: number;
+    label: string
+}
+
+
 export const Routing = (props: Props): React.ReactElement => {
-    const {fetchSectionPpl, sectionPpl} = useDraft();
-    const {fetchRegisteredRoute, registeredRoute} = useRoute()
+    const {fetchSectionPpl} = useDraft();
+    const [sectionPpl, setSectionPpl] = useState<SectionPpl[]>([])
+    const {fetchRegisteredRoute} = useRouting()
+    const [registeredRoute, setRegisteredRoute] = useState<Route[]>()
     const [department, setDepartment] = useState<string>()
     const [section, setSection] = useState([])
     const sectionRef = useRef<HTMLSelectElement>(null)
@@ -33,19 +47,18 @@ export const Routing = (props: Props): React.ReactElement => {
     const [selectedPersonId, setSelectedPersonId] = useState<number>(null)
     const [pplInRouteChild, setPplInRouteChild] = useState<any[]>(props.pplInRoute)
     const [selectedRoute, setSelectedRoute] = useState<{id:number}>()
-    const loopCnt: number = 5;
     const routeRef = useRef<HTMLSelectElement>(null)
-    let cnt:number = 0;
-
+    const loopCnt = 5;
+    let cnt = 0;
 
     const countUp = () => { cnt++ };
 
     const countRestore = () => { cnt = 0 }
 
-
     useEffect(() => {
         const initialAction = async() => {
-            await fetchRegisteredRoute()
+            const res = await fetchRegisteredRoute()
+            setRegisteredRoute(res)
         }
         initialAction()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,7 +85,8 @@ export const Routing = (props: Props): React.ReactElement => {
         setSelectedPersonId(null)
         // 課を変える度にselectboxを初期化
         personRef.current.value = 'choice'
-        await fetchSectionPpl(e.target.value);
+        const res = await fetchSectionPpl(e.target.value);
+        setSectionPpl(res)
     }, [fetchSectionPpl]);
 
     const selectedPerson = useCallback((e: React.ChangeEvent<HTMLSelectElement>):void => {
@@ -114,7 +128,7 @@ export const Routing = (props: Props): React.ReactElement => {
         const routeTmp: {id:number} = registeredRoute.find(route => route.id === Number(e.target.value))
         setSelectedRoute(routeTmp)
         let routeArrTmp:object[] = []
-        for(let i:number=1;i<loopCnt;i++) {
+        for(let i=1;i<loopCnt;i++) {
             if(routeTmp[`route${i}_user`] !== null) {
                 routeArrTmp.push(routeTmp[`route${i}_user`])
             }

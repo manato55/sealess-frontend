@@ -1,18 +1,27 @@
-import React, {Dispatch, SetStateAction} from 'react'
+import React, {Dispatch, SetStateAction, useEffect} from 'react'
 import styled from 'styled-components'
 import Link from 'next/link';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper'
 import Input from '../atoms/Input'
 import RouteSetting from '../../components/molecules/RouteSetting'
+import { useRecoilState } from 'recoil'
+import { authErrorMessage } from '../../store/atom'
 
 interface Props {
-    validationError: string[];
     setRouteLabel: Dispatch<SetStateAction<string>>;
     setPplInRoute: Dispatch<SetStateAction<object>>;
     pplInRoute: object[];
 }
 
 export const RouteRegister = (props: Props): React.ReactElement => {
+    const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage)
+
+    useEffect(() => {
+        return () => {
+            setErrorMessage({...errorMessage, label: false})
+        }
+    }, [])
+
     return (
         <>
             <LinkContainer>
@@ -20,7 +29,7 @@ export const RouteRegister = (props: Props): React.ReactElement => {
                     <A>登録済み画面へ</A>
                 </Link>
             </LinkContainer>
-            <ErrorMessageWrapper>{props.validationError}</ErrorMessageWrapper>
+            <ErrorMessageWrapper>{errorMessage.label && errorMessage.label}</ErrorMessageWrapper>
             <p>登録名</p>
             <Input
                 type="text"

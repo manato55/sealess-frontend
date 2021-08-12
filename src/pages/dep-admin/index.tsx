@@ -8,7 +8,7 @@ import { useRecoilValue } from 'recoil'
 import { userStatus, eachErrorFlag, authErrorMessage } from '../../store/atom'
 import SelectBoxWrapper from '../../components/atoms/SelectBoxWrapper'
 import Button from '../../components/atoms/Button'
-
+import ErrorMessageWrapper from '../../components/atoms/ErrorMessageWrapper'
 
 
 type User = {
@@ -72,14 +72,14 @@ export const DepAdmin = (): React.ReactElement => {
                 email={email}
                 setEmail={setEmail}
             />
-            <ErrorMsg>{errorFlag.section && errorMessage.section[0]}</ErrorMsg>
+            <ErrorMessageWrapper>{errorFlag.section && errorMessage.section[0]}</ErrorMessageWrapper>
             <SelectBoxWrapper onChange={(e) => secChoice(e)} defaultValue={'choice'}>
                 <option value="choice" disabled >課を選択してください</option>
                 {section !== undefined && section.map((v,index) => 
                     <option key={index} value={v}>{v}</option>
                 )}
             </SelectBoxWrapper>
-            <ErrorMsg>{errorFlag.jobTitle && errorMessage.jobTitle[0]}</ErrorMsg>
+            <ErrorMessageWrapper>{errorFlag.jobTitle && errorMessage.jobTitle[0]}</ErrorMessageWrapper>
             <SelectBoxWrapper onChange={(e) => setJobTitle(e.target.value)} defaultValue={'choice'}>
                 <option value="choice" disabled >役職を選択してください</option>
                 {JOBTITLE.map((v,index) => 
@@ -96,10 +96,6 @@ export const DepAdmin = (): React.ReactElement => {
     )
 }
 
-
-const ErrorMsg = styled.p`
-    color: red;
-`;
 
 
 const Wrapper = styled.div`

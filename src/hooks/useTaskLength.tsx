@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import axios from '../axios'
+import repository from '../axios/repository'
 
 
 
@@ -13,7 +13,7 @@ export const useGetTotalLengthOfTaskInProgress = () => {
 };
 
 const taskLengthFetcher = async () => {
-    const res = await axios.get('progress/get-total-length').catch(error => error.responnse)
+    const res = await repository.get('progress/get-total-length').catch(error => error.responnse)
 
     return res.data;
 };

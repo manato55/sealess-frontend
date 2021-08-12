@@ -1,6 +1,5 @@
 import React,{useCallback} from 'react'
-import {useGlobal} from '../../../hooks/useGlobal';
-import {useTask} from '../../../hooks/useTask';
+import {useProgress} from '../../../hooks/useProgress';
 import {useGetTotalLengthOfTaskInProgress} from '../../../hooks/useTaskLength';
 import { useRouter } from 'next/router';
 import Paginate from '../../../components/molecules/Paginate'
@@ -8,15 +7,12 @@ import TableContents from '../../../components/molecules/TableContents';
 
 
 export const Progress = (): React.ReactElement => {
-    const {
-        fetchTaskInProgress
-    } = useGlobal();
     const router = useRouter();
     const taskPerPage: number = 3
     const offset = router.query.offset
         ? Number.parseInt(String(router.query.offset), 10)
         : 0;
-    const {paginatedTaskInProgress,  isLoading} = useTask(offset)
+    const {fetchTaskInProgress, paginatedTaskInProgress,  isLoading} = useProgress(offset)
     const {taskInProgress} = useGetTotalLengthOfTaskInProgress()
 
     const handleChangePage = useCallback(async(_: React.ChangeEvent<unknown>, page: number) => {

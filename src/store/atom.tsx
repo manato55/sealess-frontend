@@ -14,6 +14,7 @@ export const userStatus = atom({
 export const authErrorMessage = atom({
     key: 'authError',
     default: {
+        label: false,
         general: false,
         name: [],
         email: [],
@@ -21,6 +22,10 @@ export const authErrorMessage = atom({
         department: [],
         section: [],
         jobTitle: [],
+        content: [],
+        route: [],
+        title: [],
+        // file: [],
     },
 })
 
@@ -33,6 +38,10 @@ export const eachErrorFlag = atom({
         department: false,
         section: false,
         jobTitle: false,
+        content: false,
+        route: false,
+        title: false,
+        file: false,
     }
 })
 

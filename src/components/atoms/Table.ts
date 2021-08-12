@@ -3,6 +3,8 @@ import styled from 'styled-components'
 
 const Table = styled.table`
     border-collapse:collapse;
+    width: 100%;
+    white-space: nowrap;
 
     tr {
         height: 40px;

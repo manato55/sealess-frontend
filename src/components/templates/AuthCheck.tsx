@@ -1,7 +1,7 @@
 import React from 'react'
 import {useRouter} from 'next/router'
 import { useState, useEffect } from 'react';
-import axios from '../../axios'
+import repository from '../../axios/repository'
 import { useRecoilState } from 'recoil'
 import { http, userStatus } from '../../store/atom'
 
@@ -17,7 +17,7 @@ export const AuthCheck = ({children}) => {
         // user情報がstateに保持されていない場合、apiを叩いて取得できれば認証済み、取得できなければ認証前となる
         if(user === null) {
             const me = async() => {
-                const res = await axios.get('me').catch(error => error.response)
+                const res = await repository.get('me').catch(error => error.response)
                 if (res.status === 404 || res.status === 500) {
                     setHttpStatus(res.status)
                 } else {

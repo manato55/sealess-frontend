@@ -1,24 +1,25 @@
 import React,{useState, RefObject, useEffect, Dispatch, SetStateAction, useCallback} from 'react'
 import {useProgress} from '../../hooks/useProgress'
-import {useReturned} from '../../hooks/useReturned'
+import {useReturnedTask} from '../../hooks/useReturnedTask'
 import styled from 'styled-components'
 import Input from '../atoms/Input'
 
+
 interface Props {
     setFile: Dispatch<SetStateAction<File[]>>;
-    fileRef:  RefObject<HTMLInputElement>;
     setFileState: Dispatch<SetStateAction<any>>;
+    setExistingFile: Dispatch<SetStateAction<string>>
+    fileRef:  RefObject<HTMLInputElement>;
     existingFile: string;
     taskId: number;
-    setExistingFile: Dispatch<SetStateAction<string>>
 }
-
 
 
 export const Additives = (props: Props): React.ReactElement => { 
     const [exstingFilename, setExistingFilename] = useState<string[]>([])
     const {downloadFile} = useProgress()
-    const {removeFile, fileRemoval, fileRemovalTofalse} = useReturned()
+    const {removeFile} = useReturnedTask()
+    const [fileRemoval, setFileRemoval] = useState<boolean>(false)
     const [removingFile, setRemovingFile] = useState<string>(null)
     
 
@@ -57,7 +58,8 @@ export const Additives = (props: Props): React.ReactElement => {
             filename: filename,
             id: props.taskId
         }
-        await removeFile(data)
+        const res = await removeFile(data)
+        setFileRemoval(res)
     }
 
     useEffect(() => {
@@ -76,7 +78,7 @@ export const Additives = (props: Props): React.ReactElement => {
             let slicedFilename: string = filenameForProps.slice(0,-1)
             props.setExistingFile(slicedFilename)
         }
-        fileRemovalTofalse();
+        setFileRemoval(false)
     }, [fileRemoval])
 
 

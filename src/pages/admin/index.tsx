@@ -2,7 +2,6 @@ import React,{useState,useCallback} from 'react'
 import RegisterCommonForm from '../../components/molecules/RegisterCommonForm'
 import NameInput from '../../components/molecules/NameInput'
 import {DEPARTMENT} from '../../const/JobInfo'
-import {useAuth} from '../../hooks/useAuth'
 import styled from 'styled-components'
 import ErrorMessageWrapper from '../../components/atoms/ErrorMessageWrapper'
 import Button from '../../components/atoms/Button'
@@ -20,7 +19,6 @@ type User = {
 }
 
 export const AdminTop = (): React.ReactElement => {
-    const {errorMsg, departmentErrFlag } = useAuth();
     const {registerDepAdmin} = useAuthenticate();
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');

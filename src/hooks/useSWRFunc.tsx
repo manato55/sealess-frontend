@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import axios from '../axios'
+import repository from '../axios/repository'
 import { useSetRecoilState } from 'recoil'
 import { http, userStatus } from '../store/atom'
 
@@ -36,7 +36,7 @@ export const useSWRFunc = () => {
 };
 
 async function fetchRecievedTask<T>(): Promise<T> {
-    const res = await axios.get('progress/fetch-recieved').catch(error => error.response);
+    const res = await repository.get('progress/fetch-recieved').catch(error => error.response);
     return res.data;
 }
 
@@ -52,7 +52,7 @@ export const useFiscalYear = () => {
 }
 
 async function getFiscalYear<T>(): Promise<T> {
-    const res = await axios.get('draft/get-fiscal-year').catch(error => error.response);
+    const res = await repository.get('draft/get-fiscal-year').catch(error => error.response);
     return res.data;
 }
 
@@ -67,6 +67,6 @@ export const useUnreachedTask = () => {
 }
 
 async function fetchUnreachedTask<T>(): Promise<T> {
-    const res = await axios.get('draft/fetch-unreached-task').catch(error => error.response);
+    const res = await repository.get('draft/fetch-unreached-task').catch(error => error.response);
     return res.data;
 }

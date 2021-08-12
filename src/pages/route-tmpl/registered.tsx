@@ -1,20 +1,26 @@
 import {useEffect, useState, useRef} from 'react'
-import {useRoute} from '../../hooks/useRoute'
-import {useGlobal} from '../../hooks/useGlobal';
+import {useRouting} from '../../hooks/useRouting'
 import styled from 'styled-components'
+import Select from '../../components/atoms/Select'
 
+
+
+type Route = {
+    id: number;
+    label: string
+}
 
 export const Registered = (): React.ReactElement => {
-    const {fetchRegisteredRoute, registeredRoute, removeRegisteredRoute} = useRoute()
-    const {updateLoading, asyncLoading} = useGlobal();
+    const {fetchRegisteredRoute,removeRegisteredRoute} = useRouting()
     const [selectedRoute, setSelectedRoute] = useState<{id:number}>()
+    const [registeredRoute, setRegisteredRoute] = useState<Route[]>()
     const loopCnt: number = 5;
     const routeRef = useRef<HTMLSelectElement>(null)
 
     useEffect(() => {
         const initialAction = async() => {
-            await fetchRegisteredRoute()
-            updateLoading()
+            const res = await fetchRegisteredRoute()
+            setRegisteredRoute(res)
         }
         initialAction()
     },[])
@@ -28,40 +34,45 @@ export const Registered = (): React.ReactElement => {
         if(!confirm('削除しますか？')) {
             return;
         }
-        await removeRegisteredRoute(selectedRoute.id)
-        fetchRegisteredRoute()
-        setSelectedRoute(undefined)
-        routeRef.current.value = 'choice'
+        const res = await removeRegisteredRoute(selectedRoute.id)
+        if(res) {
+            const subRes = await fetchRegisteredRoute()
+            setRegisteredRoute(subRes)
+
+            setSelectedRoute(undefined)
+            routeRef.current.value = 'choice'
+        }
     }
 
     return (
         <>
-            <Container>
-                <select onChange={(e) => labelChoice(e)} defaultValue={'choice'} ref={routeRef}>
-                    <option value="choice" disabled>選択してください</option>
-                    {registeredRoute !== undefined && registeredRoute.map((route,index) => 
-                        <option key={index} value={route.id}>{route.label}</option>
+            {registeredRoute ? 
+                <Container>
+                    <Select onChange={(e) => labelChoice(e)} defaultValue={'choice'} ref={routeRef}>
+                        <option value="choice" disabled>選択してください</option>
+                        {registeredRoute !== undefined && registeredRoute.map((route,index) => 
+                            <option key={index} value={route.id}>{route.label}</option>
+                        )}
+                    </Select>
+                    {[...Array(loopCnt)].map((_, i) => 
+                        selectedRoute !== undefined && selectedRoute[`route${i}_user`] != null &&
+                        <RouteContainer key={i}>
+                            <PplInvolved>
+                                <p>関与者{i}</p>
+                                <p>{selectedRoute[`route${i}_user`].department}&emsp;{selectedRoute[`route${i}_user`].section}&emsp;{selectedRoute[`route${i}_user`].name}</p>
+                            </PplInvolved>
+                            <ArrowBox>
+                                {selectedRoute[`route${i+1}`] != null && 
+                                <span>↓</span>
+                                }
+                            </ArrowBox>
+                        </RouteContainer>
                     )}
-                </select>
-                <br />
-                {[...Array(loopCnt)].map((_, i) => 
-                    selectedRoute !== undefined && selectedRoute[`route${i}_user`] != null &&
-                    <RouteContainer key={i}>
-                        <PplInvolved>
-                            <p>関与者{i}</p>
-                            <p>{selectedRoute[`route${i}_user`].department}&emsp;{selectedRoute[`route${i}_user`].section}&emsp;{selectedRoute[`route${i}_user`].name}</p>
-                        </PplInvolved>
-                        <ArrowBox>
-                            {selectedRoute[`route${i+1}`] != null && 
-                            <span>↓</span>
-                            }
-                        </ArrowBox>
-                    </RouteContainer>
-                )}
-                {selectedRoute !== undefined && 
-                    <DeleteBtn onClick={() => removeThisRoute()}>このルートを削除</DeleteBtn>
-                }
-            </Container>
+                    {selectedRoute !== undefined && 
+                        <DeleteBtn onClick={() => removeThisRoute()}>このルートを削除</DeleteBtn>
+                    }
+                </Container>
+            : 'Loading'}
         </>
     )
 }
