@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 const repository = axios.create();
 
 repository.interceptors.request.use((config) => {

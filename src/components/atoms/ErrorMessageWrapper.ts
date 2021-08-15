@@ -1,8 +1,7 @@
 import styled from 'styled-components';
 
-
 const ErrorMessageWrapper = styled.p`
-    color: red;
+  color: red;
 `;
 
-export default ErrorMessageWrapper
+export default ErrorMessageWrapper;

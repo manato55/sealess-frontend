@@ -1,15 +1,15 @@
 import styled from 'styled-components';
 
 interface Props {
-    width?: number
+  width?: number;
 }
 
 const Select = styled.select<Props>`
-    width: ${(props) => props.width}%;
+  width: ${(props) => props.width}%;
 `;
 
 Select.defaultProps = {
-    width: 80,
+  width: 80,
 };
 
-export default Select
+export default Select;

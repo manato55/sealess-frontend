@@ -7,21 +7,23 @@ interface Props {
 }
 
 const Input = styled.input<Props>`
-  ${(props) => props.visible ? `
+  ${(props) =>
+    props.visible
+      ? `
     visibility: hidden;
   `
-  :`
+      : `
     height: 40px;
     padding: 10px;
     display: inline-block;
     width: 100%;
-  `
-  }
-  ${(props) => !props.editable && `
+  `}
+  ${(props) =>
+    !props.editable &&
+    `
     pointer-events : none;
   `}
   margin-top: ${(props) => props.marginTop}px;
-
 `;
 
 Input.defaultProps = {
@@ -29,5 +31,4 @@ Input.defaultProps = {
   visible: false,
 };
 
-
-export default Input
+export default Input;

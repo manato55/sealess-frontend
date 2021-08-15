@@ -1,26 +1,20 @@
-import React from 'react'
+import React from 'react';
 
 interface Props {
-    errorCode: number;
+  errorCode: number;
 }
 
-export const Error = (props: Props) => {
+export const Error = (props: Props): React.ReactElement => {
+  const back = async () => {
+    window.location.href = '/';
+  };
 
-    const back = async() => {
-        window.location.href = '/'
-    }
+  return (
+    <>
+      {props.errorCode === 404 ? <p>not found</p> : props.errorCode === 500 ? <p>server error</p> : ''}
+      <p onClick={() => back()}>topへ戻る</p>
+    </>
+  );
+};
 
-    return (
-        <>
-            {props.errorCode === 404 ?
-                <p>not found</p>
-            :props.errorCode === 500 ?
-                <p>server error</p>
-            :''}
-            <p onClick={()=>back()}>topへ戻る</p>
-        </>
-    )
-}
-
-
-export default Error
+export default Error;

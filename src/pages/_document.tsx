@@ -1,5 +1,5 @@
 import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document';
-import { ServerStyleSheet as StyledComponentStyleSheets} from 'styled-components';
+import { ServerStyleSheet as StyledComponentStyleSheets } from 'styled-components';
 import styled from 'styled-components';
 import { ServerStyleSheets as MuiStyleSheets } from '@material-ui/styles';
 

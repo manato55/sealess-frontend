@@ -1,26 +1,22 @@
-import React from 'react'
-import styled from 'styled-components'
-
-
+import React from 'react';
+import styled from 'styled-components';
 
 interface Props {
-    editable?: boolean;
+  editable?: boolean;
 }
 
-
 const TextArea = styled.textarea<Props>`
-    width: 100%;
-    height: 300px;
-    ${(props) => !props.editable && `
+  width: 100%;
+  height: 300px;
+  ${(props) =>
+    !props.editable &&
+    `
     pointer-events : none;
     `}
 `;
 
-
 TextArea.defaultProps = {
-    editable: true,
+  editable: true,
 };
 
-
-
-export default TextArea
+export default TextArea;

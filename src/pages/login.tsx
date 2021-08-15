@@ -1,23 +1,15 @@
-import React, {useState} from 'react'
-import LoginForm from '../components/organisms/LoginForm'
-
-
+import React, { useState } from 'react';
+import LoginForm from '../components/organisms/LoginForm';
 
 export const Login = (): React.ReactElement => {
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
-    return (
-        <>
-            <LoginForm
-                email={email}
-                password={password}
-                setEmail={setEmail}
-                setPassword={setPassword}
-            />
-        </>
-    )
-}
+  return (
+    <>
+      <LoginForm email={email} password={password} setEmail={setEmail} setPassword={setPassword} />
+    </>
+  );
+};
 
-
-export default Login
+export default Login;

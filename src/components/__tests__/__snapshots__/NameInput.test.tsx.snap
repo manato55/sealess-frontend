@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NameInput test snapshot 1`] = `
+<RecoilRoot>
+  <RecoilRoot_INTERNAL>
+    <Batcher
+      setNotifyBatcherOfChange={[Function]}
+    />
+    <FullName
+      name="foo"
+      setName={
+        [MockFunction] {
+          "calls": Array [
+            Array [
+              "foo",
+            ],
+          ],
+          "results": Array [
+            Object {
+              "type": "return",
+              "value": undefined,
+            },
+          ],
+        }
+      }
+    >
+      <styled.p>
+        <p
+          className="sc-gtsrHT DoTxJ"
+        />
+      </styled.p>
+      <styled.input
+        editable={true}
+        onChange={[Function]}
+        placeholder="氏名"
+        type="text"
+        value="foo"
+        visible={false}
+      >
+        <input
+          className="sc-bdnxRM elxLYl"
+          onChange={[Function]}
+          placeholder="氏名"
+          type="text"
+          value="foo"
+        />
+      </styled.input>
+    </FullName>
+  </RecoilRoot_INTERNAL>
+</RecoilRoot>
+`;

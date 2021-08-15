@@ -1,4 +1,4 @@
-module.exports = function(...args) {
+module.exports = function (...args) {
   let original = require('./next.config.original.1627953707157.js');
   const finalConfig = {};
   const target = { target: 'serverless' };
@@ -19,4 +19,4 @@ module.exports = function(...args) {
   }
   Object.assign(finalConfig, target);
   return finalConfig;
-}
+};

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Label test snapshot 1`] = `
+<a
+  href="test"
+  onClick={[Function]}
+  onMouseEnter={[Function]}
+>
+  <p>
+    foo
+  </p>
+</a>
+`;

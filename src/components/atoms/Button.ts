@@ -1,37 +1,34 @@
-import styled, {css} from 'styled-components'
-
-
+import styled, { css } from 'styled-components';
 
 interface Props {
-    background?: string;
-    marginTop?: number;
+  background?: string;
+  marginTop?: number;
 }
 
 const Button = styled.button<Props>`
-    margin-top: ${(props) => props.marginTop}px;
-    height: 50px;
-    font-size: large;
-    width: 100%;
-    ${(props) => {
-        switch (props.background) {
-          case 'dark':
-            return css`
-              background-color: ${(props) => props.theme.palette.black.main};
-              color: ${(props) => props.theme.palette.black.contrastText};
-            `;
-          case 'light':
-            return css`
-              background-color: ${(props) => props.theme.palette.primary.main};
-              color: ${(props) => props.theme.palette.primary.contrastText};
-            `;
-        }
-      }}
+  margin-top: ${(props) => props.marginTop}px;
+  height: 50px;
+  font-size: large;
+  width: 100%;
+  ${(props) => {
+    switch (props.background) {
+      case 'dark':
+        return css`
+          background-color: ${(props) => props.theme.palette.black.main};
+          color: ${(props) => props.theme.palette.black.contrastText};
+        `;
+      case 'light':
+        return css`
+          background-color: ${(props) => props.theme.palette.primary.main};
+          color: ${(props) => props.theme.palette.primary.contrastText};
+        `;
+    }
+  }}
 `;
 
 Button.defaultProps = {
-    background: 'dark',
-    marginTop: 40,
-  };
+  background: 'dark',
+  marginTop: 40,
+};
 
-
-export default Button
+export default Button;

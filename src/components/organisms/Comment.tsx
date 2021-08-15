@@ -1,24 +1,16 @@
-import TextArea from '../atoms/TextArea'
-
+import TextArea from '../atoms/TextArea';
 
 interface Props {
-    comment: string;
-    editable?: boolean;
+  comment: string;
+  editable?: boolean;
 }
 
-export const BasicInfo = (props: Props): React.ReactElement => {    
-    
-    return (
-        <>
-            <TextArea
-                editable={props.editable}
-            >
-                {props.comment}
-            </TextArea>
-            
-        </>
-    )
-}
+export const BasicInfo = (props: Props): React.ReactElement => {
+  return (
+    <>
+      <TextArea editable={props.editable}>{props.comment}</TextArea>
+    </>
+  );
+};
 
-
-export default BasicInfo
+export default BasicInfo;

@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LeftNav test snapshot 1`] = `
+<RecoilRoot>
+  <RecoilRoot_INTERNAL>
+    <Batcher
+      setNotifyBatcherOfChange={[Function]}
+    />
+    <LeftNav>
+      <styled.div>
+        <div
+          className="sc-gtsrHT ewiVNj"
+        >
+          <a
+            onClick={[Function]}
+          >
+            <p>
+              ログアウト
+            </p>
+          </a>
+        </div>
+      </styled.div>
+    </LeftNav>
+  </RecoilRoot_INTERNAL>
+</RecoilRoot>
+`;
