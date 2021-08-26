@@ -52,7 +52,11 @@ export const Tr = (props: Props): React.ReactElement => {
               {props.task.user.section}&emsp;{props.task.user.name}
             </span>
           ) : props.pathName === 'progress' ? (
-            <span>{props.task[`${props.task.process}_user`].name}</span>
+            <span>
+              {props.task[`${props.task.process}_user`]
+                ? props.task[`${props.task.process}_user`].name
+                : '削除ユーザー'}
+            </span>
           ) : (
             ''
           )}

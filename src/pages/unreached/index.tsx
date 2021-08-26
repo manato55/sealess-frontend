@@ -1,21 +1,9 @@
-import { useUnreachedTask } from '../../hooks/useSWRFunc';
-import Loading from '../../components/atoms/Loading';
-import TableContents from '../../components/molecules/TableContents';
+import UnreachedIndex from '../../components/organisms/UnreachedIndex';
 
-export const Unreached = (): React.ReactElement => {
-  const { isLoading, unreachedTask } = useUnreachedTask();
-
+const Unreached = () => {
   return (
     <>
-      {!isLoading ? (
-        unreachedTask?.length > 0 ? (
-          <TableContents tasks={unreachedTask} th={['案件名', '担当者', '作成日時']} pathName={'unreached'} />
-        ) : (
-          '案件はありません。'
-        )
-      ) : (
-        <Loading />
-      )}
+      <UnreachedIndex />
     </>
   );
 };

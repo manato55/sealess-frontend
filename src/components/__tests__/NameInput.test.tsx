@@ -12,7 +12,7 @@ describe('NameInput test', () => {
     container = mount(
       <RecoilRoot>
         <NameInput setName={onChangeMock} name={'foo'} />
-      </RecoilRoot>,
+      </RecoilRoot>
     );
   });
 

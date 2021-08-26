@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AdditiveInProgress test snapshot test 1`] = `
+<RecoilRoot>
+  <RecoilRoot_INTERNAL>
+    <Batcher
+      setNotifyBatcherOfChange={[Function]}
+    />
+    <AdditiveInProgress
+      filename="testFile"
+      taskId={3}
+    >
+      <ul
+        key="0"
+      >
+        <li
+          onClick={[Function]}
+        >
+          testFile
+        </li>
+      </ul>
+    </AdditiveInProgress>
+  </RecoilRoot_INTERNAL>
+</RecoilRoot>
+`;

@@ -5,17 +5,19 @@ import { RecoilRoot } from 'recoil';
 import { mount, shallow } from 'enzyme';
 import { render, fireEvent } from '@testing-library/react';
 import 'jsdom-global/register';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import { ThemeProvider } from 'styled-components';
 import theme from '../../styles/theme';
-import Button from '../atoms/Button'
+import { act, renderRecoilHook } from 'react-recoil-hooks-testing-library';
 
 jest.mock('react', () => {
   const originReact = jest.requireActual('react');
   return {
     ...originReact,
     useRef: (arg) =>
-      typeof arg === 'undefined' ? { current: { getBoundingClientRect: () => ({ checked: true }) } } : { current: {checked: false} },
+      typeof arg === 'undefined'
+        ? { current: { getBoundingClientRect: () => ({ checked: true }) } }
+        : { current: { checked: false } },
   };
 });
 
@@ -37,22 +39,24 @@ describe('ButtonToggle test', () => {
   });
 
   let container;
-  const onSubmitMock = jest.fn();
 
   beforeEach(() => {
-    container = mount(
-      <RecoilRoot>
-        <ThemeProvider theme={theme}>
-          <ButtonToggle />
-        </ThemeProvider>
-      </RecoilRoot>,
-    );
+    act(() => {
+      container = mount(
+        <RecoilRoot>
+          <ThemeProvider theme={theme}>
+            <ButtonToggle />
+          </ThemeProvider>
+        </RecoilRoot>
+      );
+    });
   });
 
   test('toggle test', () => {
-    // console.log(container.debug())
+    const adds = require('../organisms/ButtonToggle');
+    jest.spyOn(adds, 'default');
     const input = container.find('#checkBox');
     input.simulate('change');
-    expect(onSubmitMock).toHaveBeenCalled();
+    expect(adds.default()).toHaveBeenCalled();
   });
 });

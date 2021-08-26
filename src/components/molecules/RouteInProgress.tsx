@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-type basicProps = {
+interface Props {
   taskRoute: any;
   completed?: boolean;
-};
+}
 
-export const RouteInProgress = (props: basicProps): React.ReactElement => {
+export const RouteInProgress = (props: Props): React.ReactElement => {
   const [pplInRoute, setPplInRoute] = useState<string[]>([]);
-  let cnt: number = 0;
+  let cnt = 0;
 
   const countUp = () => {
     cnt++;
@@ -52,17 +52,28 @@ export const RouteInProgress = (props: basicProps): React.ReactElement => {
                       )}
                     </div>
                   ))}
-                  {cnt > 0 ? (
-                    <AgentPerson>
+                  {cnt > 0 && props.taskRoute[0][routeNum] !== null ? (
+                    <Highlight>
                       {`（代理：${props.taskRoute[0][routeNum].department}`}&emsp;
                       {props.taskRoute[0][routeNum].section}&emsp;
                       {`${props.taskRoute[0][routeNum].name}）`}
-                    </AgentPerson>
+                    </Highlight>
                   ) : (
                     <span>
-                      {props.taskRoute[0][routeNum].department}&emsp;
-                      {props.taskRoute[0][routeNum].section}&emsp;
-                      {props.taskRoute[0][routeNum].name}
+                      {props.taskRoute[0][routeNum].deleted_at ? (
+                        <span>
+                          <Highlight>削除ユーザー</Highlight>(
+                          {props.taskRoute[0][routeNum].department}&emsp;
+                          {props.taskRoute[0][routeNum].section}&emsp;
+                          {props.taskRoute[0][routeNum].name})
+                        </span>
+                      ) : (
+                        <span>
+                          {props.taskRoute[0][routeNum].department}&emsp;
+                          {props.taskRoute[0][routeNum].section}&emsp;
+                          {props.taskRoute[0][routeNum].name}
+                        </span>
+                      )}
                     </span>
                   )}
                 </PplInvolved>
@@ -90,7 +101,7 @@ const Holder = styled.span`
   color: red;
 `;
 
-const AgentPerson = styled.span`
+const Highlight = styled.p`
   color: red;
 `;
 

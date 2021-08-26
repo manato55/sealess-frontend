@@ -24,7 +24,6 @@ export const authErrorMessage = atom({
     content: [],
     route: [],
     title: [],
-    // file: [],
   },
 });
 
@@ -47,4 +46,18 @@ export const eachErrorFlag = atom({
 export const isNavToggle = atom({
   key: 'toggle',
   default: null,
+});
+
+export const departmentSelection = atom({
+  key: 'department',
+  default: null,
+});
+
+export const searchKeyword = atom({
+  key: 'keyword',
+  default: {
+    task: null,
+    name: null,
+    year: null,
+  },
 });

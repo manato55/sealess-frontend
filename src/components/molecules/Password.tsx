@@ -17,13 +17,18 @@ export const Password = (props: Props): React.ReactElement => {
     (e: React.ChangeEvent<HTMLInputElement>): void => {
       props.setPassword(e.target.value);
     },
-    [props],
+    [props]
   );
 
   return (
     <div>
       <ErrorMessageWrapper>{errorFlag.password && errorMessage.password[0]}</ErrorMessageWrapper>
-      <Input type="password" value={props.password} onChange={(e) => passwordHandler(e)} placeholder="パスワード" />
+      <Input
+        type="password"
+        value={props.password}
+        onChange={(e) => passwordHandler(e)}
+        placeholder="パスワード"
+      />
     </div>
   );
 };

@@ -5,15 +5,14 @@ import { mount, shallow } from 'enzyme';
 import 'jsdom-global/register';
 import renderer from 'react-test-renderer';
 
-
 describe('LeftNav test', () => {
   let container;
 
-  test('snapshot', async() => {
+  test('snapshot', async () => {
     container = await mount(
       <RecoilRoot>
         <LeftNav />
-      </RecoilRoot>,
+      </RecoilRoot>
     );
     expect(container).toMatchSnapshot();
   });

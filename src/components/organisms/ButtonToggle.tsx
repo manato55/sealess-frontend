@@ -29,7 +29,13 @@ const ButtonToggle = (): React.ReactElement => {
   return (
     <>
       <Wrapper>
-        <Input type="checkbox" onChange={checkboxHandler} ref={CheckRef} id="checkBox" visible={true} />
+        <Input
+          type="checkbox"
+          onChange={checkboxHandler}
+          ref={CheckRef}
+          id="checkBox"
+          visible={true}
+        />
         <label htmlFor="checkBox">
           {isNav ? (
             <FontAwesomeIcon icon={faArrowCircleRight} size="2x" />

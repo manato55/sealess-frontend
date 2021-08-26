@@ -22,6 +22,14 @@ const SECTION: {
   dev: ['本社開発室', '静岡開発室', '名古屋開発室', '札幌開発室'],
 };
 
-const JOBTITLE: string[] = ['部長', '課長', '係長', '主任', 'リーダー', 'エキスパート', 'シニアエキスパート'];
+const JOBTITLE: string[] = [
+  '部長',
+  '課長',
+  '係長',
+  '主任',
+  'リーダー',
+  'エキスパート',
+  'シニアエキスパート',
+];
 
 export { DEPARTMENT, SECTION, JOBTITLE };

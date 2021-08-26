@@ -2,13 +2,13 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import repository from '../../axios/repository';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { http, userStatus } from '../../store/atom';
 
 export const AuthCheck = ({ children }) => {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
-  const [httpStatus, setHttpStatus] = useRecoilState(http);
+  const setHttpStatus = useSetRecoilState(http);
   const [user, setUserStatus] = useRecoilState(userStatus);
 
   useEffect(() => {
@@ -32,6 +32,8 @@ export const AuthCheck = ({ children }) => {
         !router.pathname.match('/login') &&
         !user?.id &&
         !router.pathname.match('/register/*') &&
+        !user?.id &&
+        !router.pathname.match('/register-admin/*') &&
         !user?.id &&
         !router.pathname.match('/password-issuance/*') &&
         !user?.id
@@ -58,6 +60,11 @@ export const AuthCheck = ({ children }) => {
       // dep-adminがdep-adminページ以外にアクセスしようとした場合
       if (!router.pathname.match('/dep-admin*') && user?.user_type === 1) {
         router.push('/dep-admin');
+        return;
+      }
+      // ownerがownerページ以外にアクセスしようとした場合
+      if (!router.pathname.match('/owner*') && user?.user_type === 99) {
+        router.push('/owner');
         return;
       }
       setLoading(true);

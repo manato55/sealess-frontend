@@ -22,7 +22,9 @@ export const AddedComment = (props: Props): React.ReactElement => {
     <>
       <ErrorMessageWrapper>{errorMessage.general && errorMessage.general}</ErrorMessageWrapper>
       <p>返却コメント</p>
-      <TextArea onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => props.setComment(e.target.value)}></TextArea>
+      <TextArea
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => props.setComment(e.target.value)}
+      ></TextArea>
     </>
   );
 };

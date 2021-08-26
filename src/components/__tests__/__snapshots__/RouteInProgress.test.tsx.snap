@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteInProgress test snapshot test 1`] = `
+<RouteInProgress
+  taskRoute={Array []}
+>
+  <styled.div>
+    <div
+      className="sc-bdnxRM bWftbc"
+    />
+  </styled.div>
+</RouteInProgress>
+`;

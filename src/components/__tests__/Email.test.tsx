@@ -15,7 +15,7 @@ describe('Email test', () => {
     container = mount(
       <RecoilRoot>
         <Email setEmail={onChangeMock} email={'foo'} />
-      </RecoilRoot>,
+      </RecoilRoot>
     );
   });
 

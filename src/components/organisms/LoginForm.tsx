@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import Button from '../atoms/Button';
 import FormWrapper from '../atoms/FormWrapper';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
-import { useAuthenticate } from '../../hooks/useAuthenticate';
+import { useAuthenticate } from '../../hooks/useAuth';
 import styled from 'styled-components';
 import Link from 'next/link';
 import { useRecoilValue } from 'recoil';
@@ -34,7 +34,7 @@ export const LoginForm = (props: Props): React.ReactElement => {
       };
       login(user);
     },
-    [props, login],
+    [props, login]
   );
 
   return (

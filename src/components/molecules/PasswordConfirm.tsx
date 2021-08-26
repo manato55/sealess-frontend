@@ -11,7 +11,7 @@ export const PasswordConfirm = (props: Props): React.ReactElement => {
     (e: React.ChangeEvent<HTMLInputElement>): void => {
       props.setPasswordConfirm(e.target.value);
     },
-    [props],
+    [props]
   );
 
   return (

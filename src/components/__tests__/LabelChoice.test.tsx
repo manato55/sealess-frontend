@@ -13,7 +13,12 @@ describe('LabelChoice test', () => {
 
   beforeEach(() => {
     container = shallow(
-      <LabelChoice setCurrComponent={onClickMock} currComponent={'foo'} isComment={true} curr={'foo'} />,
+      <LabelChoice
+        setCurrComponent={onClickMock}
+        currComponent={'foo'}
+        isComment={true}
+        curr={'foo'}
+      />
     );
   });
 

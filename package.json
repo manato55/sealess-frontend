@@ -9,7 +9,7 @@
     "lint": "next lint",
     "test": "jest -u",
     "test:coverage": "jest --collect-coverage",
-    "format": "prettier --write --ignore-path .gitignore './**/*.{js,jsx,ts,tsx,json,css}'"
+    "format": "prettier --write . --ignore-path .gitignore './**/*.{js,jsx,ts,tsx,json,css}'"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
@@ -33,9 +33,11 @@
     "next": "11.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "react-recoil-hooks-testing-library": "^0.1.0",
     "react-test-renderer": "^17.0.2",
     "react-toastify": "^7.0.4",
     "recoil": "^0.3.1",
+    "sinon": "^11.1.2",
     "styled-media-query": "^2.1.2",
     "swr": "^0.5.6",
     "use-media": "^1.4.0"
@@ -52,7 +54,7 @@
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.3",
     "babel-plugin-styled-components": "^1.13.1",
     "cross-env": "^7.0.3",
-    "eslint": "7.29.0",
+    "eslint": "^7.29.0",
     "eslint-config-next": "11.0.1",
     "eslint-config-prettier": "^8.3.0",
     "jest": "^27.0.6",

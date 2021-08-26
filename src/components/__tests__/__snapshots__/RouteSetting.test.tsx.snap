@@ -1,0 +1,197 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteSetting test snapshot 1`] = `
+<RecoilRoot>
+  <RecoilRoot_INTERNAL>
+    <Batcher
+      setNotifyBatcherOfChange={[Function]}
+    />
+    <Memo(Routing)
+      agentStatus={
+        Array [
+          Object {
+            "agent_user": 5,
+            "route": "test",
+            "user": Object {
+              "department": "test",
+              "name": "test",
+              "section": "test",
+            },
+          },
+        ]
+      }
+      isRegisteredRoute={true}
+      pplInRoute={Array []}
+      process={3}
+      setPplInRoute={[MockFunction]}
+    >
+      <styled.div>
+        <div
+          className="sc-gtsrHT jqDhNd"
+        >
+          <div>
+            <span>
+              登録済みルート：
+            </span>
+            <select
+              defaultValue="choice"
+              id="selected"
+              onChange={[Function]}
+            >
+              <option
+                disabled={true}
+                value="choice"
+              >
+                選択してください
+              </option>
+            </select>
+          </div>
+          <styled.div>
+            <div
+              className="sc-gKAaRy jfTnjy"
+            >
+              <styled.span>
+                <span
+                  className="sc-dlnjwi jrOsMb"
+                >
+                   部 ：
+                </span>
+              </styled.span>
+              <styled.select
+                defaultValue="choice"
+                onChange={[Function]}
+                width={80}
+              >
+                <select
+                  className="sc-bdnxRM RMSbe"
+                  defaultValue="choice"
+                  onChange={[Function]}
+                  width={80}
+                >
+                  <option
+                    disabled={true}
+                    value="choice"
+                  >
+                    選択してください
+                  </option>
+                  <option
+                    key="0"
+                    value="経営企画部"
+                  >
+                    経営企画部
+                  </option>
+                  <option
+                    key="1"
+                    value="開発部"
+                  >
+                    開発部
+                  </option>
+                  <option
+                    key="2"
+                    value="キャリア採用部"
+                  >
+                    キャリア採用部
+                  </option>
+                  <option
+                    key="3"
+                    value="財務経理部"
+                  >
+                    財務経理部
+                  </option>
+                  <option
+                    key="4"
+                    value="建設ICT事業部"
+                  >
+                    建設ICT事業部
+                  </option>
+                  <option
+                    key="5"
+                    value="情報共有システム事業部"
+                  >
+                    情報共有システム事業部
+                  </option>
+                  <option
+                    key="6"
+                    value="マーケティング部"
+                  >
+                    マーケティング部
+                  </option>
+                </select>
+              </styled.select>
+            </div>
+          </styled.div>
+          <styled.div>
+            <div
+              className="sc-gKAaRy jfTnjy"
+            >
+              <styled.span>
+                <span
+                  className="sc-dlnjwi jrOsMb"
+                >
+                   課 ：
+                </span>
+              </styled.span>
+              <styled.select
+                defaultValue="choice"
+                onChange={[Function]}
+                width={80}
+              >
+                <select
+                  className="sc-bdnxRM RMSbe"
+                  defaultValue="choice"
+                  onChange={[Function]}
+                  width={80}
+                >
+                  <option
+                    disabled={true}
+                    value="choice"
+                  >
+                    選択してください
+                  </option>
+                </select>
+              </styled.select>
+            </div>
+          </styled.div>
+          <styled.div>
+            <div
+              className="sc-gKAaRy jfTnjy"
+            >
+              <styled.span>
+                <span
+                  className="sc-dlnjwi jrOsMb"
+                >
+                  担当：
+                </span>
+              </styled.span>
+              <styled.select
+                defaultValue="choice"
+                onChange={[Function]}
+                width={80}
+              >
+                <select
+                  className="sc-bdnxRM RMSbe"
+                  defaultValue="choice"
+                  onChange={[Function]}
+                  width={80}
+                >
+                  <option
+                    disabled={true}
+                    value="choice"
+                  >
+                    選択してください
+                  </option>
+                </select>
+              </styled.select>
+            </div>
+          </styled.div>
+          <button
+            onClick={[Function]}
+          >
+            追加
+          </button>
+        </div>
+      </styled.div>
+    </Memo(Routing)>
+  </RecoilRoot_INTERNAL>
+</RecoilRoot>
+`;

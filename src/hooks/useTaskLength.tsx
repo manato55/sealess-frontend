@@ -3,6 +3,7 @@ import repository from '../axios/repository';
 
 export const useGetTotalLengthOfTaskInProgress = () => {
   const { data, error } = useSWR('progress/get-total-length', taskLengthFetcher);
+
   return {
     taskInProgress: data ? data : null,
     isLoading: !error && !data,

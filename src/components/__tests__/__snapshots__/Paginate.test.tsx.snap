@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Paginate test snapshot 1`] = `
+<Fragment>
+  <styled.div>
+    <WithStyles(ForwardRef(Pagination))
+      color="primary"
+      count={0}
+      id="paginate"
+      onChange={
+        [MockFunction] {
+          "calls": Array [
+            Array [],
+          ],
+          "results": Array [
+            Object {
+              "type": "return",
+              "value": undefined,
+            },
+          ],
+        }
+      }
+      page={3}
+      shape="rounded"
+      size="small"
+      variant="outlined"
+    />
+  </styled.div>
+</Fragment>
+`;

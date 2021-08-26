@@ -4,7 +4,7 @@ import { http, userStatus, authErrorMessage, eachErrorFlag } from '../store/atom
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
-import { ErrorFlag } from './useAuthenticate';
+import { ErrorFlag } from './useAuth';
 
 export const useDraft = () => {
   const setHttpStatus = useSetRecoilState(http);
@@ -15,7 +15,9 @@ export const useDraft = () => {
 
   return {
     fetchSectionPpl: async (section) => {
-      const res = await repository.post('draft/fetch-ppl', { section: section }).catch((error) => error.response);
+      const res = await repository
+        .post('draft/fetch-ppl', { section: section })
+        .catch((error) => error.response);
       if (res.status === 200) {
         return res.data;
       } else {
@@ -84,7 +86,9 @@ export const useDraft = () => {
     },
 
     fetchSelectedUnreachedTask: async (id) => {
-      const res = await repository.get(`draft/selected-unreached-task/${id}`).catch((error) => error.response);
+      const res = await repository
+        .get(`draft/selected-unreached-task/${id}`)
+        .catch((error) => error.response);
       // パラメータを直打ちして自分が関与していない案件にアクセスしようとした場合はNOT FOUNDを表示する
       if (res.status === 200) {
         if (res.data === '') {
@@ -99,7 +103,9 @@ export const useDraft = () => {
 
     searchTask: async (data, offset) => {
       setErrorMessage({ ...errorMessage, general: false });
-      const res = await repository.post('draft/search-task', { data, offset }).catch((error) => error.response);
+      const res = await repository
+        .post('draft/search-task', { data, offset })
+        .catch((error) => error.response);
       if (res.status === 422) {
         setErrorMessage({ ...errorMessage, general: res.data.error });
       } else if (res.status === 200) {

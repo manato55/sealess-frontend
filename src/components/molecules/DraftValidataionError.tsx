@@ -32,7 +32,9 @@ export const DraftValidataionError = (props: Props) => {
       <ErrorMessageWrapper>{errorFlag.content && errorMessage.content[0]}</ErrorMessageWrapper>
       <ErrorMessageWrapper>{errorFlag.route && errorMessage.route[0]}</ErrorMessageWrapper>
       {errorFlag.file &&
-        fileNumber.map((file, index) => <ErrorMessageWrapper key={index}>{errorMessage[file][0]}</ErrorMessageWrapper>)}
+        fileNumber.map((file, index) => (
+          <ErrorMessageWrapper key={index}>{errorMessage[file][0]}</ErrorMessageWrapper>
+        ))}
     </>
   );
 };

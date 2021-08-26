@@ -5,6 +5,7 @@ interface Props {
 }
 
 const Select = styled.select<Props>`
+  height: 30px;
   width: ${(props) => props.width}%;
 `;
 

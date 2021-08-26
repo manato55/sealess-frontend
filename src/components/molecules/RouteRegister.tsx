@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import Input from '../atoms/Input';
-import RouteSetting from '../../components/molecules/RouteSetting';
+import RouteSetting from './RouteSetting';
 import { useRecoilState } from 'recoil';
 import { authErrorMessage } from '../../store/atom';
 
@@ -31,7 +31,10 @@ export const RouteRegister = (props: Props): React.ReactElement => {
       </LinkContainer>
       <ErrorMessageWrapper>{errorMessage.label && errorMessage.label}</ErrorMessageWrapper>
       <p>登録名</p>
-      <Input type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.setRouteLabel(e.target.value)} />
+      <Input
+        type="text"
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.setRouteLabel(e.target.value)}
+      />
       <br />
       <RouteSetting
         setPplInRoute={props.setPplInRoute}

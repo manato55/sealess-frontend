@@ -18,10 +18,17 @@ export const Email = (props: Props): React.ReactElement => {
   };
 
   return (
-    <div>
-      <ErrorMessageWrapper>{errorFlag.email && errorMessage.email[0]}</ErrorMessageWrapper>
-      <Input type="email" value={props.email} onChange={(e) => emailHandler(e)} placeholder="メールアドレス" />
-    </div>
+    <>
+      <div>
+        <ErrorMessageWrapper>{errorFlag.email && errorMessage.email[0]}</ErrorMessageWrapper>
+        <Input
+          type="email"
+          value={props.email}
+          onChange={(e) => emailHandler(e)}
+          placeholder="メールアドレス"
+        />
+      </div>
+    </>
   );
 };
 

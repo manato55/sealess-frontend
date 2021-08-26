@@ -22,6 +22,11 @@ const Button = styled.button<Props>`
           background-color: ${(props) => props.theme.palette.primary.main};
           color: ${(props) => props.theme.palette.primary.contrastText};
         `;
+      case 'medium':
+        return css`
+          background-color: ${(props) => props.theme.palette.lightGray.main};
+          color: ${(props) => props.theme.text.contrastText};
+        `;
     }
   }}
 `;

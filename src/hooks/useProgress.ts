@@ -18,7 +18,9 @@ export const useProgress = (offset?) => {
     isError: error,
 
     fetchSelectedTask: async (id) => {
-      const res = await repository.get(`progress/fetch-detail-task/${id}`).catch((error) => error.responnse);
+      const res = await repository
+        .get(`progress/fetch-detail-task/${id}`)
+        .catch((error) => error.responnse);
       if (res.data.length === 0) {
         setHttpStatus(404);
       } else {
@@ -88,7 +90,9 @@ export const useProgress = (offset?) => {
     },
 
     fetchTaskInProgress: async (offset) => {
-      const res = await repository.get(`progress/fetch-in-progress/${offset}`).catch((error) => error.responnse);
+      const res = await repository
+        .get(`progress/fetch-in-progress/${offset}`)
+        .catch((error) => error.responnse);
       if (res.status !== 200) {
         setHttpStatus(res.status);
       }
@@ -97,7 +101,9 @@ export const useProgress = (offset?) => {
 };
 
 const taskFetcher = async (offset) => {
-  const res = await repository.get(`progress/fetch-in-progress/${offset}`).catch((error) => error.responnse);
+  const res = await repository
+    .get(`progress/fetch-in-progress/${offset}`)
+    .catch((error) => error.responnse);
 
   return res.data;
 };

@@ -24,7 +24,7 @@ export const LabelChoice = (props: Props): React.ReactElement => {
         props.setCurrComponent('comment');
       }
     },
-    [props],
+    [props]
   );
 
   return (
@@ -63,18 +63,22 @@ const SwitchTabContainer = styled.div`
 
 const Basic = styled.span<Props>`
   color: ${(props) => props.curr === 'basic' && 'red'};
+  cursor: pointer;
 `;
 
 const Adds = styled.span<Props>`
   color: ${(props) => props.curr === 'additive' && 'red'};
+  cursor: pointer;
 `;
 
 const Route = styled.span<Props>`
   color: ${(props) => props.curr === 'route' && 'red'};
+  cursor: pointer;
 `;
 
 const Comment = styled.span<Props>`
   color: ${(props) => props.curr === 'comment' && 'red'};
+  cursor: pointer;
 `;
 
 export default React.memo(LabelChoice);

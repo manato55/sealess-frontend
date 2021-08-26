@@ -10,7 +10,9 @@ export const useComplete = () => {
 
   return {
     fetchCompletedTask: async (choice) => {
-      const res = await repository.get(`completed/fetch-task/${choice}`).catch((error) => error.response);
+      const res = await repository
+        .get(`completed/fetch-task/${choice}`)
+        .catch((error) => error.response);
       if (res.status === 200) {
         return res.data;
       } else {
@@ -19,7 +21,9 @@ export const useComplete = () => {
     },
 
     fetchCompletetTaskDetail: async (id) => {
-      const res = await repository.get(`completed/fetch-detail-task/${id}`).catch((error) => error.responnse);
+      const res = await repository
+        .get(`completed/fetch-detail-task/${id}`)
+        .catch((error) => error.responnse);
       if (res.data.length === 0) {
         setHttpStatus(404);
       } else {
@@ -32,7 +36,9 @@ export const useComplete = () => {
     },
 
     discardTask: async (id) => {
-      const res = await repository.post('completed/discard-task', { id: id }).catch((error) => error.response);
+      const res = await repository
+        .post('completed/discard-task', { id: id })
+        .catch((error) => error.response);
       if (res.status === 200) {
         router.push('/history');
       } else {

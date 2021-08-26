@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Header from '../molecules/Header';
 import LeftNav from '../organisms/LeftNav';
 import styled from 'styled-components';
@@ -52,7 +52,6 @@ const BodyWrapper = styled.div`
   max-width: 1000px;
   margin: 30px auto;
   padding: 0 10px;
-  overflow-x: scroll;
 `;
 
 export default BasicLayout;

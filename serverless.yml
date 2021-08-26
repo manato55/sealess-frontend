@@ -1,4 +1,4 @@
 myNextApplication:
-  component: "./node_modules/@sls-next/serverless-component"
+  component: './node_modules/@sls-next/serverless-component'
   inputs:
-    domain: "kentem-edu.net"
+    domain: 'kentem-edu.net'

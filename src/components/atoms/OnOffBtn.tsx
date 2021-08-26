@@ -18,7 +18,12 @@ export const OnOffBtn = (props: Props) => {
 
   return (
     <SwitchArea>
-      <input type="checkbox" id="switch1" onChange={(e) => props.setSwitchVal(e.target.checked)} ref={agentRef} />
+      <input
+        type="checkbox"
+        id="switch1"
+        onChange={(e) => props.setSwitchVal(e.target.checked)}
+        ref={agentRef}
+      />
       <label htmlFor="switch1">
         <span></span>
       </label>

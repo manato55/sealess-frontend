@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RegisterCommonForm test snapshot 1`] = `
+<RecoilRoot>
+  <RecoilRoot_INTERNAL>
+    <Batcher
+      setNotifyBatcherOfChange={[Function]}
+    />
+    <RegisterCommonForm
+      email="test@test.com"
+      password="testtest"
+      setEmail={
+        [MockFunction] {
+          "calls": Array [
+            Array [
+              "test@test.com",
+            ],
+          ],
+          "results": Array [
+            Object {
+              "type": "return",
+              "value": undefined,
+            },
+          ],
+        }
+      }
+      setPassword={
+        [MockFunction] {
+          "calls": Array [
+            Array [
+              "testtest",
+            ],
+          ],
+          "results": Array [
+            Object {
+              "type": "return",
+              "value": undefined,
+            },
+          ],
+        }
+      }
+    >
+      <div>
+        <styled.p>
+          <p
+            className="sc-gtsrHT DoTxJ"
+          />
+        </styled.p>
+        <styled.input
+          editable={true}
+          onChange={[Function]}
+          placeholder="メールアドレス"
+          type="email"
+          value="test@test.com"
+          visible={false}
+        >
+          <input
+            className="sc-bdnxRM elxLYl"
+            onChange={[Function]}
+            placeholder="メールアドレス"
+            type="email"
+            value="test@test.com"
+          />
+        </styled.input>
+        <styled.p>
+          <p
+            className="sc-gtsrHT DoTxJ"
+          />
+        </styled.p>
+        <styled.input
+          editable={true}
+          onChange={[Function]}
+          placeholder="パスワード"
+          type="password"
+          value="testtest"
+          visible={false}
+        >
+          <input
+            className="sc-bdnxRM elxLYl"
+            onChange={[Function]}
+            placeholder="パスワード"
+            type="password"
+            value="testtest"
+          />
+        </styled.input>
+      </div>
+    </RegisterCommonForm>
+  </RecoilRoot_INTERNAL>
+</RecoilRoot>
+`;

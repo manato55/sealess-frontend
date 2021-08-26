@@ -1,4 +1,11 @@
-import React, { useState, RefObject, useEffect, Dispatch, SetStateAction, useCallback } from 'react';
+import React, {
+  useState,
+  RefObject,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+} from 'react';
 import { useProgress } from '../../hooks/useProgress';
 import { useReturnedTask } from '../../hooks/useReturnedTask';
 import styled from 'styled-components';
@@ -29,7 +36,7 @@ export const Additives = (props: Props): React.ReactElement => {
       }
       props.setFile(files);
     },
-    [props],
+    [props]
   );
 
   useEffect(() => {

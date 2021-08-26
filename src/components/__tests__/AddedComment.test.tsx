@@ -1,8 +1,6 @@
 import React from 'react';
-import AddedComment from '../organisms/AddedComment';
+import AddedComment from '../molecules/AddedComment';
 import { mount, shallow } from 'enzyme';
-import { render, fireEvent } from '@testing-library/react';
-import { renderHook, act } from '@testing-library/react-hooks';
 import 'jsdom-global/register';
 import { RecoilRoot } from 'recoil';
 
@@ -14,7 +12,7 @@ describe('BasicInfo test', () => {
     container = mount(
       <RecoilRoot>
         <AddedComment setComment={onChangeMock} />
-      </RecoilRoot>,
+      </RecoilRoot>
     );
   });
 

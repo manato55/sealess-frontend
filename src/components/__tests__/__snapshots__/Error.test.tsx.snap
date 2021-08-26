@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`error test snapshot 404 1`] = `
+Array [
+  <p>
+    not found
+  </p>,
+  <p
+    onClick={[Function]}
+  >
+    topへ戻る
+  </p>,
+]
+`;
+
+exports[`error test snapshot 500 1`] = `
+Array [
+  <p>
+    server error
+  </p>,
+  <p
+    onClick={[Function]}
+  >
+    topへ戻る
+  </p>,
+]
+`;

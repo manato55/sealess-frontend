@@ -1,16 +1,13 @@
 import repository from '../axios/repository';
 import { useSetRecoilState, useRecoilState } from 'recoil';
-import { http, authErrorMessage, eachErrorFlag } from '../store/atom';
-import { useRouter } from 'next/router';
+import { http, authErrorMessage } from '../store/atom';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
 
 export const useRouting = () => {
   const setHttpStatus = useSetRecoilState(http);
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
-  const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
-
-  const { data, error } = useSWR('route/fetch-agent-status', fetchAgentSetting);
+  const { data, error } = useSWR('route/fetch-agent-status', fetcher);
 
   return {
     agentStatus: data ? data : null,
@@ -28,7 +25,7 @@ export const useRouting = () => {
         })
         .catch((error) => error.response);
       if (res.status === 422) {
-        setErrorMessage({ ...errorMessage, label: res.data.error['data.label'] });
+        setErrorMessage({ ...errorMessage, label: res.data.error.label });
       } else if (res.status === 200) {
         toast.success('登録しました。');
       } else {
@@ -46,7 +43,9 @@ export const useRouting = () => {
     },
 
     removeRegisteredRoute: async (id) => {
-      const res = await repository.post('route/remove-registered-route', { id: id }).catch((error) => error.response);
+      const res = await repository
+        .post('route/remove-registered-route', { id: id })
+        .catch((error) => error.response);
       if (res.status === 200) {
         toast.success('削除しました。');
         return true;
@@ -56,21 +55,27 @@ export const useRouting = () => {
     },
 
     registerAgentUser: async (userId) => {
-      const res = await repository.post('route/agent-setting', { id: userId }).catch((error) => error.response);
+      const res = await repository
+        .post('route/agent-setting', { id: userId })
+        .catch((error) => error.response);
       if (res.status !== 200) {
         setHttpStatus(res.status);
       }
     },
 
     agentStatus2False: async () => {
-      const res = await repository.post('route/agent-status-2false').catch((error) => error.response);
+      const res = await repository
+        .post('route/agent-status-2false')
+        .catch((error) => error.response);
       if (res.status !== 200) {
         setHttpStatus(res.status);
       }
     },
 
     agentStatus2True: async () => {
-      const res = await repository.post('route/agent-status-2true').catch((error) => error.response);
+      const res = await repository
+        .post('route/agent-status-2true')
+        .catch((error) => error.response);
       if (res.status !== 200) {
         setHttpStatus(res.status);
       }
@@ -78,7 +83,7 @@ export const useRouting = () => {
   };
 };
 
-async function fetchAgentSetting(path) {
+async function fetcher(path) {
   const res = await repository.get(path).catch((error) => error.response);
   return res.data;
 }

@@ -37,7 +37,7 @@ export const Routing = (props: Props): React.ReactElement => {
   const { fetchRegisteredRoute } = useRouting();
   const [registeredRoute, setRegisteredRoute] = useState<Route[]>();
   const [department, setDepartment] = useState<string>();
-  const [section, setSection] = useState([]);
+  const [section, setSection] = useState<string[]>([]);
   const sectionRef = useRef<HTMLSelectElement>(null);
   const personRef = useRef<HTMLSelectElement>(null);
   const [selectedPersonId, setSelectedPersonId] = useState<number>(null);
@@ -89,14 +89,14 @@ export const Routing = (props: Props): React.ReactElement => {
       const res = await fetchSectionPpl(e.target.value);
       setSectionPpl(res);
     },
-    [fetchSectionPpl],
+    [fetchSectionPpl]
   );
 
   const selectedPerson = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>): void => {
       setSelectedPersonId(Number(e.target.value));
     },
-    [setSelectedPersonId],
+    [setSelectedPersonId]
   );
 
   const addPersonToRoute = () => {
@@ -108,7 +108,9 @@ export const Routing = (props: Props): React.ReactElement => {
       alert('関与者は最大５人まで設定可能です。');
       return;
     }
-    let addedToRoute: { id: number } = sectionPpl.find((person: { id: number }) => person.id === selectedPersonId);
+    let addedToRoute: { id: number } = sectionPpl.find(
+      (person: { id: number }) => person.id === selectedPersonId
+    );
     // 関与者重複判定
     let cnt = 0;
     pplInRouteChild?.map((person) => {
@@ -132,7 +134,9 @@ export const Routing = (props: Props): React.ReactElement => {
 
   const labelChoice = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>): void => {
-      const routeTmp: { id: number } = registeredRoute.find((route) => route.id === Number(e.target.value));
+      const routeTmp: { id: number } = registeredRoute.find(
+        (route) => route.id === Number(e.target.value)
+      );
       setSelectedRoute(routeTmp);
       let routeArrTmp: object[] = [];
       for (let i = 1; i < loopCnt; i++) {
@@ -143,7 +147,7 @@ export const Routing = (props: Props): React.ReactElement => {
       props.setPplInRoute(routeArrTmp);
       setPplInRouteChild(routeArrTmp);
     },
-    [props, registeredRoute],
+    [props, registeredRoute]
   );
 
   return (
@@ -152,7 +156,12 @@ export const Routing = (props: Props): React.ReactElement => {
         {props.isRegisteredRoute && (
           <div>
             <span>登録済みルート：</span>
-            <Select onChange={(e) => labelChoice(e)} defaultValue={'choice'} ref={routeRef}>
+            <select
+              id="selected"
+              onChange={(e) => labelChoice(e)}
+              defaultValue={'choice'}
+              ref={routeRef}
+            >
               <option value="choice" disabled>
                 選択してください
               </option>
@@ -161,7 +170,7 @@ export const Routing = (props: Props): React.ReactElement => {
                   {route.label}
                 </option>
               ))}
-            </Select>
+            </select>
           </div>
         )}
         <InputSubContainer>
@@ -233,9 +242,10 @@ export const Routing = (props: Props): React.ReactElement => {
               </PplInvolved>
               <DeleteBox>
                 {/* 既に承認済みの関与者はルートから変更できなくする*/}
-                {pplInRouteChild?.length - index === 1 && pplInRouteChild.length >= Number(props.process) && (
-                  <span onClick={() => removeInvolvedPerson(index)}>×</span>
-                )}
+                {pplInRouteChild?.length - index === 1 &&
+                  pplInRouteChild.length >= Number(props.process) && (
+                    <span onClick={() => removeInvolvedPerson(index)}>×</span>
+                  )}
               </DeleteBox>
             </Wrapper>
           </RouteContainer>

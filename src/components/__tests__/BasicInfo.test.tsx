@@ -12,7 +12,13 @@ describe('BasicInfo test', () => {
 
   beforeEach(() => {
     container = mount(
-      <BasicInfo setTitle={onChangeMock} setContents={onChangeMock} title={''} contents={''} editable={false} />,
+      <BasicInfo
+        setTitle={onChangeMock}
+        setContents={onChangeMock}
+        title={''}
+        contents={''}
+        editable={false}
+      />
     );
   });
 

@@ -37,7 +37,9 @@ export const useReturnedTask = () => {
     isError: error,
 
     fetchReturnedDetail: async (id) => {
-      const res = await repository.get(`returned/fetch-detail/${id}`).catch((error) => error.response);
+      const res = await repository
+        .get(`returned/fetch-detail/${id}`)
+        .catch((error) => error.response);
       if (res.status === 200) {
         return res.data;
       } else {
@@ -46,7 +48,9 @@ export const useReturnedTask = () => {
     },
 
     removeFile: async (data) => {
-      const res = await repository.post('returned/remove-file', data).catch((error) => error.response);
+      const res = await repository
+        .post('returned/remove-file', data)
+        .catch((error) => error.response);
       if (res.status === 200) {
         return true;
       } else {
@@ -55,7 +59,9 @@ export const useReturnedTask = () => {
     },
 
     discardReturnedTask: async (id) => {
-      const res = await repository.post('returned/remove-task', { id: id }).catch((error) => error.response);
+      const res = await repository
+        .post('returned/remove-task', { id: id })
+        .catch((error) => error.response);
       if (res.status === 200) {
         router.push('/returned');
       } else {

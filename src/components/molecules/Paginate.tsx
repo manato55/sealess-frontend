@@ -13,15 +13,18 @@ export const Paginate = (props: Props): React.ReactElement => {
   return (
     <>
       <PaginateWrapper>
-        <Pagination
-          count={Math.ceil(props.contents?.length / props.perPage)}
-          variant="outlined"
-          shape="rounded"
-          color="primary"
-          page={props.offset}
-          onChange={props.change}
-          size="small"
-        />
+        <div>
+          <Pagination
+            count={Math.ceil(props.contents?.length / props.perPage)}
+            variant="outlined"
+            shape="rounded"
+            color="primary"
+            page={props.offset}
+            onChange={props.change}
+            size="small"
+            id="paginate"
+          />
+        </div>
       </PaginateWrapper>
     </>
   );
@@ -30,6 +33,13 @@ export const Paginate = (props: Props): React.ReactElement => {
 const PaginateWrapper = styled.div`
   text-align: center;
   margin-top: 50px;
+  width: 90%;
+  position: relative;
+
+  div {
+    position: absolute;
+    right: 50%;
+  }
 `;
 
 export default Paginate;

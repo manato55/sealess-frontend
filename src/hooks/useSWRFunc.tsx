@@ -22,6 +22,11 @@ export interface Unreached {
   created_at: string;
 }
 
+export interface Department {
+  name: string;
+  id: number;
+}
+
 export const useSWRFunc = () => {
   const { data, error } = useSWR<[Task]>('progress/fetch-recieved', fetchRecievedTask);
 
@@ -64,5 +69,20 @@ export const useUnreachedTask = () => {
 
 async function fetchUnreachedTask<T>(): Promise<T> {
   const res = await repository.get('draft/fetch-unreached-task').catch((error) => error.response);
+  return res.data;
+}
+
+export const useDepartment = () => {
+  const { data, error } = useSWR<[Department]>('fetch-department', fetchDepartment);
+
+  return {
+    fetchedDepartment: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
+
+async function fetchDepartment<T>(path): Promise<T> {
+  const res = await repository.get(path).catch((error) => error.response);
   return res.data;
 }
