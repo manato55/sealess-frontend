@@ -1,34 +1,30 @@
-import {useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useDepartment } from '../../hooks/useSWRFunc'
+import { useDepartment } from '../../hooks/useSWRFunc';
 import { http, authErrorMessage, eachErrorFlag } from '../../store/atom';
 import { useSetRecoilState, useRecoilState } from 'recoil';
-import styled from 'styled-components'
+import styled from 'styled-components';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
 import NameInput from '../molecules/NameInput';
 import Button from '../atoms/Button';
-import {useAuthenticate} from '../../hooks/useAuth'
-import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper'
+import { useAuthenticate } from '../../hooks/useAuth';
+import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 
-
-interface Props {
-
-}
+interface Props {}
 
 const DepartmentEdit = (props: Props) => {
   const router = useRouter();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
   const { fetchedDepartment } = useDepartment();
-  const setHttpStatus = useSetRecoilState(http)
-  const [name, setName] = useState<string>('')
-  const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag)
+  const setHttpStatus = useSetRecoilState(http);
+  const [name, setName] = useState<string>('');
+  const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
   const { deleteThisDep, changeDepName } = useAuthenticate();
 
-
   useEffect(() => {
     if (fetchedDepartment) {
-      const extractedDep = fetchedDepartment.find(v => v.id === paramsId)
+      const extractedDep = fetchedDepartment.find((v) => v.id === paramsId);
       if (!extractedDep) {
         setHttpStatus(404);
         return;
@@ -40,8 +36,8 @@ const DepartmentEdit = (props: Props) => {
     return () => {
       setErrorMessage({ ...errorMessage, general: null });
       setErrorFlag({ ...errorFlag, name: false });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchedDepartment]);
 
   const submit = () => {
@@ -56,7 +52,6 @@ const DepartmentEdit = (props: Props) => {
     changeDepName(DepInfo);
   };
 
-
   return (
     <>
       <DeleteBtnWrapper>
@@ -70,9 +65,8 @@ const DepartmentEdit = (props: Props) => {
         </Button>
       </UserRegisterWrapper>
     </>
-  )
-}
-
+  );
+};
 
 const DeleteBtnWrapper = styled.div`
   text-align: right;
@@ -87,4 +81,4 @@ const DeleteBtnWrapper = styled.div`
   }
 `;
 
-export default DepartmentEdit
+export default DepartmentEdit;

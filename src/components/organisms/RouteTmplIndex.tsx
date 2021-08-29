@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useRouting } from '../../hooks/useRouting';
 import Button from '../atoms/Button';
 import RouteRegister from '../molecules/RouteRegister';
+import { AdminUser } from '../../hooks/useUser';
 
 export const RouteTmplIndex = (): React.ReactElement => {
-  const [pplInRoute, setPplInRoute] = useState([]);
+  const [pplInRoute, setPplInRoute] = useState<AdminUser[]>([]);
   const { registerRoute } = useRouting();
   const [routeLabel, setRouteLabel] = useState<string>('');
 

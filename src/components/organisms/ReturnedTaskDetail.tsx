@@ -76,7 +76,7 @@ export const ReturnedTaskDetail = (): React.ReactElement => {
       setReturnedDetail(res);
     };
     initialAction();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paramsId]);
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export const ReturnedTaskDetail = (): React.ReactElement => {
       setTitle(returnedDetail.title);
       setContents(returnedDetail.content);
       // ルートの情報を格納
-      const routeTmp: {}[] = [];
+      const routeTmp = [];
       const routeMaxNum: number = 5;
       for (let i = 1; i <= routeMaxNum; i++) {
         if (returnedDetail[`route${i}_user`] !== null) {

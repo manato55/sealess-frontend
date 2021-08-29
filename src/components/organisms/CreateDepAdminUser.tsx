@@ -9,7 +9,7 @@ import { useRecoilValue, useRecoilState } from 'recoil';
 import { authErrorMessage, eachErrorFlag } from '../../store/atom';
 import { useAuthenticate } from '../../hooks/useAuth';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
-import {useDepartment} from '../../hooks/useSWRFunc'
+import { useDepartment } from '../../hooks/useSWRFunc';
 
 type User = {
   name: string;
@@ -61,7 +61,12 @@ export const CreateDepAdminUser = (props: Props) => {
           setPassword={setPassword}
         />
         <ErrorMessageWrapper>{errorFlag.department && errorMessage.department}</ErrorMessageWrapper>
-        <SelectBoxWrapper onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDepartment(Number(e.target.value))} defaultValue={'choice'}>
+        <SelectBoxWrapper
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setDepartment(Number(e.target.value))
+          }
+          defaultValue={'choice'}
+        >
           <option value="choice" disabled>
             部を選択してください
           </option>

@@ -18,7 +18,7 @@ const DepRegistryForm = (props: Props) => {
     return () => {
       setErrorFlag({ ...errorFlag, name: false, department: false });
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submit = () => {

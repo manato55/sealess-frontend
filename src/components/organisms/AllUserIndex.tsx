@@ -3,32 +3,29 @@ import { useNormalUser } from '../../hooks/useUser';
 import UsersIndex from '../molecules/UsersIndex';
 import Select from '../atoms/Select';
 import styled from 'styled-components';
-import { DEPARTMENT } from '../../const/JobInfo';
 import { departmentSelection } from '../../store/atom';
 import { useSetRecoilState } from 'recoil';
+import { useDepartment } from '../../hooks/useSWRFunc';
 
 interface Props {}
 
 export const AllUserIndex = (props: Props) => {
   const { normalUser } = useNormalUser();
   const setDepartment = useSetRecoilState(departmentSelection);
-
-  const depChoice = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>): void => {
-      setDepartment(e.target.value);
-    },
-    [setDepartment]
-  );
+  const { fetchedDepartment } = useDepartment();
 
   return (
     <>
-      <SelectDep onChange={(e) => depChoice(e)} defaultValue={'choice'}>
+      <SelectDep
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDepartment(e.target.value)}
+        defaultValue={'choice'}
+      >
         <option value="choice" disabled>
           選択してください
         </option>
-        {DEPARTMENT.map((v, index) => (
-          <option key={index} value={v}>
-            {v}
+        {fetchedDepartment?.map((v, index) => (
+          <option key={index} value={v.id}>
+            {v.name}
           </option>
         ))}
       </SelectDep>

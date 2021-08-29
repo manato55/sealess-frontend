@@ -1,15 +1,13 @@
-import DepSecIndex from '../../../components/organisms/DepSecIndex'
+import DepSecIndex from '../../../components/organisms/DepSecIndex';
 
-interface Props {
-
-}
+interface Props {}
 
 const DepIndex = (props: Props) => {
   return (
     <>
       <DepSecIndex />
     </>
-  )
-}
+  );
+};
 
-export default DepIndex
+export default DepIndex;

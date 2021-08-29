@@ -14,9 +14,9 @@ export const useDraft = () => {
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
 
   return {
-    fetchSectionPpl: async (section) => {
+    fetchSectionPpl: async (sectionId) => {
       const res = await repository
-        .post('draft/fetch-ppl', { section: section })
+        .get(`draft/fetch-ppl/${sectionId}`)
         .catch((error) => error.response);
       if (res.status === 200) {
         return res.data;

@@ -6,6 +6,7 @@ import TableContents from '../molecules/TableContents';
 import Loading from '../atoms/Loading';
 import { http } from '../../store/atom';
 import { useSetRecoilState } from 'recoil';
+import { useTaskInProgress } from '../../hooks/useTaskLength';
 
 interface Props {
   taskInProgress: object[];
@@ -13,10 +14,11 @@ interface Props {
 
 export const ProgressIndex = (props: Props): React.ReactElement => {
   const router = useRouter();
-  const taskPerPage: number = 3;
+  const taskPerPage = 3;
   const offset = router.query.offset ? Number.parseInt(String(router.query.offset), 10) : 0;
-  const { fetchTaskInProgress, paginatedTaskInProgress, isLoading } = useProgress(offset);
+  const { fetchTaskInProgress } = useProgress();
   const setHttpStatus = useSetRecoilState(http);
+  const { paginatedTaskInProgress, isLoading } = useTaskInProgress(offset);
 
   const handleChangePage = useCallback(
     async (_: React.ChangeEvent<unknown>, page: number) => {
@@ -27,13 +29,13 @@ export const ProgressIndex = (props: Props): React.ReactElement => {
     [router]
   );
 
-  useEffect(() => {
-    if (paginatedTaskInProgress?.length === 0) {
-      setHttpStatus(404);
-      return;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paginatedTaskInProgress]);
+  // useEffect(() => {
+  //   if (paginatedTaskInProgress?.length === 0) {
+  //     setHttpStatus(404);
+  //     return;
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [paginatedTaskInProgress]);
 
   return (
     <>

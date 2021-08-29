@@ -14,12 +14,11 @@ const JobTitleRegistryForm = (props: Props) => {
   const { jobTitleRegistry } = useAuthenticate();
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
 
-
   useEffect(() => {
     return () => {
       setErrorFlag({ ...errorFlag, name: false });
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submit = () => {

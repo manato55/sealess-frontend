@@ -1,55 +1,54 @@
-import {useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { http, authErrorMessage, eachErrorFlag } from '../../store/atom';
 import { useSetRecoilState, useRecoilState } from 'recoil';
-import styled from 'styled-components'
+import styled from 'styled-components';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
 import NameInput from '../molecules/NameInput';
 import Button from '../atoms/Button';
-import {useAuthenticate} from '../../hooks/useAuth'
-import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper'
-import {useDepSecIndex} from '../../hooks/useUser'
-
+import { useAuthenticate } from '../../hooks/useAuth';
+import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
+import { useDepSecIndex } from '../../hooks/useUser';
+import { toast } from 'react-toastify';
 
 const SectionEdit = () => {
   const router = useRouter();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
-  const setHttpStatus = useSetRecoilState(http)
-  const [name, setName] = useState<string>('')
-  const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag)
+  const setHttpStatus = useSetRecoilState(http);
+  const [name, setName] = useState<string>('');
+  const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
-  const { deleteThisSec, changeSecName } = useAuthenticate();
-  const { depSecIndex } = useDepSecIndex();
-  const [department, setDepartment] = useState<{name: string, id: number}>()
-
+  const { deleteThisSec } = useAuthenticate();
+  const { changeSecName, depSecIndex } = useDepSecIndex();
+  const [department, setDepartment] = useState<{ name: string; id: number }>();
 
   useEffect(() => {
     if (depSecIndex) {
       let extractedSec = [];
-      depSecIndex.map((i, index) => {
-        let check = i.sections.find(v => v.id === paramsId);
+      depSecIndex.map((i) => {
+        let check = i.sections.find((v) => v.id === paramsId);
         if (check) {
-          extractedSec.push(check)
+          extractedSec.push(check);
         }
-      })
+      });
 
       if (!extractedSec) {
         setHttpStatus(404);
         return;
       }
       setName(extractedSec[0].name);
-      setDepartment(depSecIndex.find(v => v.id === extractedSec[0].department_id))
+      setDepartment(depSecIndex.find((v) => v.id === extractedSec[0].department_id));
     } else {
       router.push('/admin/dep-index');
     }
     return () => {
       setErrorMessage({ ...errorMessage, general: null });
       setErrorFlag({ ...errorFlag, name: false });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [depSecIndex]);
 
-  const submit = () => {
+  const submit = async () => {
     if (!confirm('この課に紐づくユーザーの課も変更となります。登録しますか？')) {
       return;
     }
@@ -59,9 +58,19 @@ const SectionEdit = () => {
       department_id: department.id,
       name: name,
     };
-    changeSecName(SecInfo);
+    setErrorFlag({ ...errorFlag, name: false });
+    const res = await changeSecName(SecInfo);
+    if (res.status === 200) {
+      router.push('/admin/dep-index');
+      toast.success('登録完了');
+    } else if (res.status === 422) {
+      setErrorMessage(res.data.errors);
+      const isName = res.data.errors.name ? true : false;
+      setErrorFlag({ ...errorFlag, name: isName });
+    } else {
+      setHttpStatus(res);
+    }
   };
-
 
   return (
     <>
@@ -77,9 +86,8 @@ const SectionEdit = () => {
         </Button>
       </UserRegisterWrapper>
     </>
-  )
-}
-
+  );
+};
 
 const DeleteBtnWrapper = styled.div`
   text-align: right;
@@ -94,4 +102,4 @@ const DeleteBtnWrapper = styled.div`
   }
 `;
 
-export default SectionEdit
+export default SectionEdit;

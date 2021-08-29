@@ -47,15 +47,16 @@ export const RouteInProgress = (props: Props): React.ReactElement => {
                       {`${agent.route}_user` === routeNum && (
                         <p>
                           {countUp()}
-                          {agent.user.department}&emsp;{agent.user.section}&emsp;{agent.user.name}
+                          {agent.user.department.name}&emsp;{agent.user.section.name}&emsp;
+                          {agent.user.name}
                         </p>
                       )}
                     </div>
                   ))}
                   {cnt > 0 && props.taskRoute[0][routeNum] !== null ? (
                     <Highlight>
-                      {`（代理：${props.taskRoute[0][routeNum].department}`}&emsp;
-                      {props.taskRoute[0][routeNum].section}&emsp;
+                      {`（代理：${props.taskRoute[0][routeNum].department.name}`}&emsp;
+                      {props.taskRoute[0][routeNum].section.name}&emsp;
                       {`${props.taskRoute[0][routeNum].name}）`}
                     </Highlight>
                   ) : (
@@ -63,14 +64,14 @@ export const RouteInProgress = (props: Props): React.ReactElement => {
                       {props.taskRoute[0][routeNum].deleted_at ? (
                         <span>
                           <Highlight>削除ユーザー</Highlight>(
-                          {props.taskRoute[0][routeNum].department}&emsp;
-                          {props.taskRoute[0][routeNum].section}&emsp;
+                          {props.taskRoute[0][routeNum].department.name}&emsp;
+                          {props.taskRoute[0][routeNum].section.name}&emsp;
                           {props.taskRoute[0][routeNum].name})
                         </span>
                       ) : (
                         <span>
-                          {props.taskRoute[0][routeNum].department}&emsp;
-                          {props.taskRoute[0][routeNum].section}&emsp;
+                          {props.taskRoute[0][routeNum].department.name}&emsp;
+                          {props.taskRoute[0][routeNum].section.name}&emsp;
                           {props.taskRoute[0][routeNum].name}
                         </span>
                       )}

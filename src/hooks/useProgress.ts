@@ -4,19 +4,14 @@ import useSWR from 'swr';
 import { http, authErrorMessage } from '../store/atom';
 import { useSetRecoilState, useRecoilState } from 'recoil';
 import { saveAs } from 'file-saver';
+import { fetcher } from '../axios/fetcher';
 
-export const useProgress = (offset?) => {
+export const useProgress = () => {
   const setHttpStatus = useSetRecoilState(http);
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
 
-  const { data, error } = useSWR(offset, taskFetcher);
-
   return {
-    paginatedTaskInProgress: data ? data : null,
-    isLoading: !error && !data,
-    isError: error,
-
     fetchSelectedTask: async (id) => {
       const res = await repository
         .get(`progress/fetch-detail-task/${id}`)
@@ -98,12 +93,4 @@ export const useProgress = (offset?) => {
       }
     },
   };
-};
-
-const taskFetcher = async (offset) => {
-  const res = await repository
-    .get(`progress/fetch-in-progress/${offset}`)
-    .catch((error) => error.responnse);
-
-  return res.data;
 };

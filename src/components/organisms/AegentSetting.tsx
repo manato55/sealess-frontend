@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react';
 import OnOffBtn from '../atoms/OnOffBtn';
 import styled from 'styled-components';
-import { DEPARTMENT, SECTION } from '../../const/JobInfo';
 import { useDraft } from '../../hooks/useDraft';
 import { useRouting } from '../../hooks/useRouting';
 import { useEffect } from 'react';
 import Select from '../atoms/Select';
+import { useDepartment } from '../../hooks/useSWRFunc';
+import { useSetionsByDepartmentId } from '../../hooks/useUser';
 
 type SectionPpl = {
   name: string;
@@ -18,16 +19,18 @@ interface Props {
 
 export const AgentSetting = (props: Props): React.ReactElement => {
   const [switchVal, setSwitchVal] = useState<boolean>();
+  const [departmentId, setDepartmentId] = useState<number>();
+  const { fetchedSections } = useSetionsByDepartmentId(departmentId);
   const { fetchSectionPpl } = useDraft();
   const [sectionPpl, setSectionPpl] = useState<SectionPpl[]>();
   const { registerAgentUser, agentStatus2False, agentStatus2True, agentStatus } = useRouting();
-  const [department, setDepartment] = useState<string>();
   const [section, setSection] = useState<string[]>([]);
   const depRef = useRef<HTMLSelectElement>(null);
   const sectionRef = useRef<HTMLSelectElement>(null);
   const personRef = useRef<HTMLSelectElement>(null);
   const [selectedPersonId, setSelectedPersonId] = useState<number>(null);
   const [isAllFilled, setIsAllFilled] = useState<boolean>(false);
+  const { fetchedDepartment } = useDepartment();
 
   useEffect(() => {
     if (
@@ -42,6 +45,7 @@ export const AgentSetting = (props: Props): React.ReactElement => {
       };
       switchAction();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentStatus]);
 
   useEffect(() => {
@@ -55,16 +59,15 @@ export const AgentSetting = (props: Props): React.ReactElement => {
       };
       switchAction();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [switchVal]);
 
   const belongingsAutoFill = async () => {
     if (agentStatus && typeof agentStatus !== 'string' && depRef.current !== null) {
-      // 部を自動入力
-      depRef.current.value = agentStatus.agent_user.department;
-      switchSection(depRef.current.value);
-      // 課を自動入力
-      sectionRef.current.value = agentStatus.agent_user.section;
-      const res = await fetchSectionPpl(sectionRef.current.value);
+      setDepartmentId(agentStatus.agent_user.department_id); // 部を自動入力
+      depRef.current.value = agentStatus.agent_user.department_id; // 課を自動入力
+      sectionRef.current.value = agentStatus.agent_user.section_id;
+      const res = await fetchSectionPpl(agentStatus.agent_user.section_id);
       setSectionPpl(res);
       // DOMが読み込まれていない状態で別ページに遷移するとエラーとなるためDOMが作られてから担当を自動入力する処理を走らせる
       if (personRef.current !== null) {
@@ -77,25 +80,13 @@ export const AgentSetting = (props: Props): React.ReactElement => {
     }
   };
 
-  const switchSection = (dep) => {
-    switch (dep) {
-      case '経営企画部':
-        setSection(SECTION.management);
-        break;
-      case '開発部':
-        setSection(SECTION.dev);
-        break;
-    }
-  };
-
   const depChoice = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     setSelectedPersonId(null);
     // 部を変える度にselectboxを初期化
     sectionRef.current.value = 'choice';
     personRef.current.value = 'choice';
-    let choiceDep: string = e.target.value;
-    setDepartment(choiceDep);
-    switchSection(choiceDep);
+    let choiceDep = Number(e.target.value);
+    setDepartmentId(choiceDep);
   };
 
   const secChoice = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -126,9 +117,9 @@ export const AgentSetting = (props: Props): React.ReactElement => {
                 <option value="choice" disabled>
                   選択してください
                 </option>
-                {DEPARTMENT.map((v, index) => (
-                  <option key={index} value={v}>
-                    {v}
+                {fetchedDepartment?.map((v, index) => (
+                  <option key={index} value={v.id}>
+                    {v.name}
                   </option>
                 ))}
               </Select>
@@ -139,9 +130,9 @@ export const AgentSetting = (props: Props): React.ReactElement => {
                 <option value="choice" disabled>
                   選択してください
                 </option>
-                {section.map((v, index) => (
-                  <option key={index} value={v}>
-                    {v}
+                {fetchedSections?.map((v, index) => (
+                  <option key={index} value={v.id}>
+                    {v.name}
                   </option>
                 ))}
               </Select>

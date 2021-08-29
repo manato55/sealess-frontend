@@ -40,16 +40,16 @@ export const useAuthenticate = () => {
         localStorage.setItem('token', res.data.token);
         // user種別に応じて遷移先を変更
         switch (res.data.user.user_type) {
-          case (0):
+          case 0:
             router.push('/admin');
             break;
-          case (1):
+          case 1:
             router.push('/dep-admin');
             break;
-          case (2):
+          case 2:
             router.push('/');
             break;
-          case (99):
+          case 99:
             router.push('/owner');
             break;
         }
@@ -241,7 +241,7 @@ export const useAuthenticate = () => {
         setErrorMessage(res.data.errors);
         const isName = res.data.errors.name ? true : false;
         const isEmail = res.data.errors.email ? true : false;
-        setErrorFlag({...errorFlag, name: isName, email: isEmail});
+        setErrorFlag({ ...errorFlag, name: isName, email: isEmail });
       } else {
         setHttpStatus(res.status);
       }
@@ -277,24 +277,6 @@ export const useAuthenticate = () => {
       }
     },
 
-    changeDepartment: async (userInfo) => {
-      setErrorFlag({ ...errorFlag, department: false, section: false });
-      const res = await repository
-        .post('change-department', userInfo)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        router.push('/admin/all-users');
-        toast.success('登録完了');
-      } else if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isDep = res.data.errors.department ? true : false;
-        const isSection = res.data.errors.section ? true : false;
-        setErrorFlag({...errorFlag, department: isDep, section: isSection});
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
     changeDepAdminInfo: async (userInfo) => {
       setErrorFlag({ ...errorFlag, name: false, email: false });
       const res = await repository
@@ -307,7 +289,7 @@ export const useAuthenticate = () => {
         setErrorMessage(res.data.errors);
         const isName = res.data.errors.name ? true : false;
         const isEmail = res.data.errors.email ? true : false;
-        setErrorFlag({...errorFlag, name: isName, email: isEmail});
+        setErrorFlag({ ...errorFlag, name: isName, email: isEmail });
       } else {
         setHttpStatus(res.status);
       }
@@ -322,7 +304,7 @@ export const useAuthenticate = () => {
         setErrorMessage(res.data.errors);
         const isName = res.data.errors.name ? true : false;
         const isEmail = res.data.errors.email ? true : false;
-        setErrorFlag({...errorFlag, name: isName, email: isEmail});
+        setErrorFlag({ ...errorFlag, name: isName, email: isEmail });
       } else if (res.status === 200) {
         toast.success('登録完了');
       } else {
@@ -339,7 +321,7 @@ export const useAuthenticate = () => {
         setErrorMessage(res.data.errors);
         const isName = res.data.errors.name ? true : false;
         const isPassword = res.data.errors.password ? true : false;
-        setErrorFlag({...errorFlag, name: isName, password: isPassword});
+        setErrorFlag({ ...errorFlag, name: isName, password: isPassword });
       } else if (res.status === 200) {
         toast.success('登録完了');
         router.push('/login');
@@ -356,7 +338,7 @@ export const useAuthenticate = () => {
       if (res.status === 422) {
         setErrorMessage(res.data.errors);
         const isName = res.data.errors.name ? true : false;
-        setErrorFlag({...errorFlag, name: isName,});
+        setErrorFlag({ ...errorFlag, name: isName });
       } else if (res.status === 201) {
         toast.success('登録完了');
       } else {
@@ -381,7 +363,9 @@ export const useAuthenticate = () => {
 
     jobTitleRegistry: async (info) => {
       setErrorFlag({ ...errorFlag, name: false });
-      const res = await repository.post('job-title-registry', info).catch((error) => error.response);
+      const res = await repository
+        .post('job-title-registry', info)
+        .catch((error) => error.response);
       if (res.status === 422) {
         setErrorMessage(res.data.errors);
         const isName = res.data.errors.name ? true : false;
@@ -398,13 +382,11 @@ export const useAuthenticate = () => {
       if (!confirm('削除しますか？')) {
         return;
       }
-      const res = await repository
-        .delete(`delete-dep/${id}`)
-        .catch((error) => error.response);
+      const res = await repository.delete(`delete-dep/${id}`).catch((error) => error.response);
       if (res.status === 200) {
         toast.success('削除しました。');
         router.push('/admin/dep-index');
-      } else if(res.status === 422) {
+      } else if (res.status === 422) {
         setErrorMessage({ ...errorMessage, general: res.data.error });
       } else {
         setHttpStatus(res.status);
@@ -422,7 +404,7 @@ export const useAuthenticate = () => {
       if (res.status === 200) {
         toast.success('削除しました。');
         router.push('/admin/dep-index');
-      } else if(res.status === 422) {
+      } else if (res.status === 422) {
         setErrorMessage({ ...errorMessage, general: res.data.error });
       } else {
         setHttpStatus(res.status);
@@ -440,28 +422,26 @@ export const useAuthenticate = () => {
       } else if (res.status === 422) {
         setErrorMessage(res.data.errors);
         const isName = res.data.errors.name ? true : false;
-        setErrorFlag({...errorFlag, name: isName });
+        setErrorFlag({ ...errorFlag, name: isName });
       } else {
         setHttpStatus(res.status);
       }
     },
 
-    changeSecName: async (info) => {
-      setErrorFlag({ ...errorFlag, name: false });
+    removeJobTitle: async (id) => {
+      setErrorFlag({ ...errorFlag, jobTitle: false });
       const res = await repository
-        .post('company/change-sec-info', info)
+        .delete(`company/delete-job-title/${id}`)
         .catch((error) => error.response);
       if (res.status === 200) {
-        router.push('/admin/dep-index');
-        toast.success('登録完了');
+        toast.success('削除しました。');
       } else if (res.status === 422) {
         setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        setErrorFlag({...errorFlag, name: isName });
+        const isJobTitle = res.data.errors.jobTitle ? true : false;
+        setErrorFlag({ ...errorFlag, jobTitle: isJobTitle });
       } else {
         setHttpStatus(res.status);
       }
     },
-
   };
 };

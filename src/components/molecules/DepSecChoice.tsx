@@ -15,7 +15,7 @@ export const DepSecChoice = (props: Props): React.ReactElement => {
       let clicked: string = target.innerText;
       if (clicked === '部登録') {
         props.setCurrComponent('department');
-      } else if (clicked === '課登録')  {
+      } else if (clicked === '課登録') {
         props.setCurrComponent('section');
       } else {
         props.setCurrComponent('jobTitle');

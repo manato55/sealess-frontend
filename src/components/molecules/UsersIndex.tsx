@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import Table from '../atoms/Table';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import {AdminUser} from '../../hooks/useUser'
+import { AdminUser } from '../../hooks/useUser';
 
 interface Props {
   users: AdminUser[];
   th: string[];
   displayContents: string[];
+  isEmail?: boolean;
 }
 
 export const UsersManagementIndex = (props: Props) => {
@@ -33,7 +34,11 @@ export const UsersManagementIndex = (props: Props) => {
                 </Link>
               </td>
               <td>{user[props.displayContents[1]].name}</td>
-              <td>{user[props.displayContents[2]]}</td>
+              {props.isEmail ? (
+                <td>{user[props.displayContents[2]]}</td>
+              ) : (
+                <td>{user[props.displayContents[2]].name}</td>
+              )}
             </tr>
           ))}
         </tbody>

@@ -8,6 +8,7 @@ interface Props {
   setName: Dispatch<SetStateAction<string>>;
   name: string;
   placeHolder?: string;
+  isDisabled?: boolean;
 }
 
 export const NameInput = (props: Props) => {
@@ -22,6 +23,7 @@ export const NameInput = (props: Props) => {
         value={props.name}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.setName(e.target.value)}
         placeholder={props.placeHolder}
+        disabled={props.isDisabled}
       />
     </>
   );

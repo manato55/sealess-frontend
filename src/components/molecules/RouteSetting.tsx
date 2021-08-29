@@ -4,6 +4,8 @@ import { useDraft } from '../../hooks/useDraft';
 import styled from 'styled-components';
 import { useRouting } from '../../hooks/useRouting';
 import Select from '../atoms/Select';
+import { useDepartment } from '../../hooks/useSWRFunc';
+import { useSetionsByDepartmentId } from '../../hooks/useUser';
 
 interface Props {
   setPplInRoute: Dispatch<SetStateAction<object>>;
@@ -32,11 +34,13 @@ type Route = {
 };
 
 export const Routing = (props: Props): React.ReactElement => {
+  const { fetchedDepartment } = useDepartment();
+  const [departmentId, setDepartmentId] = useState<number>();
+  const { fetchedSections } = useSetionsByDepartmentId(departmentId);
   const { fetchSectionPpl } = useDraft();
   const [sectionPpl, setSectionPpl] = useState<SectionPpl[]>([]);
   const { fetchRegisteredRoute } = useRouting();
   const [registeredRoute, setRegisteredRoute] = useState<Route[]>();
-  const [department, setDepartment] = useState<string>();
   const [section, setSection] = useState<string[]>([]);
   const sectionRef = useRef<HTMLSelectElement>(null);
   const personRef = useRef<HTMLSelectElement>(null);
@@ -69,16 +73,8 @@ export const Routing = (props: Props): React.ReactElement => {
     // 部を変える度にselectboxを初期化
     sectionRef.current.value = 'choice';
     personRef.current.value = 'choice';
-    let choiceDep: string = e.target.value;
-    setDepartment(choiceDep);
-    switch (choiceDep) {
-      case '経営企画部':
-        setSection(SECTION.management);
-        break;
-      case '開発部':
-        setSection(SECTION.dev);
-        break;
-    }
+    let choiceDep = Number(e.target.value);
+    setDepartmentId(choiceDep);
   }, []);
 
   const secChoice = useCallback(
@@ -179,9 +175,9 @@ export const Routing = (props: Props): React.ReactElement => {
             <option value="choice" disabled>
               選択してください
             </option>
-            {DEPARTMENT.map((v, index) => (
-              <option key={index} value={v}>
-                {v}
+            {fetchedDepartment?.map((v, index) => (
+              <option key={index} value={v.id}>
+                {v.name}
               </option>
             ))}
           </Select>
@@ -192,9 +188,9 @@ export const Routing = (props: Props): React.ReactElement => {
             <option value="choice" disabled>
               選択してください
             </option>
-            {section.map((v, index) => (
-              <option key={index} value={v}>
-                {v}
+            {fetchedSections?.map((v, index) => (
+              <option key={index} value={v.id}>
+                {v.name}
               </option>
             ))}
           </Select>
@@ -236,7 +232,7 @@ export const Routing = (props: Props): React.ReactElement => {
                   </AgentPerson>
                 ) : (
                   <p>
-                    {person.department}&emsp;{person.section}&emsp;{person.name}
+                    {person.department.name}&emsp;{person.section.name}&emsp;{person.name}
                   </p>
                 )}
               </PplInvolved>

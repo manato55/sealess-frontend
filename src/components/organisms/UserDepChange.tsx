@@ -2,20 +2,21 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { http, authErrorMessage, eachErrorFlag } from '../../store/atom';
 import SelectBoxWrapper from '../atoms/SelectBoxWrapper';
-import { DEPARTMENT, SECTION } from '../../const/JobInfo';
 import styled from 'styled-components';
 import { useSetRecoilState, useRecoilValue, useRecoilState } from 'recoil';
-import { useAuthenticate } from '../../hooks/useAuth';
 import Button from '../atoms/Button';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
-import {AdminUser} from '../../hooks/useUser'
+import { AdminUser, useNormalUser, useSetionsByDepartmentId } from '../../hooks/useUser';
+import { useDepartment } from '../../hooks/useSWRFunc';
+import { toast } from 'react-toastify';
 
 interface Props {
   normalUser: AdminUser[];
 }
 
-
 export const UserDepChange = (props: Props) => {
+  const [departmentId, setDepartmentId] = useState<number>();
+  const { fetchedSections } = useSetionsByDepartmentId(departmentId);
   const router = useRouter();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
   const setHttpStatus = useSetRecoilState(http);
@@ -23,22 +24,21 @@ export const UserDepChange = (props: Props) => {
   const [userInfo, setUserInfo] = useState<AdminUser>();
   const depRef = useRef(null);
   const sectionRef = useRef(null);
-  const [department, setDepartment] = useState<string>();
-  const { changeDepartment } = useAuthenticate();
-  const [section, setSection] = useState<string[]>([]);
-  const errorMessage = useRecoilValue(authErrorMessage);
+  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
+  const { fetchedDepartment } = useDepartment();
+  const { changeDepartment } = useNormalUser();
 
   useEffect(() => {
     if (props.normalUser) {
       const extractedUser = props.normalUser.find((v) => v.id === paramsId);
+      setDepartmentId(extractedUser.department.id);
       // useridを直打ちしてきた場合はNOT FOUNDへ遷移
       if (!extractedUser) {
         setHttpStatus(404);
         return;
       }
-      depRef.current.value = extractedUser.department;
+      depRef.current.value = extractedUser.department.id;
       setUserInfo(extractedUser);
-      setDepartment(extractedUser.department);
     } else {
       router.push('/admin/all-users');
     }
@@ -47,46 +47,41 @@ export const UserDepChange = (props: Props) => {
       setErrorFlag({ ...errorFlag, name: false, department: false, email: false, password: false });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.normalUser]);
-
-  useEffect(() => {
-    if (department) {
-      const deferredAction = async () => {
-        await switcher(department);
-        sectionRef.current.value = userInfo.section;
-      };
-      deferredAction();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [department]);
-
-  const switcher = (dep) => {
-    switch (dep) {
-      case '経営企画部':
-        setSection(SECTION.management);
-        break;
-      case '開発部':
-        setSection(SECTION.dev);
-        break;
-    }
-  };
-
-  const depChoice = useCallback((e: React.ChangeEvent<HTMLSelectElement>): void => {
-    sectionRef.current.value = '';
-    const choiceDep: string = e.target.value;
-    switcher(choiceDep);
   }, []);
 
-  const submit = () => {
+  useEffect(() => {
+    if (fetchedSections && userInfo && sectionRef.current.value !== '') {
+      sectionRef.current.value = userInfo.section.id;
+    }
+  }, [userInfo, fetchedSections]);
+
+  const submit = async () => {
     if (!confirm('登録しますか？')) {
       return;
     }
-    const userInfo = {
+    const user = {
       userid: paramsId,
       department: depRef.current.value,
       section: sectionRef.current.value,
     };
-    changeDepartment(userInfo);
+    setErrorFlag({ ...errorFlag, department: false, section: false });
+    const res = await changeDepartment(user);
+    if (res.status === 200) {
+      router.push('/admin/all-users');
+      toast.success('登録完了');
+    } else if (res.status === 422) {
+      setErrorMessage(res.data.errors);
+      const isDep = res.data.errors.department ? true : false;
+      const isSection = res.data.errors.section ? true : false;
+      setErrorFlag({ ...errorFlag, department: isDep, section: isSection });
+    } else {
+      setHttpStatus(res.status);
+    }
+  };
+
+  const depChoice = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDepartmentId(Number(e.target.value));
+    sectionRef.current.value = '';
   };
 
   return (
@@ -97,10 +92,13 @@ export const UserDepChange = (props: Props) => {
       <ErrorMessageWrapper>
         {errorFlag.department && errorMessage.department[0]}
       </ErrorMessageWrapper>
-      <SelectBoxEdition onChange={(e) => depChoice(e)} ref={depRef}>
-        {DEPARTMENT.map((v, index) => (
-          <option key={index} value={v}>
-            {v}
+      <SelectBoxEdition
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => depChoice(e)}
+        ref={depRef}
+      >
+        {fetchedDepartment?.map((v, index) => (
+          <option key={index} value={v.id}>
+            {v.name}
           </option>
         ))}
       </SelectBoxEdition>
@@ -109,9 +107,9 @@ export const UserDepChange = (props: Props) => {
         <option value="" disabled>
           課を選択してください
         </option>
-        {section?.map((v, index) => (
-          <option key={index} value={v}>
-            {v}
+        {fetchedSections?.map((v, index) => (
+          <option key={index} value={v.id}>
+            {v.name}
           </option>
         ))}
       </SelectBoxEdition>

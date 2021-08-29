@@ -19,7 +19,8 @@
     "**/*.ts",
     "**/*.tsx",
     "pages/returned",
-    "components/atoms/Logo.tsx"
-, "src/pages/admin/dep-index"  ],
+    "components/atoms/Logo.tsx",
+    "src/pages/admin/dep-index"
+  ],
   "exclude": ["node_modules"]
 }

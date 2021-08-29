@@ -29,6 +29,7 @@ export const ProgressTaskDetail = (): React.ReactElement => {
       setDetailTask(res);
     };
     getTask();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paramsId]);
 
   useEffect(() => {

@@ -10,8 +10,8 @@ import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import styled from 'styled-components';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
-import {useDepartment} from '../../hooks/useSWRFunc'
-import {AdminUser} from '../../hooks/useUser'
+import { useDepartment } from '../../hooks/useSWRFunc';
+import { AdminUser } from '../../hooks/useUser';
 
 interface Props {
   adminUser: AdminUser[];
@@ -27,7 +27,7 @@ export const DepUser = (props: Props) => {
   const setHttpStatus = useSetRecoilState(http);
   const errorMessage = useRecoilValue(authErrorMessage);
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
-  const {fetchedDepartment} = useDepartment()
+  const { fetchedDepartment } = useDepartment();
 
   useEffect(() => {
     if (props.adminUser) {

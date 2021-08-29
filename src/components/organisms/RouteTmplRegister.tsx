@@ -61,14 +61,14 @@ export const RouteTmplRegister = (): React.ReactElement => {
           </Select>
           {[...Array(loopCnt)].map(
             (_, i) =>
-              selectedRoute !== undefined &&
+              selectedRoute &&
               selectedRoute[`route${i}_user`] != null && (
                 <RouteContainer key={i}>
                   <PplInvolved>
                     <p>関与者{i}</p>
                     <p>
-                      {selectedRoute[`route${i}_user`].department}&emsp;
-                      {selectedRoute[`route${i}_user`].section}&emsp;
+                      {selectedRoute[`route${i}_user`].department.name}&emsp;
+                      {selectedRoute[`route${i}_user`].section.name}&emsp;
                       {selectedRoute[`route${i}_user`].name}
                     </p>
                   </PplInvolved>

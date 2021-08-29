@@ -1,8 +1,8 @@
 import useSWR from 'swr';
-import repository from '../axios/repository';
+import { fetcher } from '../axios/fetcher';
 
 export const useGetTotalLengthOfTaskInProgress = () => {
-  const { data, error } = useSWR('progress/get-total-length', taskLengthFetcher);
+  const { data, error } = useSWR('progress/get-total-length', fetcher);
 
   return {
     taskInProgress: data ? data : null,
@@ -11,8 +11,12 @@ export const useGetTotalLengthOfTaskInProgress = () => {
   };
 };
 
-const taskLengthFetcher = async () => {
-  const res = await repository.get('progress/get-total-length').catch((error) => error.responnse);
+export const useTaskInProgress = (offset) => {
+  const { data, error } = useSWR(`progress/fetch-in-progress/${offset}`, fetcher);
 
-  return res.data;
+  return {
+    paginatedTaskInProgress: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
 };

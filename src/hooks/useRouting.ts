@@ -3,6 +3,7 @@ import { useSetRecoilState, useRecoilState } from 'recoil';
 import { http, authErrorMessage } from '../store/atom';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
+import { fetcher } from '../axios/fetcher';
 
 export const useRouting = () => {
   const setHttpStatus = useSetRecoilState(http);
@@ -60,6 +61,8 @@ export const useRouting = () => {
         .catch((error) => error.response);
       if (res.status !== 200) {
         setHttpStatus(res.status);
+      } else {
+        toast.success('登録完了');
       }
     },
 
@@ -82,8 +85,3 @@ export const useRouting = () => {
     },
   };
 };
-
-async function fetcher(path) {
-  const res = await repository.get(path).catch((error) => error.response);
-  return res.data;
-}

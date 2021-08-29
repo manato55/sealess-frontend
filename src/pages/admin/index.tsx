@@ -1,15 +1,9 @@
-import React from 'react'
+import React from 'react';
 
-interface Props {
-
-}
+interface Props {}
 
 const AdminTop = (props: Props) => {
-  return (
-    <div>
+  return <div></div>;
+};
 
-    </div>
-  )
-}
-
-export default AdminTop
+export default AdminTop;
