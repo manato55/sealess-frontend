@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDepUser } from '../../../hooks/useUser';
+import { useDepUser } from '../../../hooks/useCompany';
 import UsersIndex from '../../../components/molecules/UsersIndex';
 import Loading from '../../../components/atoms/Loading';
 

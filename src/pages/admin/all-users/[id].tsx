@@ -1,9 +1,9 @@
 import React from 'react';
-import { useNormalUser } from '../../../hooks/useUser';
+import { useUpdateCompanyInfo } from '../../../hooks/useCompany';
 import UserDepChange from '../../../components/organisms/UserDepChange';
 
 export const UserEdit = () => {
-  const { normalUser } = useNormalUser();
+  const { normalUser } = useUpdateCompanyInfo();
 
   return (
     <>

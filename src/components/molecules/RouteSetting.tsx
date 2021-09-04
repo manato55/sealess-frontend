@@ -1,11 +1,9 @@
 import React, { useEffect, useState, Dispatch, SetStateAction, useRef, useCallback } from 'react';
-import { DEPARTMENT, SECTION } from '../../const/JobInfo';
-import { useDraft } from '../../hooks/useDraft';
+import { useFetchSectionPpl } from '../../hooks/useDraft';
 import styled from 'styled-components';
-import { useRouting } from '../../hooks/useRouting';
+import { useFetchRegisteredRoute } from '../../hooks/useRouting';
 import Select from '../atoms/Select';
-import { useDepartment } from '../../hooks/useSWRFunc';
-import { useSetionsByDepartmentId } from '../../hooks/useUser';
+import { useSetionsByDepartmentId, useDepartment } from '../../hooks/useCompany';
 
 interface Props {
   setPplInRoute: Dispatch<SetStateAction<object>>;
@@ -23,25 +21,13 @@ interface Props {
   }[];
 }
 
-type SectionPpl = {
-  name: string;
-  id: number;
-};
-
-type Route = {
-  id: number;
-  label: string;
-};
-
 export const Routing = (props: Props): React.ReactElement => {
   const { fetchedDepartment } = useDepartment();
   const [departmentId, setDepartmentId] = useState<number>();
   const { fetchedSections } = useSetionsByDepartmentId(departmentId);
-  const { fetchSectionPpl } = useDraft();
-  const [sectionPpl, setSectionPpl] = useState<SectionPpl[]>([]);
-  const { fetchRegisteredRoute } = useRouting();
-  const [registeredRoute, setRegisteredRoute] = useState<Route[]>();
-  const [section, setSection] = useState<string[]>([]);
+  const [sectionId, setSectionId] = useState<number>();
+  const { fetchedSectionPpl } = useFetchSectionPpl(sectionId);
+  const { registeredRoute } = useFetchRegisteredRoute();
   const sectionRef = useRef<HTMLSelectElement>(null);
   const personRef = useRef<HTMLSelectElement>(null);
   const [selectedPersonId, setSelectedPersonId] = useState<number>(null);
@@ -59,34 +45,20 @@ export const Routing = (props: Props): React.ReactElement => {
     cnt = 0;
   };
 
-  useEffect(() => {
-    const initialAction = async () => {
-      const res = await fetchRegisteredRoute();
-      setRegisteredRoute(res);
-    };
-    initialAction();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const depChoice = useCallback((e: React.ChangeEvent<HTMLSelectElement>): void => {
-    setSelectedPersonId(null);
+    setSectionId(null);
     // 部を変える度にselectboxを初期化
     sectionRef.current.value = 'choice';
     personRef.current.value = 'choice';
-    let choiceDep = Number(e.target.value);
+    const choiceDep = Number(e.target.value);
     setDepartmentId(choiceDep);
   }, []);
 
-  const secChoice = useCallback(
-    async (e: React.ChangeEvent<HTMLSelectElement>): Promise<void> => {
-      setSelectedPersonId(null);
-      // 課を変える度にselectboxを初期化
-      personRef.current.value = 'choice';
-      const res = await fetchSectionPpl(e.target.value);
-      setSectionPpl(res);
-    },
-    [fetchSectionPpl]
-  );
+  const secChoice = useCallback(async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    // 課を変える度にselectboxを初期化
+    personRef.current.value = 'choice';
+    setSectionId(Number(e.target.value));
+  }, []);
 
   const selectedPerson = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -104,7 +76,7 @@ export const Routing = (props: Props): React.ReactElement => {
       alert('関与者は最大５人まで設定可能です。');
       return;
     }
-    let addedToRoute: { id: number } = sectionPpl.find(
+    let addedToRoute: { id: number } = fetchedSectionPpl.find(
       (person: { id: number }) => person.id === selectedPersonId
     );
     // 関与者重複判定
@@ -201,7 +173,7 @@ export const Routing = (props: Props): React.ReactElement => {
             <option value="choice" disabled>
               選択してください
             </option>
-            {sectionPpl.map((person, index) => (
+            {fetchedSectionPpl?.map((person, index) => (
               <option key={index} value={person.id}>
                 {person.name}
               </option>

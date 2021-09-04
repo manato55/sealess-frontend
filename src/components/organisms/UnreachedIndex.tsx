@@ -1,4 +1,4 @@
-import { useUnreachedTask } from '../../hooks/useSWRFunc';
+import { useUnreachedTask } from '../../hooks/useProgress';
 import Loading from '../atoms/Loading';
 import TableContents from '../molecules/TableContents';
 

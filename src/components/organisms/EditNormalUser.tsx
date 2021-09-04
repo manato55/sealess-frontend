@@ -9,26 +9,32 @@ import Button from '../atoms/Button';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import styled from 'styled-components';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { useUser, useJobTitle, useSetionsByDepartmentId } from '../../hooks/useUser';
+import {
+  useFetchDepartmentUser,
+  useJobTitle,
+  useSetionsByDepartmentId,
+} from '../../hooks/useCompany';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
+import { toast } from 'react-toastify';
 
 interface Props {}
 
 const EditNormalUser = (props: Props) => {
   const router = useRouter();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
-  const { editOrdinaryUserInfo, deleteDepUser } = useAuthenticate();
+  const { deleteNormalUser } = useAuthenticate();
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const user = useRecoilValue(userStatus);
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
-  const errorMessage = useRecoilValue(authErrorMessage);
+  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
   const sectionRef = useRef(null);
   const jobTitleRef = useRef(null);
   const setHttpStatus = useSetRecoilState(http);
-  const { depUser } = useUser();
+  const { depUser } = useFetchDepartmentUser();
   const { fetchedSections } = useSetionsByDepartmentId(user?.department_id);
   const { fetchedJobTitle } = useJobTitle();
+  const { editNormalUserInfo } = useFetchDepartmentUser();
 
   useEffect(() => {
     return () => {
@@ -53,11 +59,11 @@ const EditNormalUser = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [depUser, fetchedSections, fetchedJobTitle]);
 
-  const submit = () => {
+  const submit = async () => {
     if (!confirm('登録しますか？')) {
       return;
     }
-    const editUserInfo = {
+    const info = {
       userid: paramsId,
       name: name,
       email: email,
@@ -65,13 +71,41 @@ const EditNormalUser = (props: Props) => {
       section: sectionRef.current.value,
       jobTitle: jobTitleRef.current.value,
     };
-    editOrdinaryUserInfo(editUserInfo);
+    setErrorFlag({ ...errorFlag, name: false, email: false });
+    const res = await editNormalUserInfo(info);
+    if (!res.isFailure) {
+      toast.success('登録しました。');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        setErrorFlag({
+          ...errorFlag,
+          name: res.error.message.name,
+          email: res.error.message.email,
+        });
+      } else {
+        setHttpStatus(res.status);
+      }
+    }
+  };
+
+  const onClick = async () => {
+    if (!confirm('削除しますか？')) {
+      return;
+    }
+    const res = await deleteNormalUser(paramsId);
+    if (!res.isFailure) {
+      toast.success('削除しました。');
+      router.push('/dep-admin/users');
+    } else {
+      setHttpStatus(res.error.code);
+    }
   };
 
   return (
     <>
       <DeleteBtnWrapper>
-        <span onClick={() => deleteDepUser(paramsId)}>このユーザーを削除する</span>
+        <span onClick={() => onClick()}>このユーザーを削除する</span>
       </DeleteBtnWrapper>
       <UserRegisterWrapper>
         <NameInput name={name} setName={setName} placeHolder={'氏名'} />

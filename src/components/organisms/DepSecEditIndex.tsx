@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import React from 'react';
-import { useDepSecIndex } from '../../hooks/useUser';
+import { useDepSecIndex } from '../../hooks/useCompany';
 import Table from '../atoms/Table';
 import Link from 'next/link';
 

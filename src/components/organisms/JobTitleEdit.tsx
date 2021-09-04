@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import Select from '../atoms/Select';
-import { useJobTitle } from '../../hooks/useUser';
+import { useJobTitle } from '../../hooks/useCompany';
 import NameInput from '../molecules/NameInput';
 import Button from '../atoms/Button';
 import { useAuthenticate } from '../../hooks/useAuth';
@@ -16,7 +16,7 @@ const JobTitleEdit = (props: Props) => {
   const { fetchedJobTitle, changeJobTitle } = useJobTitle();
   const [name, setName] = useState<string>('');
   const [jobTitleId, setJobTitleId] = useState<number>();
-  const { removeJobTitle } = useAuthenticate();
+  const { deleteJobTitle } = useJobTitle();
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
   const jobTitleRef = useRef<HTMLSelectElement>(null);
@@ -50,17 +50,19 @@ const JobTitleEdit = (props: Props) => {
     };
     setErrorFlag({ ...errorFlag, name: false, jobTitle: false });
     const res = await changeJobTitle(info);
-    if (res.status === 200) {
+    if (!res.isFailure) {
       router.push('/admin/dep-index');
       toast.success('登録完了');
       clear();
-    } else if (res.status === 422) {
-      setErrorMessage(res.data.errors);
-      const isName = res.data.errors.name ? true : false;
-      const isJobTitle = res.data.errors.jobTitle ? true : false;
-      setErrorFlag({ ...errorFlag, name: isName, jobTitle: isJobTitle });
     } else {
-      setHttpStatus(res.status);
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        const isName = res.error.message.name ? true : false;
+        const isJobTitle = res.error.message.jobTitle ? true : false;
+        setErrorFlag({ ...errorFlag, name: isName, jobTitle: isJobTitle });
+      } else {
+        setHttpStatus(res.status);
+      }
     }
   };
 
@@ -68,8 +70,20 @@ const JobTitleEdit = (props: Props) => {
     if (!confirm('選択した役職を削除しますか？')) {
       return;
     }
-    await removeJobTitle(jobTitleId);
-    clear();
+    setErrorFlag({ ...errorFlag, jobTitle: false });
+    const res = await deleteJobTitle(jobTitleId);
+    if (!res.isFailure) {
+      router.push('/admin/dep-index');
+      toast.success('登録完了');
+      clear();
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        setErrorFlag({ ...errorFlag, name: res.error.message.name });
+      } else {
+        setHttpStatus(res.error.code);
+      }
+    }
   };
 
   const clear = () => {

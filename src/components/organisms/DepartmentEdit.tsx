@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useDepartment } from '../../hooks/useSWRFunc';
 import { http, authErrorMessage, eachErrorFlag } from '../../store/atom';
 import { useSetRecoilState, useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
 import NameInput from '../molecules/NameInput';
 import Button from '../atoms/Button';
-import { useAuthenticate } from '../../hooks/useAuth';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
+import { toast } from 'react-toastify';
+import { useUpdateCompanyInfo, useDepartment, useDepSecIndex } from '../../hooks/useCompany';
 
 interface Props {}
 
@@ -20,7 +20,8 @@ const DepartmentEdit = (props: Props) => {
   const [name, setName] = useState<string>('');
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
-  const { deleteThisDep, changeDepName } = useAuthenticate();
+  const { changeDepName } = useUpdateCompanyInfo();
+  const { deleteThisDep } = useDepSecIndex();
 
   useEffect(() => {
     if (fetchedDepartment) {
@@ -30,8 +31,6 @@ const DepartmentEdit = (props: Props) => {
         return;
       }
       setName(extractedDep.name);
-    } else {
-      router.push('/admin/dep-index');
     }
     return () => {
       setErrorMessage({ ...errorMessage, general: null });
@@ -40,7 +39,7 @@ const DepartmentEdit = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchedDepartment]);
 
-  const submit = () => {
+  const submit = async () => {
     if (!confirm('この部に紐づくユーザーの部も変更となります。登録しますか？')) {
       return;
     }
@@ -49,13 +48,44 @@ const DepartmentEdit = (props: Props) => {
       department_id: paramsId,
       name: name,
     };
-    changeDepName(DepInfo);
+    setErrorFlag({ ...errorFlag, name: false });
+    const res = await changeDepName(DepInfo);
+    if (!res.isFailure) {
+      router.push('/admin/dep-index');
+      toast.success('登録完了');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        const isName = res.error.message.name ? true : false;
+        setErrorFlag({ ...errorFlag, name: isName });
+      } else {
+        setHttpStatus(res.status);
+      }
+    }
+  };
+
+  const remove = async () => {
+    if (!confirm('削除しますか？')) {
+      return;
+    }
+    setErrorMessage({ ...errorMessage, general: null });
+    const res = await deleteThisDep(paramsId);
+    if (!res.isFailure) {
+      toast.success('削除しました。');
+      router.push('/admin/dep-index');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage({ ...errorMessage, general: res.data.error });
+      } else {
+        setHttpStatus(res.error.code);
+      }
+    }
   };
 
   return (
     <>
       <DeleteBtnWrapper>
-        <span onClick={() => deleteThisDep(paramsId)}>この部を削除する</span>
+        <span onClick={() => remove()}>この部を削除する</span>
       </DeleteBtnWrapper>
       <UserRegisterWrapper>
         <ErrorMessageWrapper>{errorMessage.general && errorMessage.general}</ErrorMessageWrapper>

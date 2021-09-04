@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDraft } from '../../hooks/useDraft';
-import { useFiscalYear } from '../../hooks/useSWRFunc';
+import { useFiscalYear } from '../../hooks/useDraft';
 import Button from '../atoms/Button';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import Paginate from '../molecules/Paginate';
@@ -9,6 +9,8 @@ import TableContents from '../molecules/TableContents';
 import SearchFunction from '../molecules/SearchFunction';
 import { useRecoilValue } from 'recoil';
 import { searchKeyword } from '../../store/atom';
+import { authErrorMessage, http, eachErrorFlag } from '../../store/atom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 
 type Task = {
   id: number;
@@ -27,6 +29,8 @@ export const SearchIndex = (): React.ReactElement => {
   const { fiscalYear } = useFiscalYear();
   const [searchedTask, setSearchedTask] = useState<Task[]>();
   const keyword = useRecoilValue(searchKeyword);
+  const setHttpStatus = useSetRecoilState(http);
+  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
 
   useEffect(() => {
     // ブラウザバックした際に、前回の検索状態を再表示する。
@@ -43,7 +47,7 @@ export const SearchIndex = (): React.ReactElement => {
 
     const reSearch = async () => {
       const res = await searchTask(keyword, offset);
-      setSearchedTask(res);
+      setSearchedTask(res.value);
     };
     reSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,8 +57,17 @@ export const SearchIndex = (): React.ReactElement => {
     // ページ途中で検索を実行した場合に１ページ目に戻す
     router.push('/search/1');
     let offset = 1;
+    setErrorMessage({ ...errorMessage, general: false });
     const res = await searchTask(keyword, offset);
-    setSearchedTask(res);
+    if (!res.isFailure) {
+      setSearchedTask(res.value);
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage({ ...errorMessage, general: res.error.message });
+      } else {
+        setHttpStatus(res.status);
+      }
+    }
   };
 
   const handleChangePage = async (_: React.ChangeEvent<unknown>, page: number) => {

@@ -20,6 +20,7 @@ const ButtonToggle = (): React.ReactElement => {
       setIsNav(false);
       CheckRef.current.checked = false;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [breakPoint]);
 
   const checkboxHandler = useCallback((): void => {

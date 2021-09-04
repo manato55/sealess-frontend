@@ -1,59 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useComplete } from '../../hooks/useComplete';
+import { useCompletedTaskDetail } from '../../hooks/useComplete';
 import BasicInfo from '../../components/molecules/BasicInfo';
 import AdditiveInProgress from '../../components/molecules/AdditiveInProgress';
 import RouteInProgress from '../../components/molecules/RouteInProgress';
 import Loading from '../../components/atoms/Loading';
-import { useRecoilValue } from 'recoil';
-import { userStatus } from '../../store/atom';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { http, userStatus } from '../../store/atom';
 import LabelChoice from '../../components/molecules/LabelChoice';
-import Button from '../../components/atoms/Button';
-
-type Task = {
-  title: string;
-  content: string;
-  filename: string;
-  user_id: number;
-};
 
 export const HistoryTaskDetail = (): React.ReactElement => {
   const router = useRouter();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
-  const { fetchCompletetTaskDetail, discardTask } = useComplete();
+  const { completedTaskDetail } = useCompletedTaskDetail(paramsId);
   const [title, setTitle] = useState<string>('');
   const [contents, setContents] = useState<string>('');
   const [currComponent, setCurrComponent] = useState<string>('basic');
   const user = useRecoilValue(userStatus);
-  const [detailTask, setDetailTask] = useState<Task[]>();
-
-  useEffect(() => {
-    const getTask = async () => {
-      const res = await fetchCompletetTaskDetail(paramsId);
-      setDetailTask(res);
-    };
-    getTask();
-  }, [paramsId]);
+  const setHttpStatus = useSetRecoilState(http);
 
   useEffect(() => {
     // 初回の呼び出しではstate値を更新せず、detailTaskを非同期で取得したらstate値を更新する
-    if (detailTask?.length > 0) {
-      setContents(detailTask[0].content);
-      setTitle(detailTask[0].title);
+    if (completedTaskDetail) {
+      if (completedTaskDetail.length > 0) {
+        setContents(completedTaskDetail[0].content);
+        setTitle(completedTaskDetail[0].title);
+      } else {
+        setHttpStatus(404);
+      }
     }
-  }, [detailTask]);
-
-  const discard = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>): void => {
-    const value = e.currentTarget.innerHTML;
-    if (!confirm(`${value}しますか？`)) {
-      return;
-    }
-    discardTask(paramsId);
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedTaskDetail]);
 
   return (
     <>
-      {detailTask?.length > 0 ? (
+      {completedTaskDetail?.length > 0 ? (
         <div>
           <LabelChoice
             currComponent={currComponent}
@@ -63,18 +44,10 @@ export const HistoryTaskDetail = (): React.ReactElement => {
           {currComponent === 'basic' ? (
             <BasicInfo title={title} contents={contents} editable={false} />
           ) : currComponent === 'additive' ? (
-            <AdditiveInProgress filename={detailTask[0].filename} taskId={paramsId} />
+            <AdditiveInProgress filename={completedTaskDetail[0]?.filename} taskId={paramsId} />
           ) : (
-            <RouteInProgress taskRoute={detailTask} completed={true} />
+            <RouteInProgress taskRoute={completedTaskDetail} completed={true} />
           )}
-          <br />
-          <div>
-            {detailTask[0].user_id === user.id && (
-              <Button onClick={(e) => discard(e)} marginTop={20}>
-                破棄
-              </Button>
-            )}
-          </div>
         </div>
       ) : (
         <Loading />

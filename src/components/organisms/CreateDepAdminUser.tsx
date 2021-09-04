@@ -1,34 +1,27 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import RegisterCommonForm from '../molecules/RegisterCommonForm';
 import NameInput from '../molecules/NameInput';
-import { DEPARTMENT } from '../../const/JobInfo';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import Button from '../atoms/Button';
 import SelectBoxWrapper from '../atoms/SelectBoxWrapper';
-import { useRecoilValue, useRecoilState } from 'recoil';
-import { authErrorMessage, eachErrorFlag } from '../../store/atom';
-import { useAuthenticate } from '../../hooks/useAuth';
+import { useSetRecoilState, useRecoilState } from 'recoil';
+import { authErrorMessage, eachErrorFlag, http } from '../../store/atom';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
-import { useDepartment } from '../../hooks/useSWRFunc';
-
-type User = {
-  name: string;
-  email: string;
-  password: string;
-  department: number;
-};
+import { useDepSecIndex, useDepartment } from '../../hooks/useCompany';
+import { toast } from 'react-toastify';
 
 interface Props {}
 
 export const CreateDepAdminUser = (props: Props) => {
-  const { registerDepAdmin } = useAuthenticate();
+  const { registerDepAdmin } = useDepSecIndex();
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [department, setDepartment] = useState<number>();
-  const errorMessage = useRecoilValue(authErrorMessage);
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const { fetchedDepartment } = useDepartment();
+  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
+  const setHttpStatus = useSetRecoilState(http);
 
   useEffect(() => {
     return () => {
@@ -37,17 +30,33 @@ export const CreateDepAdminUser = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const submit = () => {
+  const submit = async () => {
     if (!confirm('登録しますか？')) {
       return;
     }
-    const user: User = {
+    const user = {
       name: name,
       email: email,
       password: password,
       department: department,
     };
-    registerDepAdmin(user);
+    setErrorFlag({ ...errorFlag, name: false, department: false, email: false, password: false });
+    const res = await registerDepAdmin(user);
+    if (!res.isFailure) {
+      toast.success('登録しました。');
+    } else {
+      if (res.error.code === 422) {
+        setErrorFlag({
+          ...errorFlag,
+          department: res.error.message.department,
+          name: res.error.message.name,
+          password: res.error.message.password,
+          email: res.error.message.email,
+        });
+      } else {
+        setHttpStatus(res.error.code);
+      }
+    }
   };
 
   return (

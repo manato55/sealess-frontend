@@ -1,87 +1,78 @@
-import repository from '../axios/repository';
-import { useSetRecoilState, useRecoilState } from 'recoil';
-import { http, authErrorMessage } from '../store/atom';
 import useSWR from 'swr';
-import { toast } from 'react-toastify';
 import { fetcher } from '../axios/fetcher';
+import { useCallback } from 'react';
+import { draftRepo } from '../axios/draftRepo';
+import { routeRepo } from '../axios/routeRepo';
 
-export const useRouting = () => {
-  const setHttpStatus = useSetRecoilState(http);
-  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
-  const { data, error } = useSWR('route/fetch-agent-status', fetcher);
+export const useFetchRegisteredRoute = () => {
+  const { data, error, mutate } = useSWR('route/fetch-registered', fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+
+  const _registerRoute = useCallback(
+    async (route, label) => {
+      const info = {
+        data: {
+          route: route,
+          label: label,
+        },
+      };
+      const res = await draftRepo.registerRoute(info);
+      if (!res.isFailure) mutate();
+      return res;
+    },
+    [mutate]
+  );
+
+  const _removeRegisteredRoute = useCallback(
+    async (id) => {
+      const res = await draftRepo.deleteRegisteredRoute(id);
+      if (!res.isFailure) mutate();
+      return res;
+    },
+    [mutate]
+  );
 
   return {
+    registerRoute: _registerRoute,
+    removeRegisteredRoute: _removeRegisteredRoute,
+    registeredRoute: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
+
+export const useRouting = () => {
+  const { data, error, mutate } = useSWR('route/fetch-agent-status', fetcher);
+
+  const _registerAgentUser = useCallback(
+    async (userId) => {
+      const res = await routeRepo.registerAgentUser({ id: userId });
+      if (!res.isFailure) mutate();
+      return res;
+    },
+    [mutate]
+  );
+
+  const _agentStatus2False = useCallback(async () => {
+    const res = await routeRepo.agentStatus2False();
+    if (!res.isFailure) mutate();
+    return res;
+  }, [mutate]);
+
+  const _agentStatus2True = useCallback(async () => {
+    const res = await routeRepo.agentStatus2True();
+    if (!res.isFailure) mutate();
+    return res;
+  }, [mutate]);
+
+  return {
+    registerAgentUser: _registerAgentUser,
+    agentStatus2False: _agentStatus2False,
+    agentStatus2True: _agentStatus2True,
     agentStatus: data ? data : null,
     isLoading: !error && !data,
     isError: error,
-
-    registerRoute: async (route, label) => {
-      setErrorMessage({ ...errorMessage, label: false });
-      const res = await repository
-        .post('route/register-route', {
-          data: {
-            route: route,
-            label: label,
-          },
-        })
-        .catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage({ ...errorMessage, label: res.data.error.label });
-      } else if (res.status === 200) {
-        toast.success('登録しました。');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
-    fetchRegisteredRoute: async () => {
-      const res = await repository.get('route/fetch-registered').catch((error) => error.response);
-      if (res.status === 200) {
-        return res.data;
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
-    removeRegisteredRoute: async (id) => {
-      const res = await repository
-        .post('route/remove-registered-route', { id: id })
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        toast.success('削除しました。');
-        return true;
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
-    registerAgentUser: async (userId) => {
-      const res = await repository
-        .post('route/agent-setting', { id: userId })
-        .catch((error) => error.response);
-      if (res.status !== 200) {
-        setHttpStatus(res.status);
-      } else {
-        toast.success('登録完了');
-      }
-    },
-
-    agentStatus2False: async () => {
-      const res = await repository
-        .post('route/agent-status-2false')
-        .catch((error) => error.response);
-      if (res.status !== 200) {
-        setHttpStatus(res.status);
-      }
-    },
-
-    agentStatus2True: async () => {
-      const res = await repository
-        .post('route/agent-status-2true')
-        .catch((error) => error.response);
-      if (res.status !== 200) {
-        setHttpStatus(res.status);
-      }
-    },
   };
 };

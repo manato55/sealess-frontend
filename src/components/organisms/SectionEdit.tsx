@@ -6,9 +6,8 @@ import styled from 'styled-components';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
 import NameInput from '../molecules/NameInput';
 import Button from '../atoms/Button';
-import { useAuthenticate } from '../../hooks/useAuth';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
-import { useDepSecIndex } from '../../hooks/useUser';
+import { useDepSecIndex } from '../../hooks/useCompany';
 import { toast } from 'react-toastify';
 
 const SectionEdit = () => {
@@ -18,7 +17,7 @@ const SectionEdit = () => {
   const [name, setName] = useState<string>('');
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
-  const { deleteThisSec } = useAuthenticate();
+  const { deleteThisSec } = useDepSecIndex();
   const { changeSecName, depSecIndex } = useDepSecIndex();
   const [department, setDepartment] = useState<{ name: string; id: number }>();
 
@@ -31,7 +30,6 @@ const SectionEdit = () => {
           extractedSec.push(check);
         }
       });
-
       if (!extractedSec) {
         setHttpStatus(404);
         return;
@@ -60,22 +58,42 @@ const SectionEdit = () => {
     };
     setErrorFlag({ ...errorFlag, name: false });
     const res = await changeSecName(SecInfo);
-    if (res.status === 200) {
+    if (!res.isFailure) {
       router.push('/admin/dep-index');
       toast.success('登録完了');
-    } else if (res.status === 422) {
-      setErrorMessage(res.data.errors);
-      const isName = res.data.errors.name ? true : false;
-      setErrorFlag({ ...errorFlag, name: isName });
     } else {
-      setHttpStatus(res);
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        const isName = res.error.message.name ? true : false;
+        setErrorFlag({ ...errorFlag, name: isName });
+      } else {
+        if (res.error.code === 422) {
+          setErrorMessage({ ...errorMessage, general: res.data.error });
+        } else {
+          setHttpStatus(res.error.code);
+        }
+      }
+    }
+  };
+
+  const remove = async () => {
+    if (!confirm('削除しますか？')) {
+      return;
+    }
+    setErrorMessage({ ...errorMessage, general: null });
+    const res = await deleteThisSec(paramsId);
+    if (!res.isFailure) {
+      toast.success('削除しました。');
+      router.push('/admin/dep-index');
+    } else {
+      setHttpStatus(res.error.code);
     }
   };
 
   return (
     <>
       <DeleteBtnWrapper>
-        <span onClick={() => deleteThisSec(paramsId)}>この課を削除する</span>
+        <span onClick={() => remove()}>この課を削除する</span>
       </DeleteBtnWrapper>
       <UserRegisterWrapper>
         <ErrorMessageWrapper>{errorMessage.general && errorMessage.general}</ErrorMessageWrapper>

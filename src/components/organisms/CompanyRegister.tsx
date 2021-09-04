@@ -4,8 +4,9 @@ import Button from '../atoms/Button';
 import NameInput from '../molecules/NameInput';
 import Email from '../molecules/Email';
 import { useAuthenticate } from '../../hooks/useAuth';
-import { useRecoilState } from 'recoil';
-import { eachErrorFlag } from '../../store/atom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { authErrorMessage, eachErrorFlag, http } from '../../store/atom';
+import { toast } from 'react-toastify';
 
 interface Props {}
 
@@ -14,6 +15,8 @@ const CompanyRegister = (props: Props) => {
   const [email, setEmail] = useState<string>('');
   const { registerCompany } = useAuthenticate();
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
+  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
+  const setHttpStatus = useSetRecoilState(http);
 
   useEffect(() => {
     return () => {
@@ -22,7 +25,7 @@ const CompanyRegister = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!confirm('登録しますか？')) {
       return;
@@ -32,7 +35,22 @@ const CompanyRegister = (props: Props) => {
       name: name,
       label: '企業名',
     };
-    registerCompany(user);
+    setErrorFlag({ ...errorFlag, name: false, email: false });
+    const res = await registerCompany(user);
+    if (!res.isFailure) {
+      toast.success('登録完了');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        setErrorFlag({
+          ...errorFlag,
+          name: res.error.message.name,
+          email: res.error.message.email,
+        });
+      } else {
+        setHttpStatus(res.error.code);
+      }
+    }
   };
 
   return (

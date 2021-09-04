@@ -1,96 +1,96 @@
-import repository from '../axios/repository';
+import { repository } from '../axios/repository';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import { http, authErrorMessage } from '../store/atom';
 import { useSetRecoilState, useRecoilState } from 'recoil';
-import { saveAs } from 'file-saver';
 import { fetcher } from '../axios/fetcher';
+import { useCallback } from 'react';
+import { progressRepo } from '../axios/progressRepo';
+import { draftRepo } from '../axios/draftRepo';
 
-export const useProgress = () => {
-  const setHttpStatus = useSetRecoilState(http);
-  const router = useRouter();
-  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
+type Task = {
+  user: {
+    section: string;
+    name: string;
+  };
+  title: string;
+  updated_at: string;
+  id: number;
+};
+
+export type Unreached = {
+  id: number;
+  title: string;
+  user: {
+    name: string;
+  };
+  created_at: string;
+};
+
+export type TaskDetail = {
+  content: string;
+  title: string;
+  filename: string;
+};
+
+export const useUnreachedTask = () => {
+  const { data, error } = useSWR<[Unreached]>('draft/fetch-unreached-task', fetcher);
 
   return {
-    fetchSelectedTask: async (id) => {
-      const res = await repository
-        .get(`progress/fetch-detail-task/${id}`)
-        .catch((error) => error.responnse);
-      if (res.data.length === 0) {
-        setHttpStatus(404);
-      } else {
-        if (res.status === 200) {
-          return res.data;
-        } else {
-          setHttpStatus(res.status);
-        }
-      }
-    },
+    unreachedTask: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
 
-    actionInProgress: async (action, paramId) => {
-      const res = await repository
-        .post('progress/action-inprogress', {
-          data: {
-            action: action,
-            id: paramId,
-          },
-        })
-        .catch((error) => error.response);
-      const initialPage = 1;
-      if (res.status === 200) {
-        router.push(`/progress/index/${initialPage}`);
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+export const useFetchedUnreachedTaskDetail = (id) => {
+  const { data, error } = useSWR<[TaskDetail]>(`progress/fetch-detail-task/${id}`, fetcher);
 
-    actionInEscalation: async (action, paramId) => {
-      const res = await repository
-        .post('progress/action-inescalation', {
-          data: {
-            action: action,
-            id: paramId,
-          },
-        })
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        router.push('/recieve');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  return {
+    unreachedTaskDetail: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
 
-    returnToDrafter: async (data) => {
-      setErrorMessage({ ...errorMessage, general: false });
-      const res = await repository.post('progress/return', data).catch((error) => error.response);
-      if (res.status === 200) {
-        router.push('/recieve');
-      } else if (res.status === 422) {
-        setErrorMessage({ ...errorMessage, general: res.data.error.comment });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+export const useProgress = () => {
+  const { data, error, mutate } = useSWR<[Task]>('progress/fetch-recieved', fetcher);
 
-    downloadFile: async (data) => {
-      const res = await repository
-        .post('progress/fetch-file', { data: data }, { responseType: 'blob' })
-        .catch((error) => error.response);
-      const blob = new Blob([res.data], {
-        type: res.data.type,
-      });
-      const contentDisposition = res.headers['content-disposition'];
-      const fileName = contentDisposition.substring(contentDisposition.indexOf('=') + 1);
-      saveAs(blob, fileName);
+  const _actionInEscalation = useCallback(
+    async (action, paramId) => {
+      const info = {
+        data: {
+          action: action,
+          id: paramId,
+        },
+      };
+      const res = await progressRepo.actionInEscalation(info);
+      if (!res.isFailure) mutate;
+      return res;
     },
+    [mutate]
+  );
 
-    fetchTaskInProgress: async (offset) => {
-      const res = await repository
-        .get(`progress/fetch-in-progress/${offset}`)
-        .catch((error) => error.responnse);
-      if (res.status !== 200) {
-        setHttpStatus(res.status);
-      }
+  const _returnToDrafter = useCallback(
+    async (info) => {
+      const res = await progressRepo.returnToDrafter(info);
+      if (!res.isFailure) mutate;
+      return res;
     },
+    [mutate]
+  );
+
+  const _downloadFile = useCallback(async (data) => {
+    const res = await progressRepo.downloadFile({ data: data });
+    return res;
+  }, []);
+
+  return {
+    actionInEscalation: _actionInEscalation,
+    downloadFile: _downloadFile,
+    returnToDrafter: _returnToDrafter,
+    recievedTask: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
   };
 };

@@ -1,6 +1,6 @@
-import repository from './repository';
+import { repository } from './repository';
 
-export const fetcher = async (path: string) => {
-  const res = await repository.get(path).catch((error) => error.response);
+export async function fetcher(path: string) {
+  const res = await repository.get(path);
   return res.data;
-};
+}

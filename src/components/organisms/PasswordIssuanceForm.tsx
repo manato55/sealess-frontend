@@ -4,8 +4,8 @@ import FormWrapper from '../atoms/FormWrapper';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import Input from '../atoms/Input';
 import { useAuthenticate } from '../../hooks/useAuth';
-import { useRecoilValue, useRecoilState } from 'recoil';
-import { authErrorMessage, eachErrorFlag } from '../../store/atom';
+import { useSetRecoilState, useRecoilState } from 'recoil';
+import { authErrorMessage, eachErrorFlag, http } from '../../store/atom';
 import styled from 'styled-components';
 import Link from 'next/link';
 
@@ -15,9 +15,10 @@ interface Props {
 }
 
 export const PasswordIssuanceForm = (props: Props): React.ReactElement => {
-  const errorMessage = useRecoilValue(authErrorMessage);
+  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
-  const { passwordReRegister } = useAuthenticate();
+  const setHttpStatus = useSetRecoilState(http);
+  const { passwordIssuanceMail } = useAuthenticate();
   const [message, setMessage] = useState<string>('');
 
   const emailHandler = useCallback(
@@ -27,20 +28,25 @@ export const PasswordIssuanceForm = (props: Props): React.ReactElement => {
     [props]
   );
 
-  const handleSubmit = useCallback(
-    async (e: React.ChangeEvent<HTMLFormElement>) => {
-      setMessage('');
-      e.preventDefault();
-      if (!confirm('送信しますか？')) {
-        return;
+  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+    setMessage('');
+    e.preventDefault();
+    if (!confirm('送信しますか？')) {
+      return;
+    }
+    setErrorFlag({ ...errorFlag, email: false });
+    const res = await passwordIssuanceMail(props.email);
+    if (!res.isFailure) {
+      setMessage('リンクを付けたメールを送信しました。');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        setErrorFlag({ ...errorFlag, email: true });
+      } else {
+        setHttpStatus(res.status);
       }
-      const res = await passwordReRegister(props.email);
-      if (res === 200) {
-        setMessage('リンクを付けたメールを送信しました。');
-      }
-    },
-    [props, passwordReRegister]
-  );
+    }
+  };
 
   return (
     <>

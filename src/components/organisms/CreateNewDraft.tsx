@@ -6,6 +6,9 @@ import { useDraft } from '../../hooks/useDraft';
 import Button from '../atoms/Button';
 import LabelChoice from '../molecules/LabelChoice';
 import DraftValidationError from '../molecules/DraftValidataionError';
+import { toast } from 'react-toastify';
+import { authErrorMessage, http, eachErrorFlag } from '../../store/atom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 
 type Draft = {
   title: string;
@@ -25,12 +28,15 @@ export const CreateNewDraft = (): React.ReactElement => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileState, setFileState] = useState<any>();
   const [fileNumber, setFileNumber] = useState<string[]>([]);
+  const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
+  const setHttpStatus = useSetRecoilState(http);
+  const setErrorMessage = useSetRecoilState(authErrorMessage);
 
   useEffect(() => {
     setFileState(fileRef);
   }, []);
 
-  const submitDraft = () => {
+  const submitDraft = async () => {
     if (!confirm('提出しますか？')) {
       return;
     }
@@ -42,7 +48,29 @@ export const CreateNewDraft = (): React.ReactElement => {
       ppl: pplInRoute,
       action: '',
     };
-    registerDraft(draft);
+    const res = await registerDraft(draft);
+    if (!res.isFailure) {
+      toast.success('登録しました。');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        const tmp = {
+          file: false,
+        };
+        let keys = Object.keys(res.error.message);
+        let fileExtracted = keys.filter((v) => v.match(/file/));
+        tmp.file = fileExtracted.length > 0 ? true : false;
+        setErrorFlag({
+          ...errorFlag,
+          file: tmp.file,
+          title: res.error.message.title,
+          content: res.error.message.content,
+          route: res.error.message.route,
+        });
+      } else {
+        setHttpStatus(res.status);
+      }
+    }
   };
 
   return (

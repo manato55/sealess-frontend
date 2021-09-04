@@ -1,28 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
-import { useRouting } from '../../hooks/useRouting';
+import { useFetchRegisteredRoute } from '../../hooks/useRouting';
 import styled from 'styled-components';
 import Select from '../atoms/Select';
-
-type Route = {
-  id: number;
-  label: string;
-};
+import { toast } from 'react-toastify';
+import { http } from '../../store/atom';
+import { useSetRecoilState } from 'recoil';
 
 export const RouteTmplRegister = (): React.ReactElement => {
-  const { fetchRegisteredRoute, removeRegisteredRoute } = useRouting();
+  const { registeredRoute, removeRegisteredRoute } = useFetchRegisteredRoute();
   const [selectedRoute, setSelectedRoute] = useState<{ id: number }>();
-  const [registeredRoute, setRegisteredRoute] = useState<Route[]>();
   const loopCnt = 5;
   const routeRef = useRef<HTMLSelectElement>(null);
-
-  useEffect(() => {
-    const initialAction = async () => {
-      const res = await fetchRegisteredRoute();
-      setRegisteredRoute(res);
-    };
-    initialAction();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const setHttpStatus = useSetRecoilState(http);
 
   const labelChoice = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     const routeTmp: { id: number } = registeredRoute.find(
@@ -36,11 +25,12 @@ export const RouteTmplRegister = (): React.ReactElement => {
       return;
     }
     const res = await removeRegisteredRoute(selectedRoute.id);
-    if (res) {
-      const subRes = await fetchRegisteredRoute();
-      setRegisteredRoute(subRes);
+    if (!res.Failure) {
+      toast.success('削除しました。');
       setSelectedRoute(undefined);
       routeRef.current.value = 'choice';
+    } else {
+      setHttpStatus(res.status);
     }
   }
 

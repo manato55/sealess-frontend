@@ -1,13 +1,32 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useAuthenticate } from '../../hooks/useAuth';
-import { useRecoilValue } from 'recoil';
-import { userStatus } from '../../store/atom';
+import { useAuthenticate, useLoginCheck } from '../../hooks/useAuth';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { userStatus, http, searchKeyword } from '../../store/atom';
 import Label from '../molecules/Label';
+import router from 'next/router';
 
 export const LeftNav = (): React.ReactElement => {
-  const { logout } = useAuthenticate();
-  const user = useRecoilValue(userStatus);
+  const [user, setUser] = useRecoilState(userStatus);
+  const [keyword, setKeyword] = useRecoilState(searchKeyword);
+  const setHttpStatus = useSetRecoilState(http);
+  const { logout } = useLoginCheck();
+
+  const onClick = async () => {
+    if (!confirm('ログアウトしますか？')) {
+      return;
+    }
+    const res = await logout();
+    if (!res.isFailure) {
+      setUser(undefined);
+      localStorage.removeItem('token');
+      // 検索キーワード削除
+      setKeyword({ ...keyword, task: null, name: null, year: null });
+      router.push('/login');
+    } else {
+      setHttpStatus(res.error.code);
+    }
+  };
 
   return (
     <>
@@ -38,7 +57,7 @@ export const LeftNav = (): React.ReactElement => {
         ) : (
           ''
         )}
-        <a onClick={logout}>
+        <a onClick={() => onClick()}>
           <p>ログアウト</p>
         </a>
       </NavWrapper>

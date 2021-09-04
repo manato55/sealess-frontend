@@ -10,6 +10,8 @@ import { useProgress } from '../../hooks/useProgress';
 import { useReturnedTask } from '../../hooks/useReturnedTask';
 import styled from 'styled-components';
 import Input from '../atoms/Input';
+import { useSetRecoilState } from 'recoil';
+import { http } from '../../store/atom';
 
 interface Props {
   setFile: Dispatch<SetStateAction<File[]>>;
@@ -26,6 +28,7 @@ export const Additives = (props: Props): React.ReactElement => {
   const { removeFile } = useReturnedTask();
   const [fileRemoval, setFileRemoval] = useState<boolean>(false);
   const [removingFile, setRemovingFile] = useState<string>(null);
+  const setHttpStatus = useSetRecoilState(http);
 
   const handleChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -66,7 +69,11 @@ export const Additives = (props: Props): React.ReactElement => {
       id: props.taskId,
     };
     const res = await removeFile(data);
-    setFileRemoval(res);
+    if (!res.isFailure) {
+      setFileRemoval(res);
+    } else {
+      setHttpStatus(res.error.code);
+    }
   }
 
   useEffect(() => {
@@ -86,6 +93,7 @@ export const Additives = (props: Props): React.ReactElement => {
       props.setExistingFile(slicedFilename);
     }
     setFileRemoval(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileRemoval]);
 
   return (

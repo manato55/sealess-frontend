@@ -14,7 +14,7 @@ export const authErrorMessage = atom({
   key: 'authError',
   default: {
     label: false,
-    general: false,
+    general: null,
     name: [],
     email: [],
     password: [],
@@ -45,11 +45,6 @@ export const eachErrorFlag = atom({
 
 export const isNavToggle = atom({
   key: 'toggle',
-  default: null,
-});
-
-export const departmentSelection = atom({
-  key: 'department',
   default: null,
 });
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import BasicInfo from '../molecules/BasicInfo';
-import { useProgress } from '../../hooks/useProgress';
 import { useRouter } from 'next/router';
 import AdditiveInProgress from '../molecules/AdditiveInProgress';
 import RouteInProgress from '../molecules/RouteInProgress';
@@ -8,7 +7,7 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import { useSetRecoilState } from 'recoil';
 import { http } from '../../store/atom';
-import { useSWRFunc } from '../../hooks/useSWRFunc';
+import { useProgress } from '../../hooks/useProgress';
 import LabelChoice from '../molecules/LabelChoice';
 import Button from '../atoms/Button';
 
@@ -19,7 +18,7 @@ export const RecievedTaskDetail = (): React.ReactElement => {
   const [extracedTask, setExtractedTask] = useState<any>();
   const [currComponent, setCurrComponent] = useState<string>('basic');
   const setHttpStatus = useSetRecoilState(http);
-  const { recievedTask } = useSWRFunc();
+  const { recievedTask } = useProgress();
 
   useEffect(() => {
     if (recievedTask?.length > 0) {
@@ -36,11 +35,16 @@ export const RecievedTaskDetail = (): React.ReactElement => {
     }
   }, [recievedTask, paramsId, setHttpStatus]);
 
-  const approveOrReturn = (): void => {
+  const approveOrReturn = async () => {
     if (!confirm('承認しますか？')) {
       return;
     }
-    actionInEscalation('approve', paramsId);
+    const res = await actionInEscalation('approve', paramsId);
+    if (!res.isFailure) {
+      router.push('/recieve');
+    } else {
+      setHttpStatus(res.status);
+    }
   };
 
   return (

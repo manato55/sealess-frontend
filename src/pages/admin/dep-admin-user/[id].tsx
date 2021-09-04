@@ -1,4 +1,4 @@
-import { useDepUser } from '../../../hooks/useUser';
+import { useDepUser } from '../../../hooks/useCompany';
 import DepUser from '../../../components/organisms/DepUser';
 
 export const DepAdminDetailInfo = () => {

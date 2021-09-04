@@ -1,49 +1,50 @@
-import repository from '../axios/repository';
-import { useSetRecoilState } from 'recoil';
-import { http } from '../store/atom';
-import { useRouter } from 'next/router';
 import useSWR from 'swr';
+import { useCallback } from 'react';
+import { draftRepo } from '../axios/draftRepo';
+import { fetcher } from '../axios/fetcher';
 
-export const useComplete = () => {
-  const setHttpStatus = useSetRecoilState(http);
-  const router = useRouter();
+type TaskDetail = {
+  title: string;
+  content: string;
+  filename: string;
+};
+
+export type CompletedTask = {
+  returned_task?: {
+    user_id: number;
+    user: {
+      section: string;
+      name: string;
+    };
+  };
+  user_id?: number;
+  title: string;
+  id: number;
+  updated_at?: string;
+  user?: {
+    section: string;
+    name: string;
+  };
+  process?: string;
+  created_at?: string;
+};
+
+export const useCompletedTask = (choice: string) => {
+  const { data, error } = useSWR<[CompletedTask]>(`completed/fetch-task/${choice}`, fetcher);
 
   return {
-    fetchCompletedTask: async (choice) => {
-      const res = await repository
-        .get(`completed/fetch-task/${choice}`)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        return res.data;
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+    completedTask: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
 
-    fetchCompletetTaskDetail: async (id) => {
-      const res = await repository
-        .get(`completed/fetch-detail-task/${id}`)
-        .catch((error) => error.responnse);
-      if (res.data.length === 0) {
-        setHttpStatus(404);
-      } else {
-        if (res.status === 200) {
-          return res.data;
-        } else {
-          setHttpStatus(res.status);
-        }
-      }
-    },
+export const useCompletedTaskDetail = (id?) => {
+  const { data, error } = useSWR<[TaskDetail]>(`completed/fetch-detail-task/${id}`, fetcher);
 
-    discardTask: async (id) => {
-      const res = await repository
-        .post('completed/discard-task', { id: id })
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        router.push('/history');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  return {
+    completedTaskDetail: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
   };
 };

@@ -6,8 +6,12 @@ import styled from 'styled-components';
 import { useSetRecoilState, useRecoilValue, useRecoilState } from 'recoil';
 import Button from '../atoms/Button';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
-import { AdminUser, useNormalUser, useSetionsByDepartmentId } from '../../hooks/useUser';
-import { useDepartment } from '../../hooks/useSWRFunc';
+import {
+  useDepartment,
+  AdminUser,
+  useUpdateCompanyInfo,
+  useSetionsByDepartmentId,
+} from '../../hooks/useCompany';
 import { toast } from 'react-toastify';
 
 interface Props {
@@ -26,7 +30,7 @@ export const UserDepChange = (props: Props) => {
   const sectionRef = useRef(null);
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
   const { fetchedDepartment } = useDepartment();
-  const { changeDepartment } = useNormalUser();
+  const { changeDepartment } = useUpdateCompanyInfo();
 
   useEffect(() => {
     if (props.normalUser) {
@@ -66,16 +70,18 @@ export const UserDepChange = (props: Props) => {
     };
     setErrorFlag({ ...errorFlag, department: false, section: false });
     const res = await changeDepartment(user);
-    if (res.status === 200) {
+    if (!res.isFailure) {
       router.push('/admin/all-users');
       toast.success('登録完了');
-    } else if (res.status === 422) {
-      setErrorMessage(res.data.errors);
-      const isDep = res.data.errors.department ? true : false;
-      const isSection = res.data.errors.section ? true : false;
-      setErrorFlag({ ...errorFlag, department: isDep, section: isSection });
     } else {
-      setHttpStatus(res.status);
+      if (res.error.code === 422) {
+        setErrorMessage(res.data.errors);
+        const isDep = res.data.errors.department ? true : false;
+        const isSection = res.data.errors.section ? true : false;
+        setErrorFlag({ ...errorFlag, department: isDep, section: isSection });
+      } else {
+        setHttpStatus(res.status);
+      }
     }
   };
 

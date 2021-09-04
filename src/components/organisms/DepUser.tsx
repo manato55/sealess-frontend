@@ -8,10 +8,10 @@ import NameInput from '../molecules/NameInput';
 import Button from '../atoms/Button';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import styled from 'styled-components';
-import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
+import { useSetRecoilState, useRecoilState } from 'recoil';
 import UserRegisterWrapper from '../atoms/UserRegisterWrapper';
-import { useDepartment } from '../../hooks/useSWRFunc';
-import { AdminUser } from '../../hooks/useUser';
+import { AdminUser, useDepUser, useDepartment } from '../../hooks/useCompany';
+import { toast } from 'react-toastify';
 
 interface Props {
   adminUser: AdminUser[];
@@ -20,14 +20,16 @@ interface Props {
 export const DepUser = (props: Props) => {
   const router = useRouter();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
-  const { deleteDepAdminUser, changeDepAdminInfo } = useAuthenticate();
+  const { deleteDepAdminUser } = useAuthenticate();
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
-  const depRef = useRef(null);
+  const depRef = useRef<HTMLSelectElement>(null);
   const setHttpStatus = useSetRecoilState(http);
-  const errorMessage = useRecoilValue(authErrorMessage);
+  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const { fetchedDepartment } = useDepartment();
+  const { changeDepAdminInfo } = useDepUser();
+  const [departmentId, setDepartmentId] = useState<number>();
 
   useEffect(() => {
     if (props.adminUser) {
@@ -39,7 +41,7 @@ export const DepUser = (props: Props) => {
       }
       setName(TmpAdminInfo.name);
       setEmail(TmpAdminInfo.email);
-      depRef.current.value = TmpAdminInfo.department.id;
+      setDepartmentId(TmpAdminInfo.department.id);
       // ページをリロードした場合、props.adminUser情報が消去されるため前ページに戻す
     } else {
       router.push('/admin/dep-admin-user');
@@ -51,23 +53,58 @@ export const DepUser = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const submit = () => {
+  useEffect(() => {
+    if (fetchedDepartment) {
+      depRef.current.value = String(departmentId);
+    }
+  }, [fetchedDepartment, departmentId]);
+
+  const submit = async () => {
     if (!confirm('登録しますか？')) {
       return;
     }
-    const DepAdminUserInfo = {
+    const info = {
       userid: paramsId,
       name: name,
       email: email,
       department: depRef.current.value,
     };
-    changeDepAdminInfo(DepAdminUserInfo);
+    setErrorFlag({ ...errorFlag, name: false, email: false });
+    const res = await changeDepAdminInfo(info);
+    if (!res.isFailure) {
+      router.push('/admin/dep-admin-user');
+      toast.success('登録完了');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        setErrorFlag({
+          ...errorFlag,
+          name: res.error.message.name,
+          email: res.error.message.email,
+        });
+      } else {
+        setHttpStatus(res.error.code);
+      }
+    }
+  };
+
+  const remove = async () => {
+    if (!confirm('削除しますか？')) {
+      return;
+    }
+    const res = await deleteDepAdminUser(paramsId);
+    if (!res.isFailure) {
+      toast.success('削除しました。');
+      router.push('/admin/dep-admin-user');
+    } else {
+      setHttpStatus(res.error.code);
+    }
   };
 
   return (
     <>
       <DeleteBtnWrapper>
-        <span onClick={() => deleteDepAdminUser(paramsId)}>このユーザーを削除する</span>
+        <span onClick={() => remove()}>このユーザーを削除する</span>
       </DeleteBtnWrapper>
       <UserRegisterWrapper>
         <NameInput name={name} setName={setName} placeHolder={'氏名'} />

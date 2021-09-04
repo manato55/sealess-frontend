@@ -1,41 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useAuthenticate } from '../../hooks/useAuth';
+import { useAuthenticate, useAdminTokenCheck } from '../../hooks/useAuth';
 import Password from '../molecules/Password';
 import Button from '../atoms/Button';
 import Loading from '../atoms/Loading';
 import AuthWrapper from '../atoms/AuthWrapper';
 import NameInput from '../molecules/NameInput';
-import { eachErrorFlag } from '../../store/atom';
-import { useRecoilState } from 'recoil';
+import { authErrorMessage, eachErrorFlag, http } from '../../store/atom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { toast } from 'react-toastify';
 
 interface Props {}
 
 const RegisterTokenAdmin = (props: Props) => {
   const router = useRouter();
-  const { adminTokenCheck } = useAuthenticate();
+  const [paramsToken, setParamsToken] = useState<string | string[]>(router.query.token);
+  const { adminTokenChecker } = useAdminTokenCheck(paramsToken);
   const { officialRegistryForAdmin } = useAuthenticate();
-  const [paramsToken, setParamsToken] = useState<any>(router.query.token);
-  const [tokenChecker, setTokenChecker] = useState<boolean>(false);
   const [password, setPassword] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
+  const setErrorMessage = useSetRecoilState(authErrorMessage);
+  const setHttpStatus = useSetRecoilState(http);
 
   useEffect(() => {
-    const initialAction = async () => {
-      const res = await adminTokenCheck(paramsToken);
-      if (res) {
-        setTokenChecker(true);
-      }
-    };
-    initialAction();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => {
       setErrorFlag({ ...errorFlag, name: false, password: false });
     };
-  }, [paramsToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const submit = () => {
+  const submit = async () => {
     if (!confirm('登録しますか？')) {
       return;
     }
@@ -45,12 +40,28 @@ const RegisterTokenAdmin = (props: Props) => {
       name: name,
       label: 'ユーザー名',
     };
-    officialRegistryForAdmin(data);
+    setErrorFlag({ ...errorFlag, name: false, password: false });
+    const res = await officialRegistryForAdmin(data);
+    if (!res.isFailure) {
+      toast.success('登録完了');
+      router.push('/login');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.data.errors);
+        setErrorFlag({
+          ...errorFlag,
+          name: res.data.errors.name,
+          password: res.data.errors.password,
+        });
+      } else {
+        setHttpStatus(res.status);
+      }
+    }
   };
 
   return (
     <>
-      {tokenChecker ? (
+      {adminTokenChecker ? (
         <AuthWrapper>
           <NameInput name={name} setName={setName} placeHolder={'ユーザー名'} />
           <Password password={password} setPassword={setPassword} />

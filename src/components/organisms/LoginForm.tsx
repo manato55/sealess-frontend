@@ -2,12 +2,13 @@ import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import Button from '../atoms/Button';
 import FormWrapper from '../atoms/FormWrapper';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
-import { useAuthenticate } from '../../hooks/useAuth';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { useRecoilValue } from 'recoil';
-import { authErrorMessage } from '../../store/atom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { authErrorMessage, http, userStatus } from '../../store/atom';
 import RegisterCommonForm from '../molecules/RegisterCommonForm';
+import { useLoginCheck } from '../../hooks/useAuth';
+import router from 'next/router';
 
 interface Props {
   email: string;
@@ -16,26 +17,46 @@ interface Props {
   setPassword: Dispatch<SetStateAction<string>>;
 }
 
-type User = {
-  email: string;
-  password: string;
-};
-
 export const LoginForm = (props: Props): React.ReactElement => {
-  const errorMessage = useRecoilValue(authErrorMessage);
-  const { login } = useAuthenticate();
+  const { login } = useLoginCheck();
+  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
+  const setHttpStatus = useSetRecoilState(http);
+  const setUser = useSetRecoilState(userStatus);
 
-  const handleSubmit = useCallback(
-    (e: React.ChangeEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const user: User = {
-        email: props.email,
-        password: props.password,
-      };
-      login(user);
-    },
-    [props, login]
-  );
+  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+    setErrorMessage({ ...errorMessage, general: null });
+    e.preventDefault();
+    const user = {
+      email: props.email,
+      password: props.password,
+    };
+    const res = await login(user);
+    if (!res.isFailure) {
+      setUser(res.value.user);
+      localStorage.setItem('token', res.value.token);
+      // user種別に応じて遷移先を変更
+      switch (res.value.user.user_type) {
+        case 0:
+          router.push('/admin');
+          break;
+        case 1:
+          router.push('/dep-admin');
+          break;
+        case 2:
+          router.push('/');
+          break;
+        case 99:
+          router.push('/owner');
+          break;
+      }
+    } else {
+      if (res.error.code == 422) {
+        setErrorMessage({ ...errorMessage, general: res.error.message });
+      } else {
+        setHttpStatus(res.error.code);
+      }
+    }
+  };
 
   return (
     <>

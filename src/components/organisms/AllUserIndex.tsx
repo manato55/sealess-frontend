@@ -1,23 +1,22 @@
-import React, { useCallback } from 'react';
-import { useNormalUser } from '../../hooks/useUser';
+import React, { useCallback, useState } from 'react';
+import { useUpdateCompanyInfo, useDepartment } from '../../hooks/useCompany';
 import UsersIndex from '../molecules/UsersIndex';
 import Select from '../atoms/Select';
 import styled from 'styled-components';
-import { departmentSelection } from '../../store/atom';
-import { useSetRecoilState } from 'recoil';
-import { useDepartment } from '../../hooks/useSWRFunc';
 
 interface Props {}
 
 export const AllUserIndex = (props: Props) => {
-  const { normalUser } = useNormalUser();
-  const setDepartment = useSetRecoilState(departmentSelection);
+  const [departmetId, setDepartmentId] = useState<number>();
+  const { normalUser } = useUpdateCompanyInfo(departmetId);
   const { fetchedDepartment } = useDepartment();
 
   return (
     <>
       <SelectDep
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDepartment(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setDepartmentId(Number(e.target.value))
+        }
         defaultValue={'choice'}
       >
         <option value="choice" disabled>

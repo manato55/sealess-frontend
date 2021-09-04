@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import repository from '../../axios/repository';
+import { repository } from '../../axios/repository';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { http, userStatus } from '../../store/atom';
 
@@ -45,10 +45,11 @@ export const AuthCheck = ({ children }) => {
         router.push('/');
         return;
       }
-      // admin以外がadmin,dep-adminページにアクセスしようとした場合
+      // admin以外がadmin,dep-admin,ownerページにアクセスしようとした場合
       if (
         (router.pathname === '/admin' && user?.user_type !== 0) ||
-        (router.pathname === '/dep-admin' && user.user_type !== 1)
+        (router.pathname === '/dep-admin' && user.user_type !== 1) ||
+        (router.pathname === '/owner' && user.user_type !== 99)
       ) {
         router.push('/');
         return;

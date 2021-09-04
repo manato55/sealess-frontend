@@ -1,10 +1,10 @@
 import React from 'react';
-import { useSWRFunc } from '../../hooks/useSWRFunc';
+import { useProgress } from '../../hooks/useProgress';
 import TableContents from '../molecules/TableContents';
 import Loading from '../atoms/Loading';
 
 export const ReceiveIndex = (): React.ReactElement => {
-  const { isLoading, recievedTask } = useSWRFunc();
+  const { isLoading, recievedTask } = useProgress();
 
   return (
     <>

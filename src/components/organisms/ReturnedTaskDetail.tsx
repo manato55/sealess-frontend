@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useReturnedTask } from '../../hooks/useReturnedTask';
+import { useReturnedTask, useReturnedTaskDetail } from '../../hooks/useReturnedTask';
 import { useDraft } from '../../hooks/useDraft';
 import Loading from '../atoms/Loading';
 import { useRouter } from 'next/router';
@@ -10,6 +10,9 @@ import Comment from '../molecules/Comment';
 import LabelChoice from '../molecules/LabelChoice';
 import Button from '../atoms/Button';
 import DraftValidationError from '../molecules/DraftValidataionError';
+import { authErrorMessage, http, eachErrorFlag } from '../../store/atom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { toast } from 'react-toastify';
 
 type Draft = {
   title: string;
@@ -31,33 +34,12 @@ type Agent = {
   agent_user: number;
 };
 
-type RD = {
-  title: string;
-  content: string;
-  returned_task?: {
-    comment: string;
-  };
-  process: string;
-  filename: string;
-  id: number;
-  agent_statuses: {
-    route: string;
-    user: {
-      name: string;
-      id: number;
-      department: string;
-      section: string;
-    };
-    agent_user: number;
-  }[];
-};
-
 export const ReturnedTaskDetail = (): React.ReactElement => {
-  const { fetchReturnedDetail, discardReturnedTask } = useReturnedTask();
+  const { discardReturnedTask } = useReturnedTask();
   const { registerDraft } = useDraft();
   const router = useRouter();
-  const [returnedDetail, setReturnedDetail] = useState<RD>();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
+  const { returnedTaskDetail } = useReturnedTaskDetail(paramsId);
   const [title, setTitle] = useState<string>('');
   const [contents, setContents] = useState<string>('');
   const [currComponent, setCurrComponent] = useState<string>('basic');
@@ -69,40 +51,34 @@ export const ReturnedTaskDetail = (): React.ReactElement => {
   const [process, setProcess] = useState<number | boolean | string>();
   const [taskId, setTaskId] = useState<number>(null);
   const [agentStatus, setAgentStatus] = useState<Agent[]>();
+  const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
+  const setHttpStatus = useSetRecoilState(http);
+  const setErrorMessage = useSetRecoilState(authErrorMessage);
 
   useEffect(() => {
-    const initialAction = async () => {
-      const res = await fetchReturnedDetail(paramsId);
-      setReturnedDetail(res);
-    };
-    initialAction();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paramsId]);
-
-  useEffect(() => {
-    if (returnedDetail !== undefined) {
+    if (returnedTaskDetail) {
       // 基本情報を格納
-      setTitle(returnedDetail.title);
-      setContents(returnedDetail.content);
+      setTitle(returnedTaskDetail.title);
+      setContents(returnedTaskDetail.content);
       // ルートの情報を格納
       const routeTmp = [];
       const routeMaxNum: number = 5;
       for (let i = 1; i <= routeMaxNum; i++) {
-        if (returnedDetail[`route${i}_user`] !== null) {
-          routeTmp.push(returnedDetail[`route${i}_user`]);
+        if (returnedTaskDetail[`route${i}_user`] !== null) {
+          routeTmp.push(returnedTaskDetail[`route${i}_user`]);
         }
       }
       setRoutePpl(routeTmp);
       // 中断された時点のルートを格納
-      setProcess(returnedDetail.process.slice(-1));
+      setProcess(returnedTaskDetail.process.slice(-1));
       // 既存の添付ファイルのファイル名を格納
-      setExistingFile(returnedDetail.filename);
+      setExistingFile(returnedTaskDetail.filename);
       // taskIdを格納
-      setTaskId(returnedDetail.id);
+      setTaskId(returnedTaskDetail.id);
       // 代理設定を格納
-      setAgentStatus(returnedDetail.agent_statuses);
+      setAgentStatus(returnedTaskDetail.agent_statuses);
     }
-  }, [returnedDetail]);
+  }, [returnedTaskDetail]);
 
   const discardOrSubmit = async (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
     const value = e.currentTarget.innerHTML;
@@ -130,16 +106,43 @@ export const ReturnedTaskDetail = (): React.ReactElement => {
     };
 
     if (action === 'reSubmit' || action === 'toRetriever') {
-      await registerDraft(draft);
+      const res = await registerDraft(draft);
+      if (!res.isFailure) {
+        toast.success('登録しました。');
+        router.push('/returned');
+      } else {
+        if (res.error.code === 422) {
+          setErrorMessage(res.error.message);
+          const tmp = {
+            file: false,
+          };
+          let keys = Object.keys(res.error.message);
+          let fileExtracted = keys.filter((v) => v.match(/file/));
+          tmp.file = fileExtracted.length > 0 ? true : false;
+          setErrorFlag({
+            ...errorFlag,
+            file: tmp.file,
+            title: res.error.message.title,
+            content: res.error.message.content,
+            route: res.error.message.route,
+          });
+        } else {
+          setHttpStatus(res.status);
+        }
+      }
     } else {
-      await discardReturnedTask(paramsId);
+      const res = await discardReturnedTask(paramsId);
+      if (!res.isFailure) {
+        router.push('/returned');
+      } else {
+        setHttpStatus(res.error.code);
+      }
     }
-    router.push('/returned');
   };
 
   return (
     <>
-      {returnedDetail ? (
+      {returnedTaskDetail ? (
         <div>
           <LabelChoice
             currComponent={currComponent}
@@ -172,7 +175,7 @@ export const ReturnedTaskDetail = (): React.ReactElement => {
               agentStatus={agentStatus}
             />
           ) : (
-            <Comment comment={returnedDetail.returned_task.comment} editable={false} />
+            <Comment comment={returnedTaskDetail?.returned_task.comment} editable={false} />
           )}
           <div>
             <Button onClick={(e) => discardOrSubmit(e)} background={'light'}>

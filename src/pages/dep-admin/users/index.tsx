@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { useAuthenticate } from '../../../hooks/useAuth';
 import UsersIndex from '../../../components/molecules/UsersIndex';
-import { useUser } from '../../../hooks/useUser';
+import { useFetchDepartmentUser } from '../../../hooks/useCompany';
 
 export const UserIndex = () => {
-  const { depUser } = useUser();
+  const { depUser } = useFetchDepartmentUser();
 
   return (
     <>

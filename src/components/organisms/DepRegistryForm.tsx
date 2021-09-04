@@ -2,8 +2,9 @@ import { Dispatch, SetStateAction, useEffect } from 'react';
 import NameInput from '../molecules/NameInput';
 import Button from '../atoms/Button';
 import { useAuthenticate } from '../../hooks/useAuth';
-import { eachErrorFlag } from '../../store/atom';
-import { useRecoilState } from 'recoil';
+import { authErrorMessage, eachErrorFlag, http } from '../../store/atom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { toast } from 'react-toastify';
 
 interface Props {
   setDepartment: Dispatch<SetStateAction<string>>;
@@ -13,6 +14,8 @@ interface Props {
 const DepRegistryForm = (props: Props) => {
   const { departmentRegistry } = useAuthenticate();
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
+  const setErrorMessage = useSetRecoilState(authErrorMessage);
+  const setHttpStatus = useSetRecoilState(http);
 
   useEffect(() => {
     return () => {
@@ -21,7 +24,7 @@ const DepRegistryForm = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const submit = () => {
+  const submit = async () => {
     if (!confirm('登録しますか？')) {
       return;
     }
@@ -29,7 +32,18 @@ const DepRegistryForm = (props: Props) => {
       label: '部名',
       name: props.department,
     };
-    departmentRegistry(Info);
+    setErrorFlag({ ...errorFlag, name: false });
+    const res = await departmentRegistry(Info);
+    if (!res.isFailure) {
+      toast.success('登録完了');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        setErrorFlag({ ...errorFlag, name: res.error.message.name });
+      } else {
+        setHttpStatus(res.error.code);
+      }
+    }
   };
 
   return (

@@ -1,60 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useProgress } from '../../hooks/useProgress';
+import { useFetchedUnreachedTaskDetail } from '../../hooks/useProgress';
 import AdditiveInProgress from '../molecules/AdditiveInProgress';
 import RouteInProgress from '../molecules/RouteInProgress';
 import Loading from '../atoms/Loading';
 import Button from '../atoms/Button';
 import BasicInfo from '../molecules/BasicInfo';
 import LabelChoice from '../molecules/LabelChoice';
-
-type Task = {
-  content: string;
-  title: string;
-  filename: string;
-};
+import { useGetTotalLengthOfTaskInProgress } from '../../hooks/useTaskLength';
+import { http } from '../../store/atom';
+import { useSetRecoilState } from 'recoil';
 
 export const ProgressTaskDetail = (): React.ReactElement => {
   const router = useRouter();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
-  const { fetchSelectedTask, actionInProgress } = useProgress();
-  const [detailTask, setDetailTask] = useState<Task[]>([]);
-  const [title, setTitle] = useState<string>('');
-  const [contents, setContents] = useState<string>('');
+  const { unreachedTaskDetail } = useFetchedUnreachedTaskDetail(paramsId);
+  const [initialPage, setInitialPage] = useState<number>(1);
+  const { actionInProgress } = useGetTotalLengthOfTaskInProgress();
   const [currComponent, setCurrComponent] = useState<string>('basic');
+  const setHttpStatus = useSetRecoilState(http);
 
-  useEffect(() => {
-    const getTask = async () => {
-      const res = await fetchSelectedTask(paramsId);
-      setDetailTask(res);
-    };
-    getTask();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paramsId]);
-
-  useEffect(() => {
-    // 初回の呼び出しではstate値を更新せず、detailTaskを非同期で取得したらstate値を更新する
-    if (detailTask.length > 0) {
-      setContents(detailTask[0].content);
-      setTitle(detailTask[0].title);
-    }
-  }, [detailTask]);
-
-  const discardOrRetrieve = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>): void => {
-    const value = e.currentTarget.innerHTML;
-    if (!confirm(`${value}しますか？`)) {
+  const discardOrRetrieve = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    let target = e.target as HTMLButtonElement;
+    const value = target.value;
+    const msg = target.innerHTML;
+    if (!confirm(`${msg}しますか？`)) {
       return;
     }
-    if (value === '破棄') {
-      actionInProgress('discard', paramsId);
+    const res = await actionInProgress(value, paramsId);
+    if (!res.isFailure) {
+      router.push(`/progress/index/${initialPage}`);
     } else {
-      actionInProgress('retrieve', paramsId);
+      setHttpStatus(res.error.code);
     }
   };
 
   return (
     <>
-      {detailTask?.length > 0 ? (
+      {unreachedTaskDetail?.length > 0 ? (
         <div>
           <LabelChoice
             currComponent={currComponent}
@@ -62,17 +45,21 @@ export const ProgressTaskDetail = (): React.ReactElement => {
             isComment={false}
           />
           {currComponent === 'basic' ? (
-            <BasicInfo title={title} contents={contents} editable={false} />
+            <BasicInfo
+              title={unreachedTaskDetail[0]?.title}
+              contents={unreachedTaskDetail[0]?.content}
+              editable={false}
+            />
           ) : currComponent === 'additive' ? (
-            <AdditiveInProgress filename={detailTask[0].filename} taskId={paramsId} />
+            <AdditiveInProgress filename={unreachedTaskDetail[0].filename} taskId={paramsId} />
           ) : (
-            <RouteInProgress taskRoute={detailTask} completed={false} />
+            <RouteInProgress taskRoute={unreachedTaskDetail} completed={false} />
           )}
           <div>
-            <Button onClick={(e) => discardOrRetrieve(e)} background={'light'}>
+            <Button onClick={(e) => discardOrRetrieve(e)} background={'light'} value="discard">
               破棄
             </Button>
-            <Button onClick={(e) => discardOrRetrieve(e)} marginTop={20}>
+            <Button onClick={(e) => discardOrRetrieve(e)} marginTop={20} value="retrieve">
               引戻し
             </Button>
           </div>

@@ -1,41 +1,25 @@
 import React, { useCallback, useEffect } from 'react';
-import { useProgress } from '../../hooks/useProgress';
 import { useRouter } from 'next/router';
 import Paginate from '../molecules/Paginate';
 import TableContents from '../molecules/TableContents';
 import Loading from '../atoms/Loading';
 import { http } from '../../store/atom';
 import { useSetRecoilState } from 'recoil';
-import { useTaskInProgress } from '../../hooks/useTaskLength';
+import { useGetTotalLengthOfTaskInProgress, useTaskInProgress } from '../../hooks/useTaskLength';
 
-interface Props {
-  taskInProgress: object[];
-}
-
-export const ProgressIndex = (props: Props): React.ReactElement => {
+export const ProgressIndex = (): React.ReactElement => {
   const router = useRouter();
   const taskPerPage = 3;
   const offset = router.query.offset ? Number.parseInt(String(router.query.offset), 10) : 0;
-  const { fetchTaskInProgress } = useProgress();
-  const setHttpStatus = useSetRecoilState(http);
   const { paginatedTaskInProgress, isLoading } = useTaskInProgress(offset);
+  const { taskInProgress } = useGetTotalLengthOfTaskInProgress();
 
   const handleChangePage = useCallback(
     async (_: React.ChangeEvent<unknown>, page: number) => {
-      await fetchTaskInProgress(page);
-      router.push(`/progress/index/${page}`);
+      await router.push(`/progress/index/${page}`);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [router]
   );
-
-  // useEffect(() => {
-  //   if (paginatedTaskInProgress?.length === 0) {
-  //     setHttpStatus(404);
-  //     return;
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [paginatedTaskInProgress]);
 
   return (
     <>
@@ -43,7 +27,7 @@ export const ProgressIndex = (props: Props): React.ReactElement => {
         <Loading />
       ) : (
         <div>
-          {paginatedTaskInProgress?.length !== 0 ? (
+          {paginatedTaskInProgress?.length > 0 ? (
             <div>
               <TableContents
                 tasks={paginatedTaskInProgress}
@@ -51,7 +35,7 @@ export const ProgressIndex = (props: Props): React.ReactElement => {
                 pathName={'progress'}
               />
               <Paginate
-                contents={props.taskInProgress}
+                contents={taskInProgress}
                 perPage={taskPerPage}
                 offset={offset}
                 change={handleChangePage}

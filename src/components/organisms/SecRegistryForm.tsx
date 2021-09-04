@@ -4,9 +4,10 @@ import Button from '../atoms/Button';
 import Select from '../atoms/Select';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import { useAuthenticate } from '../../hooks/useAuth';
-import { useDepartment } from '../../hooks/useSWRFunc';
-import { eachErrorFlag, authErrorMessage } from '../../store/atom';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useDepartment } from '../../hooks/useCompany';
+import { eachErrorFlag, authErrorMessage, http } from '../../store/atom';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { toast } from 'react-toastify';
 
 interface Props {
   setSection: Dispatch<SetStateAction<string>>;
@@ -19,6 +20,8 @@ const SecRegistryForm = (props: Props) => {
   const [departmentId, setDepartmentId] = useState<number>();
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const errorMessage = useRecoilValue(authErrorMessage);
+  const setHttpStatus = useSetRecoilState(http);
+  const setErrorMessage = useSetRecoilState(authErrorMessage);
 
   useEffect(() => {
     return () => {
@@ -27,7 +30,7 @@ const SecRegistryForm = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const submit = () => {
+  const submit = async () => {
     if (!confirm('登録しますか？')) {
       return;
     }
@@ -36,7 +39,22 @@ const SecRegistryForm = (props: Props) => {
       name: props.section,
       department: departmentId,
     };
-    sectionRegistry(Info);
+    setErrorFlag({ ...errorFlag, name: false, department: false });
+    const res = await sectionRegistry(Info);
+    if (!res.isFailure) {
+      toast.success('登録完了');
+    } else {
+      if (res.error.code === 422) {
+        setErrorMessage(res.error.message);
+        setErrorFlag({
+          ...errorFlag,
+          name: res.error.message.name,
+          department: res.error.message.department,
+        });
+      } else {
+        setHttpStatus(res.error.code);
+      }
+    }
   };
 
   return (

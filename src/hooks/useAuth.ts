@@ -1,9 +1,13 @@
-import repository from '../axios/repository';
+import { repository } from '../axios/repository';
 import { useSetRecoilState, useRecoilState } from 'recoil';
 import { http, userStatus, authErrorMessage, eachErrorFlag, searchKeyword } from '../store/atom';
-import { useRouter } from 'next/router';
+import router, { useRouter } from 'next/router';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
+import { fetcher } from '../axios/fetcher';
+import { authenticateRepo } from '../axios/authenticateRepo';
+import { useCallback } from 'react';
+import { companyInfoRepo } from '../axios/companyInfoRepo';
 
 export type ErrorFlag = {
   name?: boolean;
@@ -18,430 +22,128 @@ export type ErrorFlag = {
   file?: boolean;
 };
 
-type LoginUser = {
+export type User = {
   email: string;
   password: string;
 };
 
-export const useAuthenticate = () => {
-  const setHttpStatus = useSetRecoilState(http);
-  const setUser = useSetRecoilState(userStatus);
-  const router = useRouter();
-  const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
-  const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
-  const [keyword, setKeyword] = useRecoilState(searchKeyword);
+export type LoginUser = {
+  user: {
+    user_type: number;
+    email: string;
+    password: string;
+  };
+  token: string;
+};
+
+export const useLoginCheck = () => {
+  const _login = useCallback(async (user: User) => {
+    const res = await authenticateRepo.login(user);
+    return res;
+  }, []);
+
+  const _logout = useCallback(async () => {
+    const res = await authenticateRepo.logout();
+    return res;
+  }, []);
 
   return {
-    login: async (user: LoginUser) => {
-      setErrorMessage({ ...errorMessage, general: null });
-      const res = await repository.post('login', user).catch((error) => error.response);
-      if (res.status === 200) {
-        setUser(res.data.user);
-        localStorage.setItem('token', res.data.token);
-        // user種別に応じて遷移先を変更
-        switch (res.data.user.user_type) {
-          case 0:
-            router.push('/admin');
-            break;
-          case 1:
-            router.push('/dep-admin');
-            break;
-          case 2:
-            router.push('/');
-            break;
-          case 99:
-            router.push('/owner');
-            break;
-        }
-      } else if (res.status === 422) {
-        setErrorMessage({ ...errorMessage, general: res.data.errors.message });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+    login: _login,
+    logout: _logout,
+  };
+};
 
-    logout: async () => {
-      if (!confirm('ログアウトしますか？')) {
-        return;
-      }
-      const res = await repository.post('logout').catch((error) => error.response);
-      if (res.status === 200) {
-        await setUser(undefined);
-        localStorage.removeItem('token');
-        // 検索キーワード削除
-        setKeyword({ ...keyword, task: null, name: null, year: null });
-        router.push('/login');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+export const useTokenCheck = (token: string | string[]) => {
+  const { data, error } = useSWR<boolean>(`token-check/${token}`, fetcher);
 
-    registerDepAdmin: async (depUser) => {
-      setErrorFlag({ ...errorFlag, name: false, department: false, email: false, password: false });
-      const res = await repository
-        .post('register-dep-admin', depUser)
-        .catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const tmp: ErrorFlag = {
-          name: false,
-          email: false,
-          password: false,
-          department: false,
-        };
-        const Arr = ['name', 'email', 'password', 'department'];
-        for (let i of Arr) {
-          if (res.data.errors[i]) {
-            tmp[i] = true;
-          }
-        }
-        setErrorFlag({
-          ...errorFlag,
-          department: tmp.department,
-          name: tmp.name,
-          password: tmp.password,
-          email: tmp.email,
-        });
-      } else if (res.status === 200) {
-        toast.success('登録しました。');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  return {
+    tokenChecker: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
 
-    registerOrdinaryUser: async (secUser) => {
-      setErrorFlag({ ...errorFlag, name: false, section: false, email: false, jobTitle: false });
-      const res = await repository
-        .post('send-register-email', secUser)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        toast.success('招待メールを送信しました。');
-      } else if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const tmp: ErrorFlag = {
-          name: false,
-          email: false,
-          section: false,
-          jobTitle: false,
-        };
-        const Arr = ['name', 'email', 'section', 'jobTitle'];
-        for (let i of Arr) {
-          if (res.data.errors[i]) {
-            tmp[i] = true;
-          }
-        }
-        setErrorFlag({
-          ...errorFlag,
-          jobTitle: tmp.jobTitle,
-          name: tmp.name,
-          section: tmp.section,
-          email: tmp.email,
-        });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+export const useAdminTokenCheck = (token: string | string[]) => {
+  const { data, error } = useSWR<boolean>(`admin-token-check/${token}`, fetcher);
 
-    tokenCheck: async (token) => {
-      const res = await repository.get(`token-check/${token}`).catch((error) => error.response);
-      if (res.data === '') {
-        setHttpStatus(404);
-      } else {
-        if (res.status === 200) {
-          return res.data;
-        } else {
-          setHttpStatus(res.status);
-        }
-      }
-    },
+  return {
+    adminTokenChecker: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
 
-    adminTokenCheck: async (token) => {
-      const res = await repository
-        .get(`admin-token-check/${token}`)
-        .catch((error) => error.response);
-      if (res.data === '') {
-        setHttpStatus(404);
-      } else {
-        if (res.status === 200) {
-          return res.data;
-        } else {
-          setHttpStatus(res.status);
-        }
-      }
-    },
+export const usePwTokenCheck = (token: string | string[]) => {
+  const { data, error } = useSWR<boolean>(`password-token-check/${token}`, fetcher);
 
-    officialRegistryForOrdinaryUser: async (data) => {
-      setErrorFlag({ ...errorFlag, password: false });
-      const res = await repository.post('official-registry', data).catch((error) => error.response);
-      if (res.status === 200) {
-        router.push('/login');
-        toast.success('登録完了');
-      } else if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        setErrorFlag({ ...errorFlag, password: true });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _reRegisterPassword = useCallback(async (info) => {
+    const res = await companyInfoRepo.reRegisterPassword(info);
+    return res;
+  }, []);
 
-    passwordReRegister: async (email) => {
-      setErrorFlag({ ...errorFlag, email: false });
-      const res = await repository
-        .post('re-password', { email: email })
-        .catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage(res.data.email);
-        setErrorFlag({ ...errorFlag, email: true });
-      } else if (res.status === 200) {
-        return res.status;
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  return {
+    reRegisterPassword: _reRegisterPassword,
+    passwordTokenChecker: data ? data : null,
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
 
-    passwordTokenCheck: async (token) => {
-      const res = await repository
-        .get(`password-token-check/${token}`)
-        .catch((error) => error.response);
-      if (res.data === '') {
-        setHttpStatus(404);
-      } else {
-        if (res.status === 200) {
-          return res.data;
-        } else {
-          setHttpStatus(res.status);
-        }
-      }
-    },
+export const useAuthenticate = () => {
+  const _officialRegistryForNormalUser = useCallback(async (data) => {
+    const res = await companyInfoRepo.officialRegistryForNormalUser(data);
+    return res;
+  }, []);
 
-    reRegisterPassword: async (data) => {
-      setErrorFlag({ ...errorFlag, password: false });
-      const res = await repository
-        .post('re-register-password', data)
-        .catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        setErrorFlag({ ...errorFlag, password: true });
-      } else if (res.status === 200) {
-        router.push('/login');
-        toast.success('登録完了');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _deleteNormalUser = useCallback(async (userid) => {
+    const res = await companyInfoRepo.deleteNormalUser(userid);
+    return res;
+  }, []);
 
-    editOrdinaryUserInfo: async (userInfo) => {
-      setErrorFlag({ ...errorFlag, name: false, email: false });
-      const res = await repository
-        .post('edit-dep-user-info', userInfo)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        toast.success('登録しました。');
-      } else if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        const isEmail = res.data.errors.email ? true : false;
-        setErrorFlag({ ...errorFlag, name: isName, email: isEmail });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _passwordIssuanceMail = useCallback(async (email) => {
+    const res = await companyInfoRepo.passwordIssuanceMail({ email: email });
+    return res;
+  }, []);
 
-    deleteDepUser: async (userid) => {
-      if (!confirm('削除しますか？')) {
-        return;
-      }
-      const res = await repository
-        .delete(`delete-dep-user/${userid}`)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        toast.success('削除しました。');
-        router.push('/dep-admin/users');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _registerCompany = useCallback(async (info) => {
+    const res = await companyInfoRepo.registerCompany(info);
+    return res;
+  }, []);
 
-    deleteDepAdminUser: async (userid) => {
-      if (!confirm('削除しますか？')) {
-        return;
-      }
-      const res = await repository
-        .delete(`delete-dep-admin-user/${userid}`)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        toast.success('削除しました。');
-        router.push('/admin/dep-admin-user');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _officialRegistryForAdmin = useCallback(async (info) => {
+    const res = await companyInfoRepo.adminRegistry(info);
+    return res;
+  }, []);
 
-    changeDepAdminInfo: async (userInfo) => {
-      setErrorFlag({ ...errorFlag, name: false, email: false });
-      const res = await repository
-        .post('change-dep-admin-info', userInfo)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        router.push('/admin/dep-admin-user');
-        toast.success('登録完了');
-      } else if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        const isEmail = res.data.errors.email ? true : false;
-        setErrorFlag({ ...errorFlag, name: isName, email: isEmail });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _deleteDepAdminUser = useCallback(async (id) => {
+    const res = await companyInfoRepo.deleteDepAdmin(id);
+    return res;
+  }, []);
 
-    registerCompany: async (info) => {
-      setErrorFlag({ ...errorFlag, name: false, email: false });
-      const res = await repository
-        .post('company/register-company', info)
-        .catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        const isEmail = res.data.errors.email ? true : false;
-        setErrorFlag({ ...errorFlag, name: isName, email: isEmail });
-      } else if (res.status === 200) {
-        toast.success('登録完了');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _departmentRegistry = useCallback(async (info) => {
+    const res = await companyInfoRepo.departmentRegistry(info);
+    return res;
+  }, []);
 
-    officialRegistryForAdmin: async (info) => {
-      setErrorFlag({ ...errorFlag, name: false, password: false });
-      const res = await repository
-        .post('official-admin-registry', info)
-        .catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        const isPassword = res.data.errors.password ? true : false;
-        setErrorFlag({ ...errorFlag, name: isName, password: isPassword });
-      } else if (res.status === 200) {
-        toast.success('登録完了');
-        router.push('/login');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _sectionRegistry = useCallback(async (info) => {
+    const res = await companyInfoRepo.sectionRegistry(info);
+    return res;
+  }, []);
 
-    departmentRegistry: async (info) => {
-      setErrorFlag({ ...errorFlag, name: false });
-      const res = await repository
-        .post('department-registry', info)
-        .catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        setErrorFlag({ ...errorFlag, name: isName });
-      } else if (res.status === 201) {
-        toast.success('登録完了');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  const _jobTitleRegistry = useCallback(async (info) => {
+    const res = await companyInfoRepo.jobTitleRegistry(info);
+    return res;
+  }, []);
 
-    sectionRegistry: async (info) => {
-      setErrorFlag({ ...errorFlag, name: false, department: false });
-      const res = await repository.post('section-registry', info).catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        const isDep = res.data.errors.department ? true : false;
-        setErrorFlag({ ...errorFlag, name: isName, department: isDep });
-      } else if (res.status === 201) {
-        toast.success('登録完了');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
-    jobTitleRegistry: async (info) => {
-      setErrorFlag({ ...errorFlag, name: false });
-      const res = await repository
-        .post('job-title-registry', info)
-        .catch((error) => error.response);
-      if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        setErrorFlag({ ...errorFlag, name: isName });
-      } else if (res.status === 201) {
-        toast.success('登録完了');
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
-    deleteThisDep: async (id) => {
-      setErrorMessage({ ...errorMessage, general: null });
-      if (!confirm('削除しますか？')) {
-        return;
-      }
-      const res = await repository.delete(`delete-dep/${id}`).catch((error) => error.response);
-      if (res.status === 200) {
-        toast.success('削除しました。');
-        router.push('/admin/dep-index');
-      } else if (res.status === 422) {
-        setErrorMessage({ ...errorMessage, general: res.data.error });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
-    deleteThisSec: async (id) => {
-      setErrorMessage({ ...errorMessage, general: null });
-      if (!confirm('削除しますか？')) {
-        return;
-      }
-      const res = await repository
-        .delete(`company/delete-sec/${id}`)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        toast.success('削除しました。');
-        router.push('/admin/dep-index');
-      } else if (res.status === 422) {
-        setErrorMessage({ ...errorMessage, general: res.data.error });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
-    changeDepName: async (info) => {
-      setErrorFlag({ ...errorFlag, name: false });
-      const res = await repository
-        .post('company/change-dep-info', info)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        router.push('/admin/dep-index');
-        toast.success('登録完了');
-      } else if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isName = res.data.errors.name ? true : false;
-        setErrorFlag({ ...errorFlag, name: isName });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
-
-    removeJobTitle: async (id) => {
-      setErrorFlag({ ...errorFlag, jobTitle: false });
-      const res = await repository
-        .delete(`company/delete-job-title/${id}`)
-        .catch((error) => error.response);
-      if (res.status === 200) {
-        toast.success('削除しました。');
-      } else if (res.status === 422) {
-        setErrorMessage(res.data.errors);
-        const isJobTitle = res.data.errors.jobTitle ? true : false;
-        setErrorFlag({ ...errorFlag, jobTitle: isJobTitle });
-      } else {
-        setHttpStatus(res.status);
-      }
-    },
+  return {
+    officialRegistryForNormalUser: _officialRegistryForNormalUser,
+    deleteNormalUser: _deleteNormalUser,
+    passwordIssuanceMail: _passwordIssuanceMail,
+    registerCompany: _registerCompany,
+    officialRegistryForAdmin: _officialRegistryForAdmin,
+    deleteDepAdminUser: _deleteDepAdminUser,
+    departmentRegistry: _departmentRegistry,
+    sectionRegistry: _sectionRegistry,
+    jobTitleRegistry: _jobTitleRegistry,
   };
 };
