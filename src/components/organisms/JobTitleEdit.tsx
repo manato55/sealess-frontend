@@ -61,7 +61,7 @@ const JobTitleEdit = (props: Props) => {
         const isJobTitle = res.error.message.jobTitle ? true : false;
         setErrorFlag({ ...errorFlag, name: isName, jobTitle: isJobTitle });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

@@ -30,7 +30,7 @@ export const RouteTmplIndex = (): React.ReactElement => {
       if (res.error.code === 422) {
         setErrorMessage({ ...errorMessage, label: res.error.message.label });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

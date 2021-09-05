@@ -48,6 +48,11 @@ export const isNavToggle = atom({
   default: null,
 });
 
+export const departmentSelection = atom({
+  key: 'departmentSelection',
+  default: null,
+});
+
 export const searchKeyword = atom({
   key: 'keyword',
   default: {

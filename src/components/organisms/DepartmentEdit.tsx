@@ -59,7 +59,7 @@ const DepartmentEdit = (props: Props) => {
         const isName = res.error.message.name ? true : false;
         setErrorFlag({ ...errorFlag, name: isName });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

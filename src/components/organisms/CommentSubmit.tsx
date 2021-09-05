@@ -33,7 +33,7 @@ export const CommentSubmit = (): React.ReactElement => {
       if (res.error.code === 422) {
         setErrorMessage({ ...errorMessage, general: res.error.message.comment });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

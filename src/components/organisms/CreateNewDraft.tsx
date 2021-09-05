@@ -68,7 +68,7 @@ export const CreateNewDraft = (): React.ReactElement => {
           route: res.error.message.route,
         });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

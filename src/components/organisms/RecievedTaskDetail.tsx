@@ -43,7 +43,7 @@ export const RecievedTaskDetail = (): React.ReactElement => {
     if (!res.isFailure) {
       router.push('/recieve');
     } else {
-      setHttpStatus(res.status);
+      setHttpStatus(res.error.code);
     }
   };
 

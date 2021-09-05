@@ -54,7 +54,7 @@ const RegisterTokenAdmin = (props: Props) => {
           password: res.data.errors.password,
         });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

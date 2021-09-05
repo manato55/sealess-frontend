@@ -84,7 +84,7 @@ const EditNormalUser = (props: Props) => {
           email: res.error.message.email,
         });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

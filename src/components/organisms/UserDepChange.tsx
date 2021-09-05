@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { http, authErrorMessage, eachErrorFlag } from '../../store/atom';
+import { http, authErrorMessage, eachErrorFlag, departmentSelection } from '../../store/atom';
 import SelectBoxWrapper from '../atoms/SelectBoxWrapper';
 import styled from 'styled-components';
-import { useSetRecoilState, useRecoilValue, useRecoilState } from 'recoil';
+import { useSetRecoilState, useRecoilState } from 'recoil';
 import Button from '../atoms/Button';
 import ErrorMessageWrapper from '../atoms/ErrorMessageWrapper';
 import {
@@ -14,28 +14,24 @@ import {
 } from '../../hooks/useCompany';
 import { toast } from 'react-toastify';
 
-interface Props {
-  normalUser: AdminUser[];
-}
-
-export const UserDepChange = (props: Props) => {
-  const [departmentId, setDepartmentId] = useState<number>();
+export const UserDepChange = () => {
+  const [departmentId, setDepartmentId] = useRecoilState(departmentSelection);
   const { fetchedSections } = useSetionsByDepartmentId(departmentId);
   const router = useRouter();
   const [paramsId, setParamsId] = useState<number>(Number(router.query.id));
   const setHttpStatus = useSetRecoilState(http);
   const [errorFlag, setErrorFlag] = useRecoilState(eachErrorFlag);
   const [userInfo, setUserInfo] = useState<AdminUser>();
-  const depRef = useRef(null);
-  const sectionRef = useRef(null);
+  const depRef = useRef<any>(null);
+  const sectionRef = useRef<any>(null);
   const [errorMessage, setErrorMessage] = useRecoilState(authErrorMessage);
   const { fetchedDepartment } = useDepartment();
-  const { changeDepartment } = useUpdateCompanyInfo();
+  const { changeDepartment, normalUser } = useUpdateCompanyInfo(departmentId);
 
   useEffect(() => {
-    if (props.normalUser) {
-      const extractedUser = props.normalUser.find((v) => v.id === paramsId);
-      setDepartmentId(extractedUser.department.id);
+    if (normalUser) {
+      const extractedUser = normalUser.find((v) => v.id === paramsId);
+      setDepartmentId(extractedUser?.department.id);
       // useridを直打ちしてきた場合はNOT FOUNDへ遷移
       if (!extractedUser) {
         setHttpStatus(404);
@@ -75,12 +71,14 @@ export const UserDepChange = (props: Props) => {
       toast.success('登録完了');
     } else {
       if (res.error.code === 422) {
-        setErrorMessage(res.data.errors);
-        const isDep = res.data.errors.department ? true : false;
-        const isSection = res.data.errors.section ? true : false;
-        setErrorFlag({ ...errorFlag, department: isDep, section: isSection });
+        setErrorMessage(res.error.message);
+        setErrorFlag({
+          ...errorFlag,
+          department: res.error.message.department,
+          section: res.error.message.section,
+        });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

@@ -43,7 +43,7 @@ export const PasswordIssuanceForm = (props: Props): React.ReactElement => {
         setErrorMessage(res.error.message);
         setErrorFlag({ ...errorFlag, email: true });
       } else {
-        setHttpStatus(res.status);
+        setHttpStatus(res.error.code);
       }
     }
   };

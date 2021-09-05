@@ -3,12 +3,14 @@ import { useUpdateCompanyInfo, useDepartment } from '../../hooks/useCompany';
 import UsersIndex from '../molecules/UsersIndex';
 import Select from '../atoms/Select';
 import styled from 'styled-components';
+import { useRecoilState } from 'recoil';
+import { departmentSelection } from '../../store/atom';
 
 interface Props {}
 
 export const AllUserIndex = (props: Props) => {
-  const [departmetId, setDepartmentId] = useState<number>();
-  const { normalUser } = useUpdateCompanyInfo(departmetId);
+  const [departmentId, setDepartmentId] = useRecoilState(departmentSelection);
+  const { normalUser } = useUpdateCompanyInfo(departmentId);
   const { fetchedDepartment } = useDepartment();
 
   return (

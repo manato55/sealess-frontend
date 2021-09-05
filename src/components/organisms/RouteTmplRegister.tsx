@@ -30,7 +30,7 @@ export const RouteTmplRegister = (): React.ReactElement => {
       setSelectedRoute(undefined);
       routeRef.current.value = 'choice';
     } else {
-      setHttpStatus(res.status);
+      setHttpStatus(res.error.code);
     }
   }
 
